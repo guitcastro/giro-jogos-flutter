@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'src/services/auth_service.dart';
-import 'src/screens/home/home_screen.dart';
-import 'src/screens/admin/admin_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/admin/admin_screen.dart';
 
 class GiroJogosApp extends StatelessWidget {
   const GiroJogosApp({super.key});
@@ -17,6 +15,7 @@ class GiroJogosApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routerConfig: _router,
+      debugShowCheckedModeBanner: false,
     );
   }
 

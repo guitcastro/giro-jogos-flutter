@@ -39,28 +39,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyD390FMHXzTKPWPivhvZnFpkc6KSI9_pLI',
+    appId: '1:820256283325:web:e7a2aad8ab708910c7f5d4',
+    messagingSenderId: '820256283325',
+    projectId: 'giro-jogos',
+    authDomain: 'giro-jogos.firebaseapp.com',
+    storageBucket: 'giro-jogos.firebasestorage.app',
+    measurementId: 'G-TGT6K2NQXR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBo9nV9XJQ3aliZ8ZvsQj_JUYJcjx24xRY',
+    appId: '1:820256283325:android:1e97a199c3bab8c6c7f5d4',
+    messagingSenderId: '820256283325',
+    projectId: 'giro-jogos',
+    storageBucket: 'giro-jogos.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
-    iosBundleId: 'com.example.giroJogos',
+    apiKey: 'AIzaSyDF8qBHpKf2iwiDkPe8EBecU-TPreTDp78',
+    appId: '1:820256283325:ios:f70d86331ccda4a3c7f5d4',
+    messagingSenderId: '820256283325',
+    projectId: 'giro-jogos',
+    storageBucket: 'giro-jogos.firebasestorage.app',
+    iosBundleId: 'giro.giroJogos',
   );
+
 }
