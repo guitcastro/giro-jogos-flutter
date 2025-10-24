@@ -157,7 +157,7 @@ Comprehensive documentation has been created:
 ### Quick Start
 ```bash
 # Clone the repository
-git clone https://github.com/guitcastro/giro-jogos-flutter.git
+git clone https://github.com/YOUR-USERNAME/giro-jogos-flutter.git
 cd giro-jogos-flutter
 
 # Install dependencies
@@ -200,7 +200,9 @@ flutter build web --release
 ## 📊 Project Statistics
 
 - **Total Files Created**: 40+
-- **Lines of Code**: ~3,500+
+- **Dart Files**: 13
+- **Lines of Dart Code**: 633+
+- **Configuration Files**: 11
 - **Platforms Supported**: 3 (iOS, Android, Web)
 - **Firebase Services**: 5 (Auth, Firestore, Storage, Analytics, Hosting)
 - **CI/CD Workflows**: 2
