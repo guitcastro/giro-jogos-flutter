@@ -93,7 +93,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           
-      - name: Setup Android SDK with NDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         
       - name: Cache Android NDK and dependencies
@@ -102,12 +102,24 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            /usr/local/lib/android/sdk/ndk
+            ${{ env.ANDROID_SDK_ROOT }}/ndk/26.1.10909125
             android/.gradle
-          key: android-ndk-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: android-ndk-26.1.10909125-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
+            android-ndk-26.1.10909125-${{ runner.os }}-
             android-ndk-${{ runner.os }}-
             android-${{ runner.os }}-
+        
+      - name: Install Android NDK
+        run: |
+          if [ ! -d "$ANDROID_SDK_ROOT/ndk/26.1.10909125" ]; then
+            echo "Installing Android NDK..."
+            sdkmanager --install "ndk;26.1.10909125"
+          else
+            echo "NDK already cached and available"
+          fi
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/26.1.10909125" >> $GITHUB_ENV
+          echo "NDK location: $ANDROID_SDK_ROOT/ndk/26.1.10909125"
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
