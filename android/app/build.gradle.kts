@@ -19,6 +19,9 @@ plugins {
 android {
     namespace = "giro.jogos"
     compileSdk = 34
+    
+    // Disable NDK for CI builds to speed up compilation
+    ndkVersion = null
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
