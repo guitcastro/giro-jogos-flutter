@@ -102,24 +102,24 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ${{ env.ANDROID_SDK_ROOT }}/ndk/26.1.10909125
+            ${{ env.ANDROID_SDK_ROOT }}/ndk/27.0.12077973
             android/.gradle
-          key: android-ndk-26.1.10909125-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: android-ndk-27.0.12077973-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            android-ndk-26.1.10909125-${{ runner.os }}-
+            android-ndk-27.0.12077973-${{ runner.os }}-
             android-ndk-${{ runner.os }}-
             android-${{ runner.os }}-
         
       - name: Install Android NDK
         run: |
-          if [ ! -d "$ANDROID_SDK_ROOT/ndk/26.1.10909125" ]; then
+          if [ ! -d "$ANDROID_SDK_ROOT/ndk/27.0.12077973" ]; then
             echo "Installing Android NDK..."
-            sdkmanager --install "ndk;26.1.10909125"
+            sdkmanager --install "ndk;27.0.12077973"
           else
             echo "NDK already cached and available"
           fi
-          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/26.1.10909125" >> $GITHUB_ENV
-          echo "NDK location: $ANDROID_SDK_ROOT/ndk/26.1.10909125"
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.0.12077973" >> $GITHUB_ENV
+          echo "NDK location: $ANDROID_SDK_ROOT/ndk/27.0.12077973"
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
