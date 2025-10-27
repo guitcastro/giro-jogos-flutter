@@ -25,7 +25,7 @@ class GameService {
   Future<Game?> getGameById(String id) async {
     final doc = await _firestore.collection(_collection).doc(id).get();
     if (!doc.exists) return null;
-    
+
     final data = doc.data()!;
     data['id'] = doc.id;
     return Game.fromJson(data);
@@ -57,11 +57,11 @@ class GameService {
         .endAt(['$query\uf8ff'])
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return Game.fromJson(data);
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return Game.fromJson(data);
+          }).toList();
+        });
   }
 }

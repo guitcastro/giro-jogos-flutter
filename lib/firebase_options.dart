@@ -64,5 +64,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'giro-jogos.firebasestorage.app',
     iosBundleId: 'giro.giroJogos',
   );
-
 }
