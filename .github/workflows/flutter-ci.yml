@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+# Cancelar builds anteriores se houver um novo push
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Fast validation job - no Android build to avoid NDK delays
   validate:
@@ -54,8 +59,87 @@ jobs:
           name: web-build
           path: build/web/
 
-  # iOS builds are now handled by ios-optimized.yml workflow
-  # This keeps the main CI fast and focused
+  # iOS build job (optimized for CI)
+  ios-build:
+    runs-on: macos-14  # Usar runner mais recente
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Clone superficial para acelerar
+      
+      # Cache super agressivo para CocoaPods
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ios/Podfile.lock
+            ~/.cocoapods/repos/trunk
+            ~/Library/Caches/CocoaPods
+          key: pods-v3-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
+          restore-keys: |
+            pods-v3-${{ runner.os }}-
+            pods-v2-${{ runner.os }}-
+      
+      # Cache para builds Flutter iOS
+      - name: Cache Flutter iOS builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/ios
+            ios/Flutter/ephemeral
+            ios/.symlinks
+            ios/build
+          key: flutter-ios-v3-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
+          restore-keys: |
+            flutter-ios-v3-${{ runner.os }}-
+            flutter-ios-v2-${{ runner.os }}-
+      
+      # Setup Flutter com cache
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-v3-${{ runner.os }}
+      
+      # Cache das dependências pub
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: pub-v3-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            pub-v3-${{ runner.os }}-
+            pub-v2-${{ runner.os }}-
+      
+      # Instalar dependências
+      - name: Install Flutter dependencies
+        run: flutter pub get
+      
+      # Build iOS usando script otimizado
+      - name: Build iOS (Ultra Fast)
+        run: |
+          chmod +x scripts/ci_build_ios.sh
+          ./scripts/ci_build_ios.sh
+        timeout-minutes: 30
+      
+      # Upload dos artifacts
+      - name: Upload iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-runner-app
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 7
 
   # Android build job with NDK caching (only for main branch)
   android-build:
