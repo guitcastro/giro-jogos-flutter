@@ -58,9 +58,7 @@ flutter build ios \
     --release \
     --no-codesign \
     --no-tree-shake-icons \
-    --dart-define=CI=true \
-    --dart-define=FLUTTER_WEB_USE_SKIA=false \
-    --verbose 2>&1 | grep -v "Run script build phase.*will be run during every build" || true
+    --dart-define=CI=true 
 
 echo "✅ Build iOS otimizado concluído!"
 echo "📱 Artifact localizado em: build/ios/iphoneos/Runner.app"
