@@ -46,7 +46,7 @@ jobs:
         run: flutter test
       
       - name: Build Web (fast validation)
-        run: flutter build web --release --web-renderer canvaskit
+        run: flutter build web --release
       
       - name: Upload Web Build
         uses: actions/upload-artifact@v4
@@ -159,7 +159,7 @@ jobs:
         run: flutter pub get
       
       - name: Build Web
-        run: flutter build web --release --web-renderer canvaskit
+        run: flutter build web --release
       
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
