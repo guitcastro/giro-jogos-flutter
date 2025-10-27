@@ -54,28 +54,8 @@ jobs:
           name: web-build
           path: build/web/
 
-  # iOS build job (when needed)
-  ios-build:
-    runs-on: macos-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.35.7'
-          channel: 'stable'
-          cache: true
-      
-      - name: Install dependencies
-        run: flutter pub get
-      
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+  # iOS builds are now handled by ios-optimized.yml workflow
+  # This keeps the main CI fast and focused
 
   # Android build job with NDK caching (only for main branch)
   android-build:

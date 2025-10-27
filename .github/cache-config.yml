@@ -1,0 +1,36 @@
+# Configuração de cache agressivo para CI
+# Este arquivo define estratégias de cache para acelerar builds
+
+# Cache de CocoaPods - dura 30 dias
+COCOAPODS_CACHE_KEY=pods-v2-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
+
+# Cache de build iOS - dura 7 dias
+IOS_BUILD_CACHE_KEY=ios-build-v2-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'ios/**/*.xcconfig') }}
+
+# Cache de dependências Flutter - dura 30 dias
+FLUTTER_DEPS_CACHE_KEY=flutter-deps-v2-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
+
+# Cache de ferramentas Xcode - dura 60 dias
+XCODE_CACHE_KEY=xcode-tools-v2-${{ runner.os }}
+
+# Paths para cache
+COCOAPODS_PATHS:
+  - ios/Pods
+  - ios/Podfile.lock
+  - ~/.cocoapods/repos
+  - ~/Library/Caches/CocoaPods
+
+IOS_BUILD_PATHS:
+  - build/ios
+  - ios/Flutter/ephemeral
+  - ios/.symlinks
+  - ios/build
+
+FLUTTER_DEPS_PATHS:
+  - ~/.pub-cache
+  - .dart_tool
+  - .packages
+
+XCODE_PATHS:
+  - ~/Library/Developer/Xcode/DerivedData
+  - ~/Library/Caches/com.apple.dt.Xcode
