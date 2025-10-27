@@ -31,11 +31,20 @@ if [ -f "ios/Podfile.lock" ] && [ -d "ios/Pods" ]; then
 else
     echo "📦 Instalação completa de pods (primeira vez)..."
     cd ios
-    echo "⚡ Executando pod install --repo-update..."
-    pod install --repo-update --verbose
+    echo "⚡ Executando pod install..."
+    pod install --verbose
 fi
 
 echo "✅ Pods instalados com sucesso"
+
+# Verificar se os arquivos xcfilelist foram criados
+echo "🔍 Verificando arquivos de integração..."
+if [ ! -f "Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-input-files.xcfilelist" ]; then
+    echo "⚠️  Arquivo xcfilelist não encontrado, tentando reinstalar pods..."
+    rm -rf Pods
+    pod install --verbose
+fi
+
 cd ..
 
 # Build otimizado para CI

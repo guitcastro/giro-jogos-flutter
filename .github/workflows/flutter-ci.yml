@@ -82,10 +82,10 @@ jobs:
             ios/Podfile.lock
             ~/.cocoapods/repos/trunk
             ~/Library/Caches/CocoaPods
-          key: pods-v3-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
+          key: pods-v4-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
           restore-keys: |
+            pods-v4-${{ runner.os }}-
             pods-v3-${{ runner.os }}-
-            pods-v2-${{ runner.os }}-
       
       # Cache para builds Flutter iOS
       - name: Cache Flutter iOS builds
@@ -96,10 +96,10 @@ jobs:
             ios/Flutter/ephemeral
             ios/.symlinks
             ios/build
-          key: flutter-ios-v3-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
+          key: flutter-ios-v4-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
           restore-keys: |
+            flutter-ios-v4-${{ runner.os }}-
             flutter-ios-v3-${{ runner.os }}-
-            flutter-ios-v2-${{ runner.os }}-
       
       # Setup Flutter com cache
       - name: Setup Flutter
@@ -117,17 +117,26 @@ jobs:
           path: |
             ~/.pub-cache
             .dart_tool
-          key: pub-v3-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
+          key: pub-v4-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
+            pub-v4-${{ runner.os }}-
             pub-v3-${{ runner.os }}-
-            pub-v2-${{ runner.os }}-
       
       # Instalar dependências
       - name: Install Flutter dependencies
         run: flutter pub get
       
+      # Limpar cache de pods se houver problemas
+      - name: Clean pods cache if needed
+        run: |
+          cd ios
+          if [ ! -f "Podfile.lock" ]; then
+            echo "No Podfile.lock found, ensuring clean state..."
+            rm -rf Pods
+          fi
+      
       # Build iOS usando script otimizado
-      - name: Build iOS (Ultra Fast)
+      - name: Build iOS
         run: |
           chmod +x scripts/ci_build_ios.sh
           ./scripts/ci_build_ios.sh

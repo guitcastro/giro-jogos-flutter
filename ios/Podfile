@@ -8,7 +8,8 @@ ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 if ENV['CI']
   ENV['COCOAPODS_DISABLE_DETERMINISTIC_UUIDS'] = 'true'
   ENV['CP_DISABLE_ON_DOWNLOAD_HOOKS'] = 'true'
-  install! 'cocoapods', :deterministic_uuids => false, :integrate_targets => false
+  # Removido integrate_targets => false que estava causando problemas
+  install! 'cocoapods', :deterministic_uuids => false
 end
 
 project 'Runner', {
