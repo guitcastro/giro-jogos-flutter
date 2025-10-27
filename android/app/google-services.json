@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "820256283325",
+    "project_id": "giro-jogos",
+    "storage_bucket": "giro-jogos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820256283325:android:1e97a199c3bab8c6c7f5d4",
+        "android_client_info": {
+          "package_name": "giro.jogos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820256283325-h9f30uoqg0fj4m662qsuf6jt0pr1nee3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo9nV9XJQ3aliZ8ZvsQj_JUYJcjx24xRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820256283325-h9f30uoqg0fj4m662qsuf6jt0pr1nee3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "820256283325-j60ah09df86d1ovk0jfigcf4uepbt7gl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "giro.jogos"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

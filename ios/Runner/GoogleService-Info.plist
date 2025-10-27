@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>820256283325-j60ah09df86d1ovk0jfigcf4uepbt7gl.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.820256283325-j60ah09df86d1ovk0jfigcf4uepbt7gl</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDF8qBHpKf2iwiDkPe8EBecU-TPreTDp78</string>
 	<key>GCM_SENDER_ID</key>
@@ -9,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>giro.giroJogos</string>
+	<string>giro.jogos</string>
 	<key>PROJECT_ID</key>
 	<string>giro-jogos</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:820256283325:ios:f70d86331ccda4a3c7f5d4</string>
+	<string>1:820256283325:ios:cea12411d2cb7c8dc7f5d4</string>
 </dict>
 </plist>

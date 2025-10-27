@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'auth_wrapper.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/admin/admin_screen.dart';
 
@@ -23,11 +24,15 @@ class GiroJogosApp extends StatelessWidget {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const AuthWrapper(
+          child: HomeScreen(),
+        ),
       ),
       GoRoute(
         path: '/admin',
-        builder: (context, state) => const AdminScreen(),
+        builder: (context, state) => const AuthWrapper(
+          child: AdminScreen(),
+        ),
       ),
     ],
   );
