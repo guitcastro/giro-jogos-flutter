@@ -45,9 +45,12 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     
-    # Otimizações específicas para CI
-    if ENV['CI']
-      target.build_configurations.each do |config|
+    # Força iOS deployment target para 15.0+ (compatível com Firebase atual)
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      
+      # Otimizações específicas para CI
+      if ENV['CI']
         # Reduz tempo de debug symbols no CI
         config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf'
         config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
