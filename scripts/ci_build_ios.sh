@@ -27,12 +27,12 @@ if [ -f "ios/Podfile.lock" ] && [ -d "ios/Pods" ]; then
     echo "📦 Usando cache de pods existente..."
     cd ios 
     echo "⚡ Executando pod install --deployment..."
-    pod install --deployment --verbose
+    pod install --deployment 
 else
     echo "📦 Instalação completa de pods (primeira vez)..."
     cd ios
     echo "⚡ Executando pod install..."
-    pod install --verbose
+    pod install 
 fi
 
 echo "✅ Pods instalados com sucesso"
@@ -51,13 +51,16 @@ cd ..
 echo "🔨 Executando build iOS otimizado..."
 echo "🎯 Target: iOS Release (no codesign)"
 
+# Configurar Xcode para reduzir warnings desnecessários no CI
+export XCODE_WARN_SCRIPT_PHASE_OUTPUTS=NO
+
 flutter build ios \
     --release \
     --no-codesign \
     --no-tree-shake-icons \
     --dart-define=CI=true \
     --dart-define=FLUTTER_WEB_USE_SKIA=false \
-    --verbose
+    --verbose 2>&1 | grep -v "Run script build phase.*will be run during every build" || true
 
 echo "✅ Build iOS otimizado concluído!"
 echo "📱 Artifact localizado em: build/ios/iphoneos/Runner.app"

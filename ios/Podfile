@@ -67,6 +67,21 @@ post_install do |installer|
         
         # Desabilita Bitcode no CI
         config.build_settings['ENABLE_BITCODE'] = 'NO'
+        
+        # Reduzir warnings de script phases no CI
+        config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
+      end
+    end
+  end
+  
+  # Configuração específica para reduzir warnings de script phases
+  if ENV['CI']
+    installer.pods_project.targets.each do |target|
+      target.build_phases.grep(Xcodeproj::Project::Object::PBXShellScriptBuildPhase).each do |script_phase|
+        if script_phase.name&.include?("Create Symlinks") || script_phase.shell_script&.include?("symlink")
+          # Configurar script phase para não mostrar warnings sobre dependency analysis
+          script_phase.always_out_of_date = false
+        end
       end
     end
   end
