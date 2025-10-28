@@ -4,13 +4,6 @@ platform :ios, '15.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-# Otimizações específicas para CI
-if ENV['CI']
-  ENV['COCOAPODS_DISABLE_DETERMINISTIC_UUIDS'] = 'true'
-  ENV['CP_DISABLE_ON_DOWNLOAD_HOOKS'] = 'true'
-  install! 'cocoapods', :deterministic_uuids => false
-end
-
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
