@@ -73,7 +73,6 @@ jobs:
         with:
           fetch-depth: 1  # Clone superficial para acelerar
       
-      # Cache super agressivo para CocoaPods
       - name: Cache CocoaPods
         uses: actions/cache@v4
         with:
@@ -85,9 +84,7 @@ jobs:
           key: pods-v5-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
           restore-keys: |
             pods-v5-${{ runner.os }}-
-            pods-v4-${{ runner.os }}-
       
-      # Cache para builds Flutter iOS
       - name: Cache Flutter iOS builds
         uses: actions/cache@v4
         with:
@@ -99,7 +96,6 @@ jobs:
           key: flutter-ios-v5-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
           restore-keys: |
             flutter-ios-v5-${{ runner.os }}-
-            flutter-ios-v4-${{ runner.os }}-
       
       # Setup Flutter com cache
       - name: Setup Flutter
@@ -108,7 +104,7 @@ jobs:
           flutter-version: '3.35.7'
           channel: 'stable'
           cache: true
-          cache-key: flutter-v4-${{ runner.os }}
+          cache-key: flutter-v5-${{ runner.os }}
       
       # Cache das dependências pub
       - name: Cache Pub dependencies
@@ -120,7 +116,6 @@ jobs:
           key: pub-v5-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
             pub-v5-${{ runner.os }}-
-            pub-v4-${{ runner.os }}-
       
       # Instalar dependências
       - name: Install Flutter dependencies
