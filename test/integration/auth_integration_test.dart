@@ -5,7 +5,7 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// Mock AuthService for integration testing
+// Mock AuthService for integration testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
   bool _isAuthenticated = false;
   String? _lastEmail;
@@ -91,10 +91,18 @@ void main() {
       );
     }
 
+    // Helper para configurar o tamanho da tela nos testes
+    void setLargerScreenSize(WidgetTester tester) {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+    }
+
     testWidgets('complete authentication flow - login to home screen',
         (WidgetTester tester) async {
+      setLargerScreenSize(tester);
       await tester.pumpWidget(createApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should start at login screen
       expect(find.text('Giro Jogos'), findsOneWidget);
@@ -107,17 +115,20 @@ void main() {
 
       // Tap login button
       await tester.tap(find.text('Entrar'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should navigate to home screen after successful login
       expect(find.text('Welcome to Giro Jogos!'), findsOneWidget);
       expect(find.text('Entre na sua conta'), findsNothing);
+      expect(find.text('Your gaming platform for iOS, Android, and Web'),
+          findsOneWidget);
     });
 
     testWidgets('navigation between login and signup modes',
         (WidgetTester tester) async {
+      setLargerScreenSize(tester);
       await tester.pumpWidget(createApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should start in login mode
       expect(find.text('Entre na sua conta'), findsOneWidget);
@@ -125,7 +136,7 @@ void main() {
 
       // Switch to signup mode
       await tester.tap(find.text('Não tem uma conta? Cadastre-se'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should be in signup mode
       expect(find.text('Criar sua conta'), findsOneWidget);
@@ -133,7 +144,7 @@ void main() {
 
       // Switch back to login mode
       await tester.tap(find.text('Já tem uma conta? Entre aqui'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should be back in login mode
       expect(find.text('Entre na sua conta'), findsOneWidget);
@@ -142,39 +153,41 @@ void main() {
 
     testWidgets('logout flow - home screen to login screen',
         (WidgetTester tester) async {
+      setLargerScreenSize(tester);
       // Start with authenticated user
       mockAuthService._isAuthenticated = true;
 
       await tester.pumpWidget(createApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should be at home screen
       expect(find.text('Welcome to Giro Jogos!'), findsOneWidget);
 
-      // Look for logout option in app bar menu
+      // Look for logout option in app bar menu (PopupMenuButton)
       final userMenuButton = find.byType(PopupMenuButton<String>);
-      if (userMenuButton.evaluate().isNotEmpty) {
-        await tester.tap(userMenuButton);
-        await tester.pump();
+      expect(userMenuButton, findsOneWidget);
 
-        // Tap logout option
-        await tester.tap(find.text('Sair'));
-        await tester.pump();
+      await tester.tap(userMenuButton);
+      await tester.pumpAndSettle();
 
-        // Should return to login screen
-        expect(find.text('Entre na sua conta'), findsOneWidget);
-        expect(find.text('Welcome to Giro Jogos!'), findsNothing);
-      }
+      // Tap logout option
+      await tester.tap(find.text('Sair'));
+      await tester.pumpAndSettle();
+
+      // Should return to login screen
+      expect(find.text('Entre na sua conta'), findsOneWidget);
+      expect(find.text('Welcome to Giro Jogos!'), findsNothing);
     });
 
     testWidgets('form validation prevents submission with invalid data',
         (WidgetTester tester) async {
+      setLargerScreenSize(tester);
       await tester.pumpWidget(createApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Try to submit form without any data
       await tester.tap(find.text('Entrar'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should show validation errors
       expect(find.text('Por favor, digite seu email'), findsOneWidget);
@@ -186,8 +199,9 @@ void main() {
 
     testWidgets('error handling for invalid credentials',
         (WidgetTester tester) async {
+      setLargerScreenSize(tester);
       await tester.pumpWidget(createApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Enter invalid credentials
       await tester.enterText(
@@ -196,13 +210,13 @@ void main() {
 
       // Try to login
       await tester.tap(find.text('Entrar'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Should handle the error gracefully (stay on login screen)
       expect(find.text('Entre na sua conta'), findsOneWidget);
 
-      // Note: In a real implementation, you would also check for error messages
-      // displayed to the user (e.g., SnackBar)
+      // Should show error message in SnackBar
+      expect(find.byType(SnackBar), findsOneWidget);
     });
   });
 }
