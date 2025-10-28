@@ -9,64 +9,14 @@ class AuthService extends ChangeNotifier {
   User? _user;
 
   AuthService() {
-    // Check for redirect result on web startup
-    if (kIsWeb) {
-      _checkRedirectResult();
-    }
-
     _auth.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
     });
   }
 
-  // Check for redirect result on web startup
-  Future<void> _checkRedirectResult() async {
-    if (kIsWeb) {
-      try {
-        final result = await _auth.getRedirectResult();
-        if (result.user != null) {
-          if (kDebugMode) {
-            print('User signed in via redirect: ${result.user?.email}');
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('No redirect result or error: $e');
-        }
-      }
-    }
-  }
-
   User? get currentUser => _user;
   bool get isAuthenticated => _user != null;
-
-  // Alternative Google Sign In method for sessionStorage issues
-  Future<UserCredential?> signInWithGoogleAlternative() async {
-    if (!kIsWeb) {
-      return signInWithGoogle(); // Use normal flow for mobile
-    }
-
-    try {
-      // Try to use a fresh browser window approach
-      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-      googleProvider.addScope('email');
-      googleProvider.addScope('profile');
-
-      // Set custom parameters to avoid sessionStorage issues
-      googleProvider.setCustomParameters({
-        'prompt': 'select_account', // Force account selection
-        'access_type': 'online', // Don't request offline access
-      });
-
-      return await _auth.signInWithPopup(googleProvider);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Alternative Google sign in failed: $e');
-      }
-      rethrow;
-    }
-  }
 
   Future<UserCredential?> signInWithEmailAndPassword(
     String email,
@@ -116,51 +66,27 @@ class AuthService extends ChangeNotifier {
       googleProvider.addScope('email');
       googleProvider.addScope('profile');
 
-      if (kIsWeb) {
-        // For web, try popup first, then redirect as fallback
-        try {
-          // Try popup first (preferred method)
-          return await _auth.signInWithPopup(googleProvider);
-        } catch (popupError) {
-          if (kDebugMode) {
-            print('Popup failed: $popupError');
-          }
-
-          // Check if the error is related to sessionStorage or missing initial state
-          final errorString = popupError.toString().toLowerCase();
-          if (errorString.contains('missing initial state') ||
-              errorString.contains('sessionstorage') ||
-              errorString.contains('storage-partitioned')) {
-            // For sessionStorage issues, throw a specific error
-            throw Exception(
-                'SessionStorage não disponível. Tente usar modo privado do navegador ou limpar os dados do site.');
-          }
-
-          // For other popup issues (like blocked popups), try redirect
-          try {
-            await _auth.signInWithRedirect(googleProvider);
-            // Note: getRedirectResult should be called after the page reloads
-            return null; // Will be handled by _checkRedirectResult on next app load
-          } catch (redirectError) {
-            if (kDebugMode) {
-              print('Redirect also failed: $redirectError');
-            }
-
-            // If both popup and redirect fail, provide helpful error
-            throw Exception(
-                'Não foi possível realizar login com Google. Verifique se popups estão habilitados ou tente limpar os dados do navegador.');
-          }
-        }
-      } else {
-        // For mobile platforms, use signInWithPopup directly
-        // In google_sign_in 7.x, mobile also uses Firebase Auth directly
-        return await _auth.signInWithPopup(googleProvider);
-      }
+      // Use popup for all platforms (web and mobile)
+      // Following Firebase best practices: https://firebase.google.com/docs/auth/web/redirect-best-practices
+      return await _auth.signInWithPopup(googleProvider);
     } catch (e) {
       if (kDebugMode) {
         print('Error signing in with Google: $e');
       }
-      rethrow;
+
+      // Provide user-friendly error messages
+      final errorString = e.toString().toLowerCase();
+      if (errorString.contains('popup') || errorString.contains('blocked')) {
+        throw Exception(
+            'Popup bloqueado pelo navegador. Habilite popups para este site e tente novamente.');
+      } else if (errorString.contains('missing initial state') ||
+          errorString.contains('sessionstorage') ||
+          errorString.contains('storage-partitioned')) {
+        throw Exception(
+            'SessionStorage não disponível. Tente usar modo privado do navegador ou limpar os dados do site.');
+      } else {
+        throw Exception('Erro ao fazer login com Google. Tente novamente.');
+      }
     }
   }
 
@@ -190,7 +116,7 @@ class AuthService extends ChangeNotifier {
       );
 
       // Create an `OAuthCredential` from the credential returned by Apple.
-      final oauthCredential = OAuthProvider("apple.com").credential(
+      final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         accessToken: appleCredential.authorizationCode,
       );

@@ -24,13 +24,13 @@ class AdminScreen extends StatelessWidget {
                 },
                 itemBuilder: (BuildContext context) {
                   return [
-                    PopupMenuItem<String>(
+                    const PopupMenuItem<String>(
                       value: 'logout',
                       child: Row(
                         children: [
-                          const Icon(Icons.logout),
-                          const SizedBox(width: 8),
-                          const Text('Sair'),
+                          Icon(Icons.logout),
+                          SizedBox(width: 8),
+                          Text('Sair'),
                         ],
                       ),
                     ),
