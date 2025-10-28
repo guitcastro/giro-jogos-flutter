@@ -82,10 +82,10 @@ jobs:
             ios/Podfile.lock
             ~/.cocoapods/repos/trunk
             ~/Library/Caches/CocoaPods
-          key: pods-v4-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
+          key: pods-v5-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
           restore-keys: |
+            pods-v5-${{ runner.os }}-
             pods-v4-${{ runner.os }}-
-            pods-v3-${{ runner.os }}-
       
       # Cache para builds Flutter iOS
       - name: Cache Flutter iOS builds
@@ -96,10 +96,10 @@ jobs:
             ios/Flutter/ephemeral
             ios/.symlinks
             ios/build
-          key: flutter-ios-v4-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
+          key: flutter-ios-v5-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
           restore-keys: |
+            flutter-ios-v5-${{ runner.os }}-
             flutter-ios-v4-${{ runner.os }}-
-            flutter-ios-v3-${{ runner.os }}-
       
       # Setup Flutter com cache
       - name: Setup Flutter
@@ -108,7 +108,7 @@ jobs:
           flutter-version: '3.35.7'
           channel: 'stable'
           cache: true
-          cache-key: flutter-v3-${{ runner.os }}
+          cache-key: flutter-v4-${{ runner.os }}
       
       # Cache das dependências pub
       - name: Cache Pub dependencies
@@ -117,14 +117,26 @@ jobs:
           path: |
             ~/.pub-cache
             .dart_tool
-          key: pub-v4-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
+          key: pub-v5-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
+            pub-v5-${{ runner.os }}-
             pub-v4-${{ runner.os }}-
-            pub-v3-${{ runner.os }}-
       
       # Instalar dependências
       - name: Install Flutter dependencies
         run: flutter pub get
+      
+      # Atualizar CocoaPods repo para garantir dependências atualizadas
+      - name: Update CocoaPods repo
+        run: |
+          echo "Verificando status do repo CocoaPods..."
+          if [ ! -d "$HOME/.cocoapods/repos/trunk" ]; then
+            echo "Inicializando repo CocoaPods..."
+            pod setup
+          else
+            echo "Atualizando repo CocoaPods..."
+            pod repo update trunk --silent || echo "Aviso: falha na atualização (continuando...)"
+          fi
       
       # Limpar cache de pods se houver problemas
       - name: Clean pods cache if needed
