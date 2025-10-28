@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../test_helpers.dart';
+import '../screens/home/duo_tab_test.dart' show MockDuoService;
+import 'package:giro_jogos/src/services/duo_service.dart';
 
 // Mock AuthService for integration testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
@@ -77,6 +80,10 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 }
 
 void main() {
+  setUpAll(() async {
+    await initializeFirebaseForTesting();
+  });
+
   group('Authentication Integration Tests', () {
     late MockAuthService mockAuthService;
 
@@ -85,9 +92,13 @@ void main() {
     });
 
     Widget createApp() {
-      return ChangeNotifierProvider<AuthService>.value(
-        value: mockAuthService,
-        child: const GiroJogosApp(),
+      final mockDuoService = MockDuoService();
+      return Provider<DuoService>.value(
+        value: mockDuoService,
+        child: ChangeNotifierProvider<AuthService>.value(
+          value: mockAuthService,
+          child: const GiroJogosApp(),
+        ),
       );
     }
 
@@ -119,6 +130,7 @@ void main() {
 
       // Should navigate to home screen after successful login
       expect(find.text('Duo & Equipe'), findsOneWidget);
+      expect(find.text('Gerencie seus duos e equipes'), findsOneWidget);
       expect(find.text('Entre na sua conta'), findsNothing);
       expect(find.text('Duo'), findsOneWidget);
       expect(find.text('Configurações'), findsOneWidget);

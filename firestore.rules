@@ -1,18 +1,87 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow authenticated users to read/write their own data
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Admin-only collections
+    function getUserId() {
+      return request.auth.uid;
+    }
+    
+    function isOwner(ownerId) {
+      return isAuthenticated() && getUserId() == ownerId;
+    }
+    
+    function isMember(ownerId, participants) {
+      return isAuthenticated() && (getUserId() == ownerId || getUserId() in participants);
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && getUserId() == userId;
+    }
+    
+    // Duos collection
+    match /duos/{duoId} {
+      // Read access: only members (owner or participants) can read duo details
+      allow read: if isAuthenticated() && (
+        getUserId() == resource.data.ownerId || 
+        getUserId() in resource.data.participants
+      );
+      
+      // Create access: any authenticated user can create a duo
+      allow create: if isAuthenticated() && 
+        request.auth.uid == request.resource.data.ownerId &&
+        request.resource.data.participants is list &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
+        request.resource.data.name.size() <= 50 &&
+        request.resource.data.inviteCode is string &&
+        request.resource.data.inviteCode.size() == 6 &&
+        request.resource.data.maxParticipants is number &&
+        request.resource.data.maxParticipants >= 2 &&
+        request.resource.data.maxParticipants <= 50 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.updatedAt is timestamp;
+      
+      // Update access: only owner can update duo details, or participants can join/leave
+      allow update: if isAuthenticated() && (
+        // Owner can update duo details
+        (getUserId() == resource.data.ownerId && (
+          // Owner can update name, maxParticipants, participants list
+          (!('ownerId' in request.resource.data) || request.resource.data.ownerId == resource.data.ownerId) &&
+          (!('inviteCode' in request.resource.data) || request.resource.data.inviteCode == resource.data.inviteCode) &&
+          (request.resource.data.updatedAt is timestamp)
+        )) ||
+        // Participants can be added/removed from the participants list
+        (getUserId() == resource.data.ownerId || getUserId() in resource.data.participants || getUserId() in request.resource.data.participants) &&
+        // Ensure core fields don't change unexpectedly
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.inviteCode == resource.data.inviteCode &&
+        request.resource.data.name == resource.data.name &&
+        request.resource.data.maxParticipants == resource.data.maxParticipants &&
+        request.resource.data.participants.size() <= request.resource.data.maxParticipants
+      );
+      
+      // Delete access: only owner can delete
+      allow delete: if isAuthenticated() && getUserId() == resource.data.ownerId;
+    }
+    
+    // UserDuos collection - tracks which duos each user is in
+    match /userDuos/{userId} {
+      // Users can only read/write their own userDuos document
+      allow read, write: if isAuthenticated() && getUserId() == userId;
+    }
+    
+    // Games collection (existing)
     match /games/{gameId} {
       allow read: if true;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if isAuthenticated() && get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true;
     }
     
-    // Default deny all
+    // Default deny all other documents
     match /{document=**} {
       allow read, write: if false;
     }

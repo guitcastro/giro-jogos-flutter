@@ -5,8 +5,11 @@ import '../../services/auth_service.dart';
 import 'duo_tab.dart';
 import 'settings_tab.dart';
 
+import '../../services/duo_service.dart';
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final DuoService? duoService;
+  const HomeScreen({super.key, this.duoService});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -105,9 +108,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           body: TabBarView(
             controller: _tabController,
-            children: const [
-              DuoTab(),
-              SettingsTab(),
+            children: [
+              DuoTab(duoService: widget.duoService),
+              const SettingsTab(),
             ],
           ),
         );

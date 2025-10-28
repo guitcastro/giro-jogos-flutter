@@ -4,20 +4,30 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/screens/home/home_screen.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
+import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../test_helpers.dart';
+
+class MockDuoService extends Mock implements DuoService {}
 
 class MockAuthService extends Mock implements AuthService {}
 
 class MockUser extends Mock implements User {}
 
 void main() {
+  setUpAll(() async {
+    await initializeFirebaseForTesting();
+  });
+
   group('HomeScreen Tests', () {
     late MockAuthService mockAuthService;
     late MockUser mockUser;
+    late MockDuoService mockDuoService;
 
     setUp(() {
       mockAuthService = MockAuthService();
       mockUser = MockUser();
+      mockDuoService = MockDuoService();
     });
 
     Widget createTestWidget(Widget child) {
@@ -36,7 +46,8 @@ void main() {
       when(mockUser.email).thenReturn('test@example.com');
       when(mockUser.photoURL).thenReturn(null);
 
-      await tester.pumpWidget(createTestWidget(const HomeScreen()));
+      await tester
+          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
       expect(find.text('Duo'), findsOneWidget);
       expect(find.text('Configurações'), findsOneWidget);
@@ -51,7 +62,8 @@ void main() {
       when(mockUser.email).thenReturn('test@example.com');
       when(mockUser.photoURL).thenReturn(null);
 
-      await tester.pumpWidget(createTestWidget(const HomeScreen()));
+      await tester
+          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
       expect(find.text('Giro Jogos'), findsOneWidget);
       expect(find.byType(CircleAvatar), findsAtLeastNWidgets(1));
@@ -64,7 +76,8 @@ void main() {
       when(mockUser.email).thenReturn('test@example.com');
       when(mockUser.photoURL).thenReturn(null);
 
-      await tester.pumpWidget(createTestWidget(const HomeScreen()));
+      await tester
+          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
       await tester.tap(find.byType(PopupMenuButton<String>));
       await tester.pumpAndSettle();
 
@@ -81,7 +94,8 @@ void main() {
       when(mockUser.email).thenReturn('test@example.com');
       when(mockUser.photoURL).thenReturn(null);
 
-      await tester.pumpWidget(createTestWidget(const HomeScreen()));
+      await tester
+          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
       expect(find.text('T'),
           findsAtLeastNWidgets(1)); // First letter of "Test User"
