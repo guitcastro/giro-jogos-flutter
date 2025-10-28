@@ -27,10 +27,8 @@ class _DuoTabState extends State<DuoTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_duoService == null) {
-      _duoService =
-          widget.duoService ?? Provider.of<DuoService>(context, listen: false);
-    }
+    _duoService ??=
+        widget.duoService ?? Provider.of<DuoService>(context, listen: false);
     if (!_didLoadUserDuos) {
       _didLoadUserDuos = true;
       _loadUserDuos();

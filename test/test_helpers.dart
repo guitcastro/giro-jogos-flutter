@@ -28,70 +28,82 @@ Future<void> initializeFirebaseForTesting() async {
 /// Configura mocks para o Firebase Core
 void setupFirebaseCoreMocks() {
   // Mock Firebase Core
-  const MethodChannel('plugins.flutter.io/firebase_core')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    switch (methodCall.method) {
-      case 'Firebase#initializeCore':
-        return [
-          {
-            'name': '[DEFAULT]',
-            'options': {
-              'apiKey': 'fake-api-key',
-              'appId': 'fake-app-id',
-              'messagingSenderId': 'fake-sender-id',
-              'projectId': 'fake-project-id',
-              'authDomain': 'fake-auth-domain',
-              'storageBucket': 'fake-storage-bucket',
-            },
+  const channelCore = MethodChannel('plugins.flutter.io/firebase_core');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    channelCore,
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'Firebase#initializeCore':
+          return [
+            {
+              'name': '[DEFAULT]',
+              'options': {
+                'apiKey': 'fake-api-key',
+                'appId': 'fake-app-id',
+                'messagingSenderId': 'fake-sender-id',
+                'projectId': 'fake-project-id',
+                'authDomain': 'fake-auth-domain',
+                'storageBucket': 'fake-storage-bucket',
+              },
+              'pluginConstants': {},
+            }
+          ];
+        case 'Firebase#initializeApp':
+          return {
+            'name': methodCall.arguments?['appName'] ?? '[DEFAULT]',
+            'options': methodCall.arguments?['options'] ?? {},
             'pluginConstants': {},
-          }
-        ];
-      case 'Firebase#initializeApp':
-        return {
-          'name': methodCall.arguments?['appName'] ?? '[DEFAULT]',
-          'options': methodCall.arguments?['options'] ?? {},
-          'pluginConstants': {},
-        };
-      default:
-        return null;
-    }
-  });
+          };
+        default:
+          return null;
+      }
+    },
+  );
 
   // Mock Firebase Auth
-  const MethodChannel('plugins.flutter.io/firebase_auth')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    switch (methodCall.method) {
-      case 'Auth#registerIdTokenListener':
-        return {'user': null};
-      case 'Auth#signOut':
-        return null;
-      default:
-        return null;
-    }
-  });
+  const channelAuth = MethodChannel('plugins.flutter.io/firebase_auth');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    channelAuth,
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'Auth#registerIdTokenListener':
+          return {'user': null};
+        case 'Auth#signOut':
+          return null;
+        default:
+          return null;
+      }
+    },
+  );
 
   // Mock Cloud Firestore
-  const MethodChannel('plugins.flutter.io/cloud_firestore')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    switch (methodCall.method) {
-      case 'Firestore#enableNetwork':
-      case 'Firestore#disableNetwork':
-      case 'Firestore#terminate':
-      case 'Firestore#waitForPendingWrites':
-        return null;
-      case 'Query#snapshots':
-        return null;
-      case 'DocumentReference#set':
-      case 'DocumentReference#update':
-      case 'DocumentReference#delete':
-        return null;
-      case 'Transaction#get':
-      case 'Transaction#set':
-      case 'Transaction#update':
-      case 'Transaction#delete':
-        return null;
-      default:
-        return null;
-    }
-  });
+  const channelFirestore = MethodChannel('plugins.flutter.io/cloud_firestore');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    channelFirestore,
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'Firestore#enableNetwork':
+        case 'Firestore#disableNetwork':
+        case 'Firestore#terminate':
+        case 'Firestore#waitForPendingWrites':
+          return null;
+        case 'Query#snapshots':
+          return null;
+        case 'DocumentReference#set':
+        case 'DocumentReference#update':
+        case 'DocumentReference#delete':
+          return null;
+        case 'Transaction#get':
+        case 'Transaction#set':
+        case 'Transaction#update':
+        case 'Transaction#delete':
+          return null;
+        default:
+          return null;
+      }
+    },
+  );
 }
