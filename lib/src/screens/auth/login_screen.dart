@@ -108,10 +108,78 @@ class _LoginScreenState extends State<LoginScreen> {
       await authService.signInWithGoogle();
     } catch (e) {
       if (mounted) {
+        String message = 'Erro no login com Google';
+        bool showRetryButton = false;
+
+        // Handle specific error messages
+        final errorString = e.toString().toLowerCase();
+        if (errorString.contains('missing initial state') ||
+            errorString.contains('sessionstorage') ||
+            errorString.contains('storage-partitioned')) {
+          message = 'Problema de armazenamento do navegador detectado.\n\n'
+              '💡 Soluções:\n'
+              '• Use modo privado/incógnito\n'
+              '• Limpe os dados do site (F12 → Application → Storage)\n'
+              '• Tente outro navegador';
+          showRetryButton = true;
+        } else if (errorString.contains('popup_blocked')) {
+          message =
+              'Popup bloqueado. Permita popups para este site e tente novamente.';
+        } else if (errorString.contains('popup_closed')) {
+          message = 'Popup fechado. Tente novamente.';
+        } else if (errorString.contains('network')) {
+          message = 'Erro de rede. Verifique sua conexão e tente novamente.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro no login com Google: ${e.toString()}'),
+            content: Text(message),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 8),
+            action: showRetryButton
+                ? SnackBarAction(
+                    label: 'Tentar Alternativa',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      _handleGoogleSignInAlternative();
+                    },
+                  )
+                : SnackBarAction(
+                    label: 'OK',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    },
+                  ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignInAlternative() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      await authService.signInWithGoogleAlternative();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Método alternativo também falhou. Tente usar modo privado ou outro navegador.'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
