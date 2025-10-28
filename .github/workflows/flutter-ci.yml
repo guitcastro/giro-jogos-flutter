@@ -61,7 +61,7 @@ jobs:
 
   # iOS build job (optimized for CI)
   ios-build:
-    runs-on: macos-15  # Usar runner mais recente com Xcode 16
+    runs-on: macos-26
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     timeout-minutes: 45
     permissions:
