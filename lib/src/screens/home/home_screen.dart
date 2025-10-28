@@ -2,9 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
+import 'duo_tab.dart';
+import 'settings_tab.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +42,22 @@ class HomeScreen extends StatelessWidget {
                 onSelected: (value) async {
                   if (value == 'logout') {
                     await authService.signOut();
+                  } else if (value == 'admin') {
+                    context.go('/admin');
                   }
                 },
                 itemBuilder: (BuildContext context) {
                   return [
+                    const PopupMenuItem<String>(
+                      value: 'admin',
+                      child: Row(
+                        children: [
+                          Icon(Icons.admin_panel_settings),
+                          SizedBox(width: 8),
+                          Text('Admin Panel'),
+                        ],
+                      ),
+                    ),
                     const PopupMenuItem<String>(
                       value: 'logout',
                       child: Row(
@@ -56,63 +89,26 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text(
-                  'Welcome to Giro Jogos!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(
+                  icon: Icon(Icons.group),
+                  text: 'Duo',
                 ),
-                const SizedBox(height: 20),
-                if (user != null) ...[
-                  Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          if (user.photoURL != null)
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundImage: NetworkImage(user.photoURL!),
-                            ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Olá, ${user.displayName ?? user.email?.split('@')[0] ?? 'Usuário'}!',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (user.email != null)
-                            Text(
-                              user.email!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                const Text(
-                  'Your gaming platform for iOS, Android, and Web',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: () {
-                    context.go('/admin');
-                  },
-                  child: const Text('Admin Panel'),
+                Tab(
+                  icon: Icon(Icons.settings),
+                  text: 'Configurações',
                 ),
               ],
             ),
+          ),
+          body: TabBarView(
+            controller: _tabController,
+            children: const [
+              DuoTab(),
+              SettingsTab(),
+            ],
           ),
         );
       },

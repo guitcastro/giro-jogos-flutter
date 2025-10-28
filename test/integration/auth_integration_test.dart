@@ -118,10 +118,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should navigate to home screen after successful login
-      expect(find.text('Welcome to Giro Jogos!'), findsOneWidget);
+      expect(find.text('Duo & Equipe'), findsOneWidget);
       expect(find.text('Entre na sua conta'), findsNothing);
-      expect(find.text('Your gaming platform for iOS, Android, and Web'),
-          findsOneWidget);
+      expect(find.text('Duo'), findsOneWidget);
+      expect(find.text('Configurações'), findsOneWidget);
     });
 
     testWidgets('navigation between login and signup modes',
@@ -161,7 +161,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should be at home screen
-      expect(find.text('Welcome to Giro Jogos!'), findsOneWidget);
+      expect(find.text('Duo & Equipe'), findsOneWidget);
 
       // Look for logout option in app bar menu (PopupMenuButton)
       final userMenuButton = find.byType(PopupMenuButton<String>);
@@ -176,7 +176,7 @@ void main() {
 
       // Should return to login screen
       expect(find.text('Entre na sua conta'), findsOneWidget);
-      expect(find.text('Welcome to Giro Jogos!'), findsNothing);
+      expect(find.text('Duo & Equipe'), findsNothing);
     });
 
     testWidgets('form validation prevents submission with invalid data',
