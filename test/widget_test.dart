@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:giro_jogos/src/app.dart';
@@ -16,7 +15,7 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 
 // Mock AuthService for testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
-  bool _isAuthenticated = false;
+  final bool _isAuthenticated = false;
 
   @override
   bool get isAuthenticated => _isAuthenticated;
