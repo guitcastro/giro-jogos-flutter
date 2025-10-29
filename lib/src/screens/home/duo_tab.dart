@@ -259,7 +259,7 @@ class _DuoTabState extends State<DuoTab> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${duo.totalMembers}/${duo.maxParticipants} membros',
+                  '${duo.totalMembers}/2 membros',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -364,7 +364,7 @@ class _DuoTabState extends State<DuoTab> {
 
   void _showCreateDuoDialog(BuildContext context) {
     final nameController = TextEditingController();
-    final maxParticipantsController = TextEditingController(text: '10');
+    // Removido: maxParticipantsController
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -395,7 +395,7 @@ class _DuoTabState extends State<DuoTab> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: maxParticipantsController,
+                  // controller removido
                   decoration: const InputDecoration(
                     labelText: 'Máximo de Participantes',
                     border: OutlineInputBorder(),
@@ -426,7 +426,6 @@ class _DuoTabState extends State<DuoTab> {
                   Navigator.of(context).pop();
                   await _createDuo(
                     nameController.text.trim(),
-                    int.parse(maxParticipantsController.text),
                   );
                 }
               },
@@ -522,7 +521,7 @@ class _DuoTabState extends State<DuoTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Código de Convite: ${duo.inviteCode}'),
-              Text('Membros: ${duo.totalMembers}/${duo.maxParticipants}'),
+              Text('Membros: ${duo.totalMembers}/2'),
               const SizedBox(height: 16),
               if (duo.participants.isNotEmpty) ...[
                 const Text(
@@ -589,11 +588,10 @@ class _DuoTabState extends State<DuoTab> {
     );
   }
 
-  Future<void> _createDuo(String name, int maxParticipants) async {
+  Future<void> _createDuo(String name) async {
     try {
       await _duoService!.createDuo(
         name: name,
-        maxParticipants: maxParticipants,
       );
 
       if (mounted) {

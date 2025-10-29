@@ -6,7 +6,7 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:mockito/mockito.dart';
 import 'test_helpers.dart';
-import 'package:giro_jogos/src/services/duo_service.dart';
+// import 'package:giro_jogos/src/services/duo_service.dart';
 import 'screens/home/duo_tab_test.dart' show MockDuoService;
 
 // Mock AuthService for testing (completely independent of Firebase)
@@ -93,10 +93,11 @@ void main() {
   group('GiroJogosApp Tests', () {
     testWidgets('shows login screen when user is not authenticated',
         (WidgetTester tester) async {
+      final mockDuoService = MockDuoService();
       await tester.pumpWidget(
         ChangeNotifierProvider<AuthService>(
           create: (_) => MockAuthService(isAuthenticated: false),
-          child: const GiroJogosApp(),
+          child: GiroJogosApp(duoService: mockDuoService),
         ),
       );
       await tester.pumpAndSettle();
@@ -112,13 +113,10 @@ void main() {
       );
       final mockDuoService = MockDuoService();
       await tester.pumpWidget(
-        Provider<DuoService>.value(
-          value: mockDuoService,
-          child: ChangeNotifierProvider<AuthService>(
-            create: (_) =>
-                MockAuthService(isAuthenticated: true, currentUser: mockUser),
-            child: const GiroJogosApp(),
-          ),
+        ChangeNotifierProvider<AuthService>(
+          create: (_) =>
+              MockAuthService(isAuthenticated: true, currentUser: mockUser),
+          child: GiroJogosApp(duoService: mockDuoService),
         ),
       );
       await tester.pumpAndSettle();
@@ -136,13 +134,10 @@ void main() {
       );
       final mockDuoService = MockDuoService();
       await tester.pumpWidget(
-        Provider<DuoService>.value(
-          value: mockDuoService,
-          child: ChangeNotifierProvider<AuthService>(
-            create: (_) =>
-                MockAuthService(isAuthenticated: true, currentUser: mockUser),
-            child: const GiroJogosApp(),
-          ),
+        ChangeNotifierProvider<AuthService>(
+          create: (_) =>
+              MockAuthService(isAuthenticated: true, currentUser: mockUser),
+          child: GiroJogosApp(duoService: mockDuoService),
         ),
       );
       await tester.pumpAndSettle();

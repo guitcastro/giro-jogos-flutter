@@ -58,3 +58,4 @@ firebase-debug.*.log
 .env.local
 
 build/
+firestore-rules-test/node_modules/

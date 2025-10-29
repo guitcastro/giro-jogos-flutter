@@ -10,8 +10,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:giro_jogos/src/app.dart';
+// import 'package:giro_jogos/src/app.dart';
+// import 'package:giro_jogos/src/screens/home/home_screen.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
+// import 'package:giro_jogos/src/services/duo_service.dart';
+import 'package:giro_jogos/src/app.dart';
+
+import 'test_helpers.dart';
+import 'screens/home/duo_tab_test.dart' show MockDuoService;
 
 // Mock AuthService for testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
@@ -50,19 +56,20 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 }
 
 void main() {
+  setUpAll(() async {
+    await initializeFirebaseForTesting();
+  });
   testWidgets('GiroJogosApp loads correctly', (WidgetTester tester) async {
-    // Build our app with provider and trigger a frame.
+    final mockDuoService = MockDuoService();
     await tester.pumpWidget(
       ChangeNotifierProvider<AuthService>(
         create: (_) => MockAuthService(),
-        child: const GiroJogosApp(),
+        child: GiroJogosApp(duoService: mockDuoService),
       ),
     );
 
-    // Wait for the app to settle
     await tester.pumpAndSettle();
 
-    // Verify that the app loads without errors and shows login screen
     expect(find.byType(MaterialApp), findsOneWidget);
     expect(find.text('Giro Jogos'), findsOneWidget);
   });

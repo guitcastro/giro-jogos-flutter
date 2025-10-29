@@ -6,7 +6,7 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../test_helpers.dart';
 import '../screens/home/duo_tab_test.dart' show MockDuoService;
-import 'package:giro_jogos/src/services/duo_service.dart';
+// import 'package:giro_jogos/src/services/duo_service.dart';
 
 // Mock AuthService for integration testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
@@ -93,12 +93,9 @@ void main() {
 
     Widget createApp() {
       final mockDuoService = MockDuoService();
-      return Provider<DuoService>.value(
-        value: mockDuoService,
-        child: ChangeNotifierProvider<AuthService>.value(
-          value: mockAuthService,
-          child: const GiroJogosApp(),
-        ),
+      return ChangeNotifierProvider<AuthService>.value(
+        value: mockAuthService,
+        child: GiroJogosApp(duoService: mockDuoService),
       );
     }
 

@@ -32,9 +32,12 @@ void main() {
 
     Widget createTestWidget(Widget child) {
       return MaterialApp(
-        home: ChangeNotifierProvider<AuthService>.value(
-          value: mockAuthService,
-          child: child,
+        home: Provider<DuoService>.value(
+          value: mockDuoService,
+          child: ChangeNotifierProvider<AuthService>.value(
+            value: mockAuthService,
+            child: child,
+          ),
         ),
       );
     }

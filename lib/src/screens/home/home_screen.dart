@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Consumer<AuthService>(
       builder: (context, authService, child) {
         final user = authService.currentUser;
-
+        // Espera que DuoService já esteja provido externamente via Provider
         return Scaffold(
           appBar: AppBar(
             title: const Text('Giro Jogos'),
@@ -108,9 +108,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           body: TabBarView(
             controller: _tabController,
-            children: [
-              DuoTab(duoService: widget.duoService),
-              const SettingsTab(),
+            children: const [
+              DuoTab(),
+              SettingsTab(),
             ],
           ),
         );

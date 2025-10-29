@@ -5,7 +5,7 @@ import '../models/duo.dart';
 
 class DuoService {
   static const String _collection = 'duos';
-  static const String _userDuosCollection = 'userDuos';
+  static const String _userDuosSubcollection = 'duos';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -55,65 +55,74 @@ class DuoService {
   // Criar um novo duo
   Future<Duo> createDuo({
     required String name,
-    int maxParticipants = 10,
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception('Usuário não autenticado');
     }
 
-    // Verificar se o usuário já possui um duo como owner
-    final existingDuo = await getUserOwnedDuo(user.uid);
-    if (existingDuo != null) {
+    // Verificar se o usuário já está em algum duo
+    final userDuos = await getUserDuos(user.uid);
+    if (userDuos.isNotEmpty) {
       throw Exception(
-          'Você já possui um duo. Exclua o duo atual para criar um novo.');
+          'Você já está em um duo. Saia do duo atual para criar um novo.');
     }
 
     final inviteCode = await _generateUniqueInviteCode();
     final now = DateTime.now();
 
     final duoData = {
-      'ownerId': user.uid,
-      'participants': <String>[], // Lista vazia inicialmente
+      'participants': [user.uid],
       'name': name.trim(),
       'inviteCode': inviteCode,
       'createdAt': Timestamp.fromDate(now),
       'updatedAt': Timestamp.fromDate(now),
-      'maxParticipants': maxParticipants,
     };
 
     // Usar transação para garantir consistência
     return await _firestore.runTransaction((transaction) async {
-      // Criar o duo
-      final duoRef = _firestore.collection(_collection).doc();
-      transaction.set(duoRef, duoData);
+      // Criar o duo no novo path
+      final duoId = _firestore.collection(_collection).doc().id;
+      final duoMetaRef = _firestore
+          .collection(_collection)
+          .doc(duoId)
+          .collection(inviteCode)
+          .doc('__meta');
+      transaction.set(duoMetaRef, duoData);
 
       // Adicionar referência do duo ao usuário
-      final userDuoRef =
-          _firestore.collection(_userDuosCollection).doc(user.uid);
+      final userDuoRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection(_userDuosSubcollection)
+          .doc(duoId);
       transaction.set(userDuoRef, {
-        'ownedDuoId': duoRef.id,
-        'participatingDuos': <String>[],
+        'duoId': duoId,
+        'inviteCode': inviteCode,
+        'createdAt': Timestamp.fromDate(now),
         'updatedAt': Timestamp.fromDate(now),
       });
 
-      return Duo.fromMap(duoData, duoRef.id);
+      return Duo.fromMap(duoData, duoId);
     });
   }
 
   // Buscar duo pelo código de convite
   Future<Duo?> getDuoByInviteCode(String inviteCode) async {
-    final query = await _firestore
-        .collection(_collection)
-        .where('inviteCode', isEqualTo: inviteCode.toUpperCase())
-        .limit(1)
-        .get();
-
-    if (query.docs.isEmpty) {
-      return null;
+    // Busca por todos os duos e tenta encontrar o inviteCode
+    final duosSnap = await _firestore.collection(_collection).get();
+    for (final duoDoc in duosSnap.docs) {
+      final metaDoc = await _firestore
+          .collection(_collection)
+          .doc(duoDoc.id)
+          .collection(inviteCode)
+          .doc('__meta')
+          .get();
+      if (metaDoc.exists && metaDoc['inviteCode'] == inviteCode) {
+        return Duo.fromFirestore(metaDoc);
+      }
     }
-
-    return Duo.fromFirestore(query.docs.first);
+    return null;
   }
 
   // Entrar em um duo
@@ -149,32 +158,38 @@ class DuoService {
       throw Exception('Você já é membro deste duo');
     }
 
-    // Verificar se o duo não está cheio
-    if (duo.isFull) {
+    // Verificar se o duo não está cheio (máximo 2 participantes)
+    if (duo.participants.length >= 2) {
       throw Exception('Este duo já atingiu o número máximo de participantes');
     }
 
     // Usar transação para garantir consistência
     await _firestore.runTransaction((transaction) async {
-      final duoRef = _firestore.collection(_collection).doc(duo.id);
-      final userDuoRef =
-          _firestore.collection(_userDuosCollection).doc(user.uid);
+      final duoMetaRef = _firestore
+          .collection(_collection)
+          .doc(duo.id)
+          .collection(inviteCode)
+          .doc('__meta');
+      final userDuoRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection(_userDuosSubcollection)
+          .doc(duo.id);
 
       // Atualizar a lista de participantes no duo
       final updatedParticipants = [...duo.participants, user.uid];
-      transaction.update(duoRef, {
+      transaction.update(duoMetaRef, {
         'participants': updatedParticipants,
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
 
-      // Atualizar a referência do usuário
-      transaction.set(
-          userDuoRef,
-          {
-            'participatingDuos': [duo.id],
-            'updatedAt': Timestamp.fromDate(DateTime.now()),
-          },
-          SetOptions(merge: true));
+      // Salvar duoId e inviteCode na referência do usuário
+      transaction.set(userDuoRef, {
+        'duoId': duo.id,
+        'inviteCode': duo.inviteCode,
+        'createdAt': Timestamp.fromDate(DateTime.now()),
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      });
     });
   }
 
@@ -190,12 +205,6 @@ class DuoService {
       throw Exception('Duo não encontrado');
     }
 
-    // Verificar se o usuário é o owner (owner não pode sair, deve deletar o duo)
-    if (duo.isOwner(user.uid)) {
-      throw Exception(
-          'Como dono do duo, você deve deletar o duo ao invés de sair');
-    }
-
     // Verificar se o usuário é participante
     if (!duo.isParticipant(user.uid)) {
       throw Exception('Você não é membro deste duo');
@@ -204,8 +213,11 @@ class DuoService {
     // Usar transação para garantir consistência
     await _firestore.runTransaction((transaction) async {
       final duoRef = _firestore.collection(_collection).doc(duoId);
-      final userDuoRef =
-          _firestore.collection(_userDuosCollection).doc(user.uid);
+      final userDuoRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection(_userDuosSubcollection)
+          .doc(duoId);
 
       // Remover usuário da lista de participantes
       final updatedParticipants =
@@ -215,15 +227,12 @@ class DuoService {
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
 
-      // Atualizar referência do usuário
-      transaction.update(userDuoRef, {
-        'participatingDuos': FieldValue.arrayRemove([duoId]),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      });
+      // Remover referência do duo do usuário
+      transaction.delete(userDuoRef);
     });
   }
 
-  // Deletar duo (apenas o owner pode fazer isso)
+  // Deletar duo (qualquer participante pode fazer isso)
   Future<void> deleteDuo(String duoId) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -235,9 +244,9 @@ class DuoService {
       throw Exception('Duo não encontrado');
     }
 
-    // Verificar se o usuário é o owner
-    if (!duo.isOwner(user.uid)) {
-      throw Exception('Apenas o dono pode deletar o duo');
+    // Verificar se o usuário é participante
+    if (!duo.isParticipant(user.uid)) {
+      throw Exception('Apenas participantes podem deletar o duo');
     }
 
     // Usar transação para limpar todas as referências
@@ -247,92 +256,67 @@ class DuoService {
       // Deletar o duo
       transaction.delete(duoRef);
 
-      // Limpar referência do owner
-      final ownerUserDuoRef =
-          _firestore.collection(_userDuosCollection).doc(user.uid);
-      transaction.update(ownerUserDuoRef, {
-        'ownedDuoId': FieldValue.delete(),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      });
-
       // Limpar referências de todos os participantes
       for (final participantId in duo.participants) {
-        final participantUserDuoRef =
-            _firestore.collection(_userDuosCollection).doc(participantId);
-        transaction.update(participantUserDuoRef, {
-          'participatingDuos': FieldValue.arrayRemove([duoId]),
-          'updatedAt': Timestamp.fromDate(DateTime.now()),
-        });
+        final participantUserDuoRef = _firestore
+            .collection('users')
+            .doc(participantId)
+            .collection(_userDuosSubcollection)
+            .doc(duoId);
+        transaction.delete(participantUserDuoRef);
       }
     });
   }
 
-  // Obter duo por ID
+  // Obter duo por ID (usando inviteCode salvo na referência do usuário)
   Future<Duo?> getDuoById(String duoId) async {
-    final doc = await _firestore.collection(_collection).doc(duoId).get();
-
-    if (!doc.exists) {
-      return null;
-    }
-
-    return Duo.fromFirestore(doc);
-  }
-
-  // Obter duo que o usuário possui como owner
-  Future<Duo?> getUserOwnedDuo(String userId) async {
-    final userDuoDoc =
-        await _firestore.collection(_userDuosCollection).doc(userId).get();
-
-    if (!userDuoDoc.exists) {
-      return null;
-    }
-
-    final data = userDuoDoc.data()!;
-    final ownedDuoId = data['ownedDuoId'] as String?;
-
-    if (ownedDuoId == null) {
-      return null;
-    }
-
-    return await getDuoById(ownedDuoId);
-  }
-
-  // Obter todos os duos que o usuário é membro (como owner ou participante)
-  Future<List<Duo>> getUserDuos(String userId) async {
-    final duos = <Duo>[];
-
-    final userDuoDoc =
-        await _firestore.collection(_userDuosCollection).doc(userId).get();
-
-    if (!userDuoDoc.exists) {
-      return duos;
-    }
-
-    final data = userDuoDoc.data()!;
-
-    // Adicionar duo próprio se existir
-    final ownedDuoId = data['ownedDuoId'] as String?;
-    if (ownedDuoId != null) {
-      final ownedDuo = await getDuoById(ownedDuoId);
-      if (ownedDuo != null) {
-        duos.add(ownedDuo);
+    // Busca a referência do duo em algum usuário para obter o inviteCode
+    final usersSnap = await _firestore.collection('users').get();
+    for (final userDoc in usersSnap.docs) {
+      final userDuoSnap = await _firestore
+          .collection('users')
+          .doc(userDoc.id)
+          .collection(_userDuosSubcollection)
+          .doc(duoId)
+          .get();
+      if (userDuoSnap.exists &&
+          userDuoSnap.data() != null &&
+          userDuoSnap.data()!.containsKey('inviteCode')) {
+        final inviteCode = userDuoSnap['inviteCode'];
+        final metaDoc = await _firestore
+            .collection(_collection)
+            .doc(duoId)
+            .collection(inviteCode)
+            .doc('__meta')
+            .get();
+        if (metaDoc.exists) {
+          return Duo.fromFirestore(metaDoc);
+        }
       }
     }
+    return null;
+  }
 
-    // Adicionar duos dos quais é participante
-    final participatingDuos =
-        List<String>.from(data['participatingDuos'] ?? []);
-    for (final duoId in participatingDuos) {
-      final duo = await getDuoById(duoId);
+  // Removido: getUserOwnedDuo
+
+  // Obter todos os duos que o usuário é membro
+  Future<List<Duo>> getUserDuos(String userId) async {
+    final duos = <Duo>[];
+    final userDuosSnap = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection(_userDuosSubcollection)
+        .get();
+    for (final doc in userDuosSnap.docs) {
+      final duo = await getDuoById(doc.id);
       if (duo != null) {
         duos.add(duo);
       }
     }
-
     return duos;
   }
 
-  // Remover participante (apenas o owner pode fazer isso)
+  // Remover participante (qualquer participante pode fazer isso)
   Future<void> removeParticipant({
     required String duoId,
     required String participantId,
@@ -347,9 +331,10 @@ class DuoService {
       throw Exception('Duo não encontrado');
     }
 
-    // Verificar se o usuário é o owner
-    if (!duo.isOwner(user.uid)) {
-      throw Exception('Apenas o dono pode remover participantes');
+    // Verificar se o usuário é participante
+    if (!duo.isParticipant(user.uid)) {
+      throw Exception(
+          'Apenas participantes podem remover outros participantes');
     }
 
     // Verificar se o participante realmente está no duo
@@ -360,8 +345,11 @@ class DuoService {
     // Usar transação para garantir consistência
     await _firestore.runTransaction((transaction) async {
       final duoRef = _firestore.collection(_collection).doc(duoId);
-      final participantUserDuoRef =
-          _firestore.collection(_userDuosCollection).doc(participantId);
+      final participantUserDuoRef = _firestore
+          .collection('users')
+          .doc(participantId)
+          .collection(_userDuosSubcollection)
+          .doc(duoId);
 
       // Remover participante da lista
       final updatedParticipants =
@@ -371,47 +359,26 @@ class DuoService {
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
 
-      // Atualizar referência do participante removido
-      transaction.update(participantUserDuoRef, {
-        'participatingDuos': FieldValue.arrayRemove([duoId]),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      });
+      // Remover referência do participante removido
+      transaction.delete(participantUserDuoRef);
     });
   }
 
   // Stream para escutar mudanças nos duos do usuário
   Stream<List<Duo>> getUserDuosStream(String userId) {
     return _firestore
-        .collection(_userDuosCollection)
+        .collection('users')
         .doc(userId)
+        .collection(_userDuosSubcollection)
         .snapshots()
-        .asyncMap((userDuoSnapshot) async {
-      if (!userDuoSnapshot.exists) {
-        return <Duo>[];
-      }
-
-      final data = userDuoSnapshot.data()!;
+        .asyncMap((snapshot) async {
       final duos = <Duo>[];
-
-      // Adicionar duo próprio se existir
-      final ownedDuoId = data['ownedDuoId'] as String?;
-      if (ownedDuoId != null) {
-        final ownedDuo = await getDuoById(ownedDuoId);
-        if (ownedDuo != null) {
-          duos.add(ownedDuo);
-        }
-      }
-
-      // Adicionar duos dos quais é participante
-      final participatingDuos =
-          List<String>.from(data['participatingDuos'] ?? []);
-      for (final duoId in participatingDuos) {
-        final duo = await getDuoById(duoId);
+      for (final doc in snapshot.docs) {
+        final duo = await getDuoById(doc.id);
         if (duo != null) {
           duos.add(duo);
         }
       }
-
       return duos;
     });
   }
