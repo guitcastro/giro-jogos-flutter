@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: cd firestore-rules-test && npm ci
 
-      - name: Run Firestore rules tests
-        run: cd firestore-rules-test && npm test
+      - name: Run Firestore rules tests (with emulator)
+        run: cd firestore-rules-test && npx firebase emulators:exec 'npm test'
 
       - name: Deploy Firestore rules to Firebase
         if: github.ref == 'refs/heads/main' && success()
