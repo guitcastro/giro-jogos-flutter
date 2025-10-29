@@ -1,0 +1,35 @@
+name: Firestore Rules CI
+
+on:
+  push:
+    paths:
+      - 'firestore.rules'
+      - 'firestore-rules-test/**'
+      - '.github/workflows/firestore-rules.yml'
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'firestore-rules-test/**'
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd firestore-rules-test && npm ci
+
+      - name: Run Firestore rules tests
+        run: cd firestore-rules-test && npm test
+
+      - name: Deploy Firestore rules to Firebase
+        if: github.ref == 'refs/heads/main' && success()
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: npx firebase deploy --only firestore:rules
