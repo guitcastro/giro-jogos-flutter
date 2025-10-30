@@ -21,6 +21,16 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow read, write: if isAuthenticated() && getUserId() == userId;
+
+      // Permitir acesso ao documento único de duo do próprio usuário
+      match /duo/current {
+        allow read, write: if isAuthenticated() && getUserId() == userId;
+      }
+
+      // (opcional: manter compatibilidade com subcoleção antiga)
+      match /duos/{duoId} {
+        allow read, write: if isAuthenticated() && getUserId() == userId;
+      }
     }
     
     // Duos collection com invites como subcoleção
@@ -32,7 +42,8 @@ service cloud.firestore {
       // Criação: qualquer usuário autenticado pode criar um duo, inviteCode obrigatório, máximo 2 participantes
       allow create: if isAuthenticated() &&
         request.resource.data.participants is list &&
-        request.resource.data.participants.size() == 2 &&
+        request.resource.data.participants.size() >= 1 &&
+        request.resource.data.participants.size() <= 2 &&
         request.resource.data.inviteCode is string &&
         request.resource.data.inviteCode.size() == 6 &&
         request.resource.data.createdAt is timestamp &&
@@ -43,7 +54,8 @@ service cloud.firestore {
       allow update: if isAuthenticated() &&
         request.resource.data.inviteCode == resource.data.inviteCode &&
         request.resource.data.participants is list &&
-        request.resource.data.participants.size() == 2 &&
+        request.resource.data.participants.size() >= 1 &&
+        request.resource.data.participants.size() <= 2 &&
         inviteCode == resource.data.inviteCode;
 
       // Exclusão: qualquer participante pode deletar

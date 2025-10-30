@@ -4,6 +4,7 @@ import '../../services/duo_service.dart';
 import '../duo/no_duo_screen.dart';
 import '../duo/pending_duo_screen.dart';
 import '../duo/duo_screen.dart';
+import 'create_duo_screen.dart';
 import 'package:provider/provider.dart';
 
 class DuoWrapperScreen extends StatefulWidget {
@@ -28,6 +29,9 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
     return StreamBuilder<Duo?>(
       stream: duoService.getUserDuoStream(widget.userId),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (!snapshot.hasData) {
           return NoDuoScreen(
             onCreateDuo: (ctx) => Navigator.of(ctx).push(
@@ -57,54 +61,6 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
             return DuoScreen(
                 duo: duo, participantNames: names, totalScore: score);
           },
-        );
-      },
-    );
-  }
-
-  void _showCreateDuoDialog(BuildContext context) {
-    final nameController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Criar Novo Duo'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome do Duo',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Por favor, insira um nome';
-                }
-                if (value.trim().length > 50) {
-                  return 'Nome muito longo (máximo 50 caracteres)';
-                }
-                return null;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  Navigator.of(context).pop();
-                  await DuoService()
-                      .createDuo(name: nameController.text.trim());
-                }
-              },
-              child: const Text('Criar'),
-            ),
-          ],
         );
       },
     );

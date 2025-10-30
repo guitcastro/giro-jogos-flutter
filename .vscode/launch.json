@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter Web Chromium Debug",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port=8080"
+            ],
+            "env": {
+                "CHROME_EXECUTABLE": "/usr/local/bin/chromium"
+            }
+        },
+    ]
+}

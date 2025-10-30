@@ -11,38 +11,107 @@ class PendingDuoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final inviteText =
         'Junte-se ao meu duo "${duo.name}" no Giro Jogos!\nUse o código: ${duo.inviteCode}\nAcesse: https://giro-jogos.web.app/';
+    final colorScheme = Theme.of(context).colorScheme;
+    Color fadedPrimary = colorScheme.primary.withAlpha((0.07 * 255).round());
     return Scaffold(
-      appBar: AppBar(title: const Text('Aguardando parceiro')),
+      appBar: AppBar(
+        title: const Text('Aguardando parceiro'),
+        backgroundColor: colorScheme.inversePrimary,
+        elevation: 0,
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Convide alguém para sua dupla!'),
-            const SizedBox(height: 16),
-            SelectableText('Código de convite: ${duo.inviteCode}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                SharePlus.instance.share(
-                  ShareParams(text: inviteText),
-                );
-              },
-              child: const Text('Compartilhar convite'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                await DuoService().deleteDuo(duo.id);
-                // Atualize a tela após deletar
-              },
-              child: const Text('Desfazer dupla'),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Assim que outra pessoa entrar, vocês poderão participar dos jogos!',
-              textAlign: TextAlign.center,
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(Icons.hourglass_empty,
+                  size: 64, color: Colors.blueGrey),
+              const SizedBox(height: 24),
+              const Text(
+                'Convide alguém para sua dupla!',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                decoration: BoxDecoration(
+                  color: fadedPrimary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    const Text('Código de convite:',
+                        style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    const SizedBox(height: 6),
+                    SelectableText(
+                      duo.inviteCode,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                        letterSpacing: 2,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.share),
+                  onPressed: () {
+                    SharePlus.instance.share(
+                      ShareParams(text: inviteText),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: fadedPrimary,
+                    foregroundColor: colorScheme.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  label: const Text('Compartilhar convite'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.close),
+                  onPressed: () async {
+                    await DuoService().deleteDuo(duo.id);
+                    // Atualize a tela após deletar
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: fadedPrimary,
+                    foregroundColor: colorScheme.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  label: const Text('Desfazer dupla'),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Assim que outra pessoa entrar, vocês poderão participar dos jogos!',
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

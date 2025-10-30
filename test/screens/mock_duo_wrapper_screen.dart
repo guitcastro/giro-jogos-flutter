@@ -21,7 +21,10 @@ class MockDuoWrapperScreen extends DuoWrapperScreen {
       stream: stream,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const NoDuoScreen();
+          return NoDuoScreen(
+            onCreateDuo: (_) {},
+            onJoinDuo: (_) {},
+          );
         }
         final duo = snapshot.data!;
         if (duo.participants.length == 1) {

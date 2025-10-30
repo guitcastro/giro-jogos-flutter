@@ -1,3 +1,50 @@
+describe('Firestore Security Rules - User Duo Document', () => {
+  it('Usuário pode ler e escrever seu próprio duo em /users/{userId}/duo/current', async () => {
+    const userId = 'user123';
+    // Cria o duo como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${userId}/duo/current`).set({
+        duoId: 'duo456',
+        inviteCode: 'ABC123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    // O próprio usuário pode ler
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertSucceeds(db.doc(`users/${userId}/duo/current`).get());
+    // O próprio usuário pode escrever
+    await assertSucceeds(db.doc(`users/${userId}/duo/current`).set({
+      duoId: 'duo456',
+      inviteCode: 'ABC123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  });
+
+  it('Outro usuário NÃO pode ler ou escrever em /users/{userId}/duo/current', async () => {
+    const userId = 'user123';
+    // Cria o duo como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${userId}/duo/current`).set({
+        duoId: 'duo456',
+        inviteCode: 'ABC123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    // Outro usuário não pode ler
+    const db = testEnv.authenticatedContext('user999').firestore();
+    await assertFails(db.doc(`users/${userId}/duo/current`).get());
+    // Outro usuário não pode escrever
+    await assertFails(db.doc(`users/${userId}/duo/current`).set({
+      duoId: 'duo456',
+      inviteCode: 'ABC123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  });
+});
 // Testes de regras Firestore usando @firebase/rules-unit-testing
 // Para rodar: 
 // 1. Instale dependências: npm install
@@ -16,6 +63,8 @@ before(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: "demo-firestore-rules-test",
     firestore: {
+      host: "localhost",
+      port: 8080,
       rules,
     },
   });
