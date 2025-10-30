@@ -7,6 +7,7 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../test_helpers.dart';
+import 'package:giro_jogos/src/screens/home/settings_tab.dart';
 
 import 'package:giro_jogos/src/models/duo.dart';
 
@@ -59,36 +60,34 @@ void main() {
       );
     }
 
-    testWidgets('should display tab bar with Duo and Settings tabs',
-        (WidgetTester tester) async {
+
+    testWidgets('should display navigation bar with Duo and Settings', (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
 
-      await tester
-          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
+      await tester.pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
+      // NavigationBar labels and icons
       expect(find.text('Dupla'), findsOneWidget);
       expect(find.text('Configurações'), findsOneWidget);
       expect(find.byIcon(Icons.group), findsOneWidget);
       expect(find.byIcon(Icons.settings), findsOneWidget);
+      // NavigationBar widget
+      expect(find.byType(NavigationBar), findsOneWidget);
     });
 
-    testWidgets('should display app bar with title and menu icon',
-        (WidgetTester tester) async {
+    testWidgets('should display app bar with title and menu icon', (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
 
-      await tester
-          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
+      await tester.pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
       expect(find.text('Giro Jogos'), findsOneWidget);
       expect(find.byIcon(Icons.more_vert), findsOneWidget);
     });
 
-    testWidgets('should show popup menu when menu icon is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should show popup menu when menu icon is tapped', (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
 
-      await tester
-          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
+      await tester.pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
 
@@ -96,6 +95,23 @@ void main() {
       expect(find.text('Sair'), findsOneWidget);
       expect(find.byIcon(Icons.admin_panel_settings), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);
+    });
+
+    testWidgets('should switch screens when navigation bar item is tapped', (WidgetTester tester) async {
+      when(mockAuthService.currentUser).thenReturn(mockUser);
+
+      await tester.pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
+
+      // Começa na tela 0 (Dupla)
+      expect(find.text('Dupla'), findsOneWidget);
+      expect(find.text('Configurações'), findsOneWidget);
+
+      // Toca no item de Configurações
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pumpAndSettle();
+
+      // A tela de Configurações deve estar visível (SettingsTab)
+      expect(find.byType(SettingsTab), findsOneWidget);
     });
   });
 }

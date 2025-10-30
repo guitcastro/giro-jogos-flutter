@@ -15,27 +15,24 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthService>(
       builder: (context, authService, child) {
         final user = authService.currentUser;
-        // Espera que DuoService já esteja provido externamente via Provider
+        final screens = [
+          DuoWrapperScreen(
+            userId: user?.uid ?? '',
+            getNames: (ids) async =>
+                ids, // TODO: Substitua por função real de nomes
+            getScore: (duoId) async =>
+                0, // TODO: Substitua por função real de score
+          ),
+          const SettingsTab(),
+        ];
         return Scaffold(
           appBar: AppBar(
             title: const Text('Giro Jogos'),
@@ -76,31 +73,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 icon: const Icon(Icons.more_vert),
               ),
             ],
-            bottom: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(
-                  icon: Icon(Icons.group),
-                  text: 'Dupla',
-                ),
-                Tab(
-                  icon: Icon(Icons.settings),
-                  text: 'Configurações',
-                ),
-              ],
-            ),
           ),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              DuoWrapperScreen(
-                userId: user?.uid ?? '',
-                getNames: (ids) async =>
-                    ids, // TODO: Substitua por função real de nomes
-                getScore: (duoId) async =>
-                    0, // TODO: Substitua por função real de score
+          body: screens[_selectedIndex],
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.group),
+                label: 'Dupla',
               ),
-              const SettingsTab(),
+              NavigationDestination(
+                icon: Icon(Icons.settings),
+                label: 'Configurações',
+              ),
             ],
           ),
         );
