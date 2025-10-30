@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class NoDuoScreen extends StatelessWidget {
-  final void Function()? onCreateDuo;
-  final void Function()? onJoinDuo;
+  final void Function(BuildContext context)? onCreateDuo;
+  final void Function(BuildContext context)? onJoinDuo;
   const NoDuoScreen({super.key, this.onCreateDuo, this.onJoinDuo});
 
   @override
@@ -30,7 +30,7 @@ class NoDuoScreen extends StatelessWidget {
             const SizedBox(height: 36),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),
-              onPressed: onCreateDuo ?? () {},
+              onPressed: onCreateDuo != null ? () => onCreateDuo!(context) : null,
               label: const Text('Criar dupla'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -41,7 +41,7 @@ class NoDuoScreen extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               icon: const Icon(Icons.group_add),
-              onPressed: onJoinDuo ?? () {},
+              onPressed: onJoinDuo != null ? () => onJoinDuo!(context) : null,
               label: const Text('Juntar-se a uma dupla'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),

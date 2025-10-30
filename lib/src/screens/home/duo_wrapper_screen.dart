@@ -30,8 +30,12 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return NoDuoScreen(
-            onCreateDuo: () => _showCreateDuoDialog(context),
-            onJoinDuo: () => _showJoinDuoDialog(context),
+            onCreateDuo: (ctx) => Navigator.of(ctx).push(
+              MaterialPageRoute(
+                builder: (_) => const CreateDuoScreen(),
+              ),
+            ),
+            onJoinDuo: (ctx) => _showJoinDuoDialog(ctx),
           );
         }
         final duo = snapshot.data!;
