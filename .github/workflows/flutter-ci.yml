@@ -78,12 +78,11 @@ jobs:
         with:
           path: |
             ios/Pods
-            ios/Podfile.lock
             ~/.cocoapods/repos/trunk
             ~/Library/Caches/CocoaPods
-          key: pods-v5-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.yaml') }}
+          key: pods-v5-${{ runner.os }}
           restore-keys: |
-            pods-v5-${{ runner.os }}-
+            pods-v5-${{ runner.os }}
       
       - name: Cache Flutter iOS builds
         uses: actions/cache@v4
@@ -93,9 +92,9 @@ jobs:
             ios/Flutter/ephemeral
             ios/.symlinks
             ios/build
-          key: flutter-ios-v5-${{ runner.os }}-${{ hashFiles('pubspec.yaml', 'lib/**') }}
+          key: flutter-ios-v5-${{ runner.os }}
           restore-keys: |
-            flutter-ios-v5-${{ runner.os }}-
+            flutter-ios-v5-${{ runner.os }}
       
       # Setup Flutter com cache
       - name: Setup Flutter
@@ -131,15 +130,6 @@ jobs:
           else
             echo "Atualizando repo CocoaPods..."
             pod repo update trunk --silent || echo "Aviso: falha na atualização (continuando...)"
-          fi
-      
-      # Limpar cache de pods se houver problemas
-      - name: Clean pods cache if needed
-        run: |
-          cd ios
-          if [ ! -f "Podfile.lock" ]; then
-            echo "No Podfile.lock found, ensuring clean state..."
-            rm -rf Pods
           fi
       
       # Build iOS usando script otimizado

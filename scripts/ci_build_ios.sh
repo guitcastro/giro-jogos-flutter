@@ -19,21 +19,10 @@ export CP_DISABLE_ON_DOWNLOAD_HOOKS=true
 export PUB_CACHE="$HOME/.pub-cache"
 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 
-echo "✅ Variáveis de ambiente configuradas"
 
-# Verifica se é um build incremental
-echo "🔍 Verificando cache de pods..."
-if [ -f "ios/Podfile.lock" ] && [ -d "ios/Pods" ]; then
-    echo "📦 Usando cache de pods existente..."
-    cd ios 
-    echo "⚡ Executando pod install --deployment..."
-    pod install --deployment 
-else
-    echo "📦 Instalação completa de pods (primeira vez)..."
-    cd ios
-    echo "⚡ Executando pod install..."
-    pod install 
-fi
+cd ios 
+echo "⚡ Executando pod install --deployment..."
+pod install --deployment 
 
 echo "✅ Pods instalados com sucesso"
 
