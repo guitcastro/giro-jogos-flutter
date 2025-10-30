@@ -5,8 +5,7 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../test_helpers.dart';
-import '../screens/home/duo_tab_test.dart' show MockDuoService;
-// import 'package:giro_jogos/src/services/duo_service.dart';
+import '../mocks/mock_duo_service.dart';
 
 // Mock AuthService for integration testing (completely independent of Firebase)
 class MockAuthService extends ChangeNotifier implements AuthService {
@@ -125,12 +124,10 @@ void main() {
       await tester.tap(find.text('Entrar'));
       await tester.pumpAndSettle();
 
-      // Should navigate to home screen after successful login
-      expect(find.text('Duo & Equipe'), findsOneWidget);
-      expect(find.text('Gerencie seus duos e equipes'), findsOneWidget);
+      // Deve navegar para a home após login
+      expect(find.text('Dupla'), findsOneWidget); // Tab
+      expect(find.text('Configurações'), findsOneWidget); // Tab
       expect(find.text('Entre na sua conta'), findsNothing);
-      expect(find.text('Duo'), findsOneWidget);
-      expect(find.text('Configurações'), findsOneWidget);
     });
 
     testWidgets('navigation between login and signup modes',
@@ -169,8 +166,8 @@ void main() {
       await tester.pumpWidget(createApp());
       await tester.pumpAndSettle();
 
-      // Should be at home screen
-      expect(find.text('Duo & Equipe'), findsOneWidget);
+      // Deve estar na home (tab 'Dupla' visível)
+      expect(find.text('Dupla'), findsOneWidget);
 
       // Look for logout option in app bar menu (PopupMenuButton)
       final userMenuButton = find.byType(PopupMenuButton<String>);
@@ -183,9 +180,9 @@ void main() {
       await tester.tap(find.text('Sair'));
       await tester.pumpAndSettle();
 
-      // Should return to login screen
+      // Deve voltar para tela de login
       expect(find.text('Entre na sua conta'), findsOneWidget);
-      expect(find.text('Duo & Equipe'), findsNothing);
+      expect(find.text('Dupla'), findsNothing);
     });
 
     testWidgets('form validation prevents submission with invalid data',

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
-import 'duo_tab.dart';
+import 'duo_wrapper_screen.dart';
 import 'settings_tab.dart';
 
 import '../../services/duo_service.dart';
@@ -73,23 +73,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ];
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundImage: user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : null,
-                    child: user?.photoURL == null
-                        ? Text(
-                            user?.displayName?.isNotEmpty == true
-                                ? user!.displayName![0].toUpperCase()
-                                : user?.email?.isNotEmpty == true
-                                    ? user!.email![0].toUpperCase()
-                                    : 'U',
-                          )
-                        : null,
-                  ),
-                ),
+                icon: const Icon(Icons.more_vert),
               ),
             ],
             bottom: TabBar(
@@ -97,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               tabs: const [
                 Tab(
                   icon: Icon(Icons.group),
-                  text: 'Duo',
+                  text: 'Dupla',
                 ),
                 Tab(
                   icon: Icon(Icons.settings),
@@ -108,9 +92,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           body: TabBarView(
             controller: _tabController,
-            children: const [
-              DuoTab(),
-              SettingsTab(),
+            children: [
+              DuoWrapperScreen(
+                userId: user?.uid ?? '',
+                getNames: (ids) async =>
+                    ids, // TODO: Substitua por função real de nomes
+                getScore: (duoId) async =>
+                    0, // TODO: Substitua por função real de score
+              ),
+              const SettingsTab(),
             ],
           ),
         );

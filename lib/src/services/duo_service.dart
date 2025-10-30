@@ -62,8 +62,8 @@ class DuoService {
     }
 
     // Verificar se o usuário já está em algum duo
-    final userDuos = await getUserDuos(user.uid);
-    if (userDuos.isNotEmpty) {
+    final userDuo = await getUserDuo(user.uid);
+    if (userDuo != null) {
       throw Exception(
           'Você já está em um duo. Saia do duo atual para criar um novo.');
     }
@@ -136,8 +136,8 @@ class DuoService {
     }
 
     // Verificar se o usuário já está em algum duo
-    final userDuos = await getUserDuos(user.uid);
-    if (userDuos.isNotEmpty) {
+    final userDuo = await getUserDuo(user.uid);
+    if (userDuo != null) {
       throw Exception(
           'Você já está em um duo. Saia do duo atual para entrar em outro.');
     }
@@ -297,23 +297,15 @@ class DuoService {
     return null;
   }
 
-  // Removido: getUserOwnedDuo
-
-  // Obter todos os duos que o usuário é membro
-  Future<List<Duo>> getUserDuos(String userId) async {
-    final duos = <Duo>[];
+  Future<Duo?> getUserDuo(String userId) async {
     final userDuosSnap = await _firestore
         .collection('users')
         .doc(userId)
         .collection(_userDuosSubcollection)
         .get();
-    for (final doc in userDuosSnap.docs) {
-      final duo = await getDuoById(doc.id);
-      if (duo != null) {
-        duos.add(duo);
-      }
-    }
-    return duos;
+    if (userDuosSnap.docs.isEmpty) return null;
+    final doc = userDuosSnap.docs.first;
+    return await getDuoById(doc.id);
   }
 
   // Remover participante (qualquer participante pode fazer isso)
@@ -364,22 +356,17 @@ class DuoService {
     });
   }
 
-  // Stream para escutar mudanças nos duos do usuário
-  Stream<List<Duo>> getUserDuosStream(String userId) {
+  // Stream para escutar mudanças no duo do usuário
+  Stream<Duo?> getUserDuoStream(String userId) {
     return _firestore
         .collection('users')
         .doc(userId)
         .collection(_userDuosSubcollection)
         .snapshots()
         .asyncMap((snapshot) async {
-      final duos = <Duo>[];
-      for (final doc in snapshot.docs) {
-        final duo = await getDuoById(doc.id);
-        if (duo != null) {
-          duos.add(duo);
-        }
-      }
-      return duos;
+      if (snapshot.docs.isEmpty) return null;
+      final doc = snapshot.docs.first;
+      return await getDuoById(doc.id);
     });
   }
 }

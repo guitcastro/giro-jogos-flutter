@@ -8,11 +8,28 @@ import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../test_helpers.dart';
 
-class MockDuoService extends Mock implements DuoService {}
+import 'package:giro_jogos/src/models/duo.dart';
+
+class MockDuoService extends Mock implements DuoService {
+  @override
+  Stream<Duo?> getUserDuoStream(String userId) {
+    // Retorna um stream vazio/null por padrão para evitar erro de tipo
+    return Stream<Duo?>.value(null);
+  }
+}
 
 class MockAuthService extends Mock implements AuthService {}
 
-class MockUser extends Mock implements User {}
+class MockUser extends Mock implements User {
+  @override
+  String get uid => 'mock-uid';
+  @override
+  String? get displayName => 'Test User';
+  @override
+  String? get email => 'test@example.com';
+  @override
+  String? get photoURL => null;
+}
 
 void main() {
   setUpAll(() async {
@@ -45,63 +62,40 @@ void main() {
     testWidgets('should display tab bar with Duo and Settings tabs',
         (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
-      when(mockUser.displayName).thenReturn('Test User');
-      when(mockUser.email).thenReturn('test@example.com');
-      when(mockUser.photoURL).thenReturn(null);
 
       await tester
           .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
-      expect(find.text('Duo'), findsOneWidget);
+      expect(find.text('Dupla'), findsOneWidget);
       expect(find.text('Configurações'), findsOneWidget);
       expect(find.byIcon(Icons.group), findsOneWidget);
       expect(find.byIcon(Icons.settings), findsOneWidget);
     });
 
-    testWidgets('should display app bar with title and user avatar',
+    testWidgets('should display app bar with title and menu icon',
         (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
-      when(mockUser.displayName).thenReturn('Test User');
-      when(mockUser.email).thenReturn('test@example.com');
-      when(mockUser.photoURL).thenReturn(null);
 
       await tester
           .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
 
       expect(find.text('Giro Jogos'), findsOneWidget);
-      expect(find.byType(CircleAvatar), findsAtLeastNWidgets(1));
+      expect(find.byIcon(Icons.more_vert), findsOneWidget);
     });
 
-    testWidgets('should show popup menu when avatar is tapped',
+    testWidgets('should show popup menu when menu icon is tapped',
         (WidgetTester tester) async {
       when(mockAuthService.currentUser).thenReturn(mockUser);
-      when(mockUser.displayName).thenReturn('Test User');
-      when(mockUser.email).thenReturn('test@example.com');
-      when(mockUser.photoURL).thenReturn(null);
 
       await tester
           .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
-      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
 
       expect(find.text('Admin Panel'), findsOneWidget);
       expect(find.text('Sair'), findsOneWidget);
       expect(find.byIcon(Icons.admin_panel_settings), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);
-    });
-
-    testWidgets('should display user initial when no photo URL is provided',
-        (WidgetTester tester) async {
-      when(mockAuthService.currentUser).thenReturn(mockUser);
-      when(mockUser.displayName).thenReturn('Test User');
-      when(mockUser.email).thenReturn('test@example.com');
-      when(mockUser.photoURL).thenReturn(null);
-
-      await tester
-          .pumpWidget(createTestWidget(HomeScreen(duoService: mockDuoService)));
-
-      expect(find.text('T'),
-          findsAtLeastNWidgets(1)); // First letter of "Test User"
     });
   });
 }
