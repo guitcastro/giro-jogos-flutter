@@ -27,7 +27,7 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
   Widget build(BuildContext context) {
     final duoService = Provider.of<DuoService>(context, listen: false);
     return StreamBuilder<Duo?>(
-      stream: duoService.getUserDuoStream(widget.userId),
+      stream: duoService.getUserDuoStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

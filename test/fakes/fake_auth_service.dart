@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 
 /// Mock centralizado para AuthService, usando MockUser do firebase_auth_mocks
-class MockAuthService extends ChangeNotifier implements AuthService {
+class FakeAuthService extends ChangeNotifier implements AuthService {
   bool _isAuthenticated;
   User? _currentUser;
 
-  MockAuthService({bool isAuthenticated = false, User? currentUser})
+  FakeAuthService({bool isAuthenticated = false, User? currentUser})
       : _isAuthenticated = isAuthenticated,
         _currentUser = currentUser;
 

@@ -5,10 +5,10 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../test_helpers.dart';
-import '../mocks/mock_duo_service.dart';
+import '../fakes/fake_duo_service.dart';
 
-// Mock AuthService for integration testing (completely independent of Firebase)
-class MockAuthService extends ChangeNotifier implements AuthService {
+// Fake AuthService for integration testing (completely independent of Firebase)
+class FakeAuthService extends ChangeNotifier implements AuthService {
   bool _isAuthenticated = false;
   String? _lastEmail;
   String? _lastPassword;
@@ -84,17 +84,17 @@ void main() {
   });
 
   group('Authentication Integration Tests', () {
-    late MockAuthService mockAuthService;
+    late FakeAuthService fakeAuthService;
 
     setUp(() {
-      mockAuthService = MockAuthService();
+      fakeAuthService = FakeAuthService();
     });
 
     Widget createApp() {
-      final mockDuoService = MockDuoService();
+      final fakeDuoService = FakeDuoService();
       return ChangeNotifierProvider<AuthService>.value(
-        value: mockAuthService,
-        child: GiroJogosApp(duoService: mockDuoService),
+        value: fakeAuthService,
+        child: GiroJogosApp(duoService: fakeDuoService),
       );
     }
 
@@ -161,7 +161,7 @@ void main() {
         (WidgetTester tester) async {
       setLargerScreenSize(tester);
       // Start with authenticated user
-      mockAuthService._isAuthenticated = true;
+      fakeAuthService._isAuthenticated = true;
 
       await tester.pumpWidget(createApp());
       await tester.pumpAndSettle();

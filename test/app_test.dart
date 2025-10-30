@@ -5,8 +5,8 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/screens/home/home_screen.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'test_helpers.dart';
-import 'mocks/mock_duo_service.dart';
-import 'mocks/mock_auth_service.dart';
+import 'fakes/fake_duo_service.dart';
+import 'fakes/fake_auth_service.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
@@ -22,12 +22,12 @@ void main() {
         displayName: 'Test User',
         email: 'test@example.com',
       );
-      final mockDuoService = MockDuoService();
+      final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(
         ChangeNotifierProvider<AuthService>(
           create: (_) =>
-              MockAuthService(isAuthenticated: true, currentUser: mockUser),
-          child: GiroJogosApp(duoService: mockDuoService),
+              FakeAuthService(isAuthenticated: true, currentUser: mockUser),
+          child: GiroJogosApp(duoService: fakeDuoService),
         ),
       );
       await tester.pumpAndSettle();
@@ -37,11 +37,11 @@ void main() {
 
     testWidgets('mostra tela de login quando não autenticado',
         (WidgetTester tester) async {
-      final mockDuoService = MockDuoService();
+      final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(
         ChangeNotifierProvider<AuthService>(
-          create: (_) => MockAuthService(isAuthenticated: false),
-          child: GiroJogosApp(duoService: mockDuoService),
+          create: (_) => FakeAuthService(isAuthenticated: false),
+          child: GiroJogosApp(duoService: fakeDuoService),
         ),
       );
       await tester.pumpAndSettle();

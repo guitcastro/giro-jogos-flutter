@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:giro_jogos/src/models/duo.dart';
-import '../mocks/mock_duo_service.dart';
+import '../fakes/fake_duo_service.dart';
 import '../test_helpers.dart';
 import 'mock_duo_wrapper_screen.dart';
 import 'package:giro_jogos/src/screens/duo/no_duo_screen.dart';
@@ -14,10 +14,10 @@ void main() {
     testWidgets('exibe loading enquanto carrega o estado inicial',
         (tester) async {
       final controller = StreamController<Duo?>();
-      final mockDuoService = MockDuoService();
+      final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(MaterialApp(
         home: Provider<DuoService>.value(
-          value: mockDuoService,
+          value: fakeDuoService,
           child: Builder(
             builder: (context) => MockDuoWrapperScreen(
               userId: 'userX',
@@ -39,12 +39,12 @@ void main() {
     });
     testWidgets('exibe NoDuoScreen quando não há duo', (tester) async {
       final controller = StreamController<Duo?>();
-      final mockDuoService = MockDuoService();
+      final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) => Provider<DuoService>.value(
-              value: mockDuoService,
+              value: fakeDuoService,
               child: MockDuoWrapperScreen(
                 userId: 'userX',
                 getNames: (_) async => const ['A', 'B'],

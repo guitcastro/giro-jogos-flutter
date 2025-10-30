@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Duo {
   final String id;
-  final String ownerId;
   final List<String> participants;
   final String name;
   final String inviteCode;
@@ -12,7 +11,6 @@ class Duo {
 
   const Duo({
     required this.id,
-    required this.ownerId,
     required this.participants,
     required this.name,
     required this.inviteCode,
@@ -25,8 +23,7 @@ class Duo {
   factory Duo.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Duo(
-      id: doc.id,
-      ownerId: data['ownerId'] ?? '',
+      id: doc.reference.parent.parent?.id ?? '',
       participants: List<String>.from(data['participants'] ?? []),
       name: data['name'] ?? '',
       inviteCode: data['inviteCode'] ?? '',
@@ -40,7 +37,6 @@ class Duo {
   factory Duo.fromMap(Map<String, dynamic> data, String id) {
     return Duo(
       id: id,
-      ownerId: data['ownerId'] ?? '',
       participants: List<String>.from(data['participants'] ?? []),
       name: data['name'] ?? '',
       inviteCode: data['inviteCode'] ?? '',
@@ -53,7 +49,6 @@ class Duo {
   // Converter para Map para salvar no Firestore
   Map<String, dynamic> toMap() {
     return {
-      'ownerId': ownerId,
       'participants': participants,
       'name': name,
       'inviteCode': inviteCode,
@@ -66,7 +61,6 @@ class Duo {
   // Cópia com modificações
   Duo copyWith({
     String? id,
-    String? ownerId,
     List<String>? participants,
     String? name,
     String? inviteCode,
@@ -76,7 +70,6 @@ class Duo {
   }) {
     return Duo(
       id: id ?? this.id,
-      ownerId: ownerId ?? this.ownerId,
       participants: participants ?? this.participants,
       name: name ?? this.name,
       inviteCode: inviteCode ?? this.inviteCode,
@@ -86,24 +79,21 @@ class Duo {
     );
   }
 
-  // Verificar se o usuário é o dono
-  bool isOwner(String userId) => ownerId == userId;
-
   // Verificar se o usuário é participante
   bool isParticipant(String userId) => participants.contains(userId);
 
   // Verificar se o usuário é membro (dono ou participante)
-  bool isMember(String userId) => isOwner(userId) || isParticipant(userId);
+  bool isMember(String userId) => isParticipant(userId);
 
   // Verificar se o duo está cheio
   bool get isFull => participants.length >= maxParticipants;
 
   // Obter total de membros (incluindo o dono)
-  int get totalMembers => participants.length + 1; // +1 para o owner
+  int get totalMembers => participants.length;
 
   @override
   String toString() {
-    return 'Duo{id: $id, name: $name, ownerId: $ownerId, participants: $participants, inviteCode: $inviteCode}';
+    return 'Duo{id: $id, name: $name, participants: $participants, inviteCode: $inviteCode}';
   }
 
   @override

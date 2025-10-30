@@ -13,7 +13,7 @@ import 'package:giro_jogos/src/models/duo.dart';
 
 class MockDuoService extends Mock implements DuoService {
   @override
-  Stream<Duo?> getUserDuoStream(String userId) {
+  Stream<Duo?> getUserDuoStream() {
     // Retorna um stream vazio/null por padrão para evitar erro de tipo
     return Stream<Duo?>.value(null);
   }

@@ -6,8 +6,14 @@ import '../models/duo.dart';
 class DuoService {
   static const String _collection = 'duos';
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
+
+  DuoService({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _auth = auth ?? FirebaseAuth.instance;
 
   // Gerar código de convite único
   String _generateInviteCode() {
@@ -28,13 +34,8 @@ class DuoService {
   Future<Duo> createDuo({
     required String name,
   }) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
     // Verificar se o usuário já está em algum duo
-    final userDuo = await getUserDuo(user.uid);
+    final userDuo = await getUserDuo();
     if (userDuo != null) {
       throw Exception(
           'Você já está em um duo. Saia do duo atual para criar um novo.');
@@ -44,7 +45,7 @@ class DuoService {
     final now = DateTime.now();
 
     final duoData = {
-      'participants': [user.uid],
+      'participants': [_auth.currentUser!.uid],
       'name': name.trim(),
       'inviteCode': inviteCode,
       'createdAt': Timestamp.fromDate(now),
@@ -65,7 +66,7 @@ class DuoService {
       // Adicionar referência do duo ao usuário
       final userDuoRef = _firestore
           .collection('users')
-          .doc(user.uid)
+          .doc(_auth.currentUser!.uid)
           .collection('duo')
           .doc('current');
       transaction.set(userDuoRef, {
@@ -102,13 +103,8 @@ class DuoService {
     required String duoName,
     required String inviteCode,
   }) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
     // Verificar se o usuário já está em algum duo
-    final userDuo = await getUserDuo(user.uid);
+    final userDuo = await getUserDuo();
     if (userDuo != null) {
       throw Exception(
           'Você já está em um duo. Saia do duo atual para entrar em outro.');
@@ -126,7 +122,7 @@ class DuoService {
     }
 
     // Verificar se o usuário já é membro
-    if (duo.isMember(user.uid)) {
+    if (duo.isMember(_auth.currentUser!.uid)) {
       throw Exception('Você já é membro deste duo');
     }
 
@@ -144,12 +140,12 @@ class DuoService {
           .doc(inviteCode);
       final userDuoRef = _firestore
           .collection('users')
-          .doc(user.uid)
+          .doc(_auth.currentUser!.uid)
           .collection('duo')
           .doc('current');
 
       // Atualizar a lista de participantes no duo
-      final updatedParticipants = [...duo.participants, user.uid];
+      final updatedParticipants = [...duo.participants, _auth.currentUser!.uid];
       transaction.update(duoMetaRef, {
         'participants': updatedParticipants,
         'updatedAt': Timestamp.fromDate(DateTime.now()),
@@ -172,7 +168,7 @@ class DuoService {
       throw Exception('Usuário não autenticado');
     }
 
-    final duo = await getUserDuo(user.uid);
+    final duo = await getUserDuo();
 
     if (duo == null) {
       throw Exception('Duo não encontrado');
@@ -207,48 +203,49 @@ class DuoService {
 
   // Deletar duo (qualquer participante pode fazer isso)
   Future<void> deleteDuo(String duoId) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
+    final duo = await getUserDuo();
 
-    final duo = await getUserDuo(duoId);
     if (duo == null) {
       throw Exception('Duo não encontrado');
     }
 
     // Verificar se o usuário é participante
-    if (!duo.isParticipant(user.uid)) {
+    if (!duo.isParticipant(_auth.currentUser!.uid)) {
       throw Exception('Apenas participantes podem deletar o duo');
     }
 
-    // Usar transação para limpar todas as referências
-    await _firestore.runTransaction((transaction) async {
-      final duoRef = _firestore.collection(_collection).doc(duoId);
+    // Deletar o documento do duo (invite)
+    final duoInviteRef = _firestore
+        .collection(_collection)
+        .doc(duoId)
+        .collection('invites')
+        .doc(duo.inviteCode);
+    await duoInviteRef.delete();
 
-      // Deletar o duo
-      transaction.delete(duoRef);
-
-      // Limpar referências de todos os participantes
-      for (final participantId in duo.participants) {
-        final participantUserDuoRef = _firestore
-            .collection('users')
-            .doc(participantId)
-            .collection('duo')
-            .doc('current');
-        transaction.delete(participantUserDuoRef);
-      }
-    });
+    // Limpar referências de todos os participantes
+    for (final participantId in duo.participants) {
+      final participantUserDuoRef = _firestore
+          .collection('users')
+          .doc(participantId)
+          .collection('duo')
+          .doc('current');
+      await participantUserDuoRef.delete();
+    }
   }
 
-  Future<Duo?> getUserDuo(String userId) async {
+  Future<Duo?> getUserDuo() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('Usuário não autenticado');
+    }
+
     final userDuoSnap = await _firestore
         .collection('users')
-        .doc(userId)
+        .doc(user.uid)
         .collection('duo')
         .doc('current')
         .get();
-    if (!userDuoSnap.exists || userDuoSnap.data() != null) {
+    if (!userDuoSnap.exists || userDuoSnap.data() == null) {
       return null;
     }
     return await _getDuo(userDuoSnap);
@@ -275,18 +272,13 @@ class DuoService {
     required String duoId,
     required String participantId,
   }) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
-    final duo = await getUserDuo(duoId);
+    final duo = await getUserDuo();
     if (duo == null) {
       throw Exception('Duo não encontrado');
     }
 
     // Verificar se o usuário é participante
-    if (!duo.isParticipant(user.uid)) {
+    if (!duo.isParticipant(_auth.currentUser!.uid)) {
       throw Exception(
           'Apenas participantes podem remover outros participantes');
     }
@@ -319,10 +311,15 @@ class DuoService {
   }
 
   // Stream para escutar mudanças no duo do usuário
-  Stream<Duo?> getUserDuoStream(String userId) {
+  Stream<Duo?> getUserDuoStream() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('Usuário não autenticado');
+    }
+
     return _firestore
         .collection('users')
-        .doc(userId)
+        .doc(user.uid)
         .collection('duo')
         .doc('current')
         .snapshots()

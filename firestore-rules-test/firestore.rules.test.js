@@ -76,6 +76,25 @@ after(async () => {
 });
 
 describe('Firestore Security Rules - Duos', () => {
+  it('Participante pode deletar seu próprio duo', async () => {
+    const userId = 'user123';
+    const inviteCode = 'ABC123';
+    const duoId = 'duo456';
+    // Cria o duo como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
+        participants: [userId],
+        name: 'Meu Duo',
+        inviteCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    // Participante pode deletar
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertSucceeds(db.doc(`duos/${duoId}/invites/${inviteCode}`).delete());
+  });
+  
   it('Usuário só lê duo se passar inviteCode correto', async () => {
     const userId = 'user123';
     const inviteCode = 'ABC123'; // 6 caracteres

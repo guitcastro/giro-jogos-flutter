@@ -10,7 +10,6 @@ void main() {
       name: 'Dupla Completa',
       inviteCode: 'XYZ789',
       participants: ['user1', 'user2'],
-      ownerId: 'user1',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
