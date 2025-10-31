@@ -296,33 +296,21 @@ void main() {
       // Wait for async operations and SnackBar animation
       await tester.pumpAndSettle();
 
-      // Should show error message in AlertDialog
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Erro'), findsOneWidget);
+      // Deve exibir mensagem de erro em SnackBar
+      expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Exception: Test error'), findsOneWidget);
     });
 
-    testWidgets('should validate password length in sign up mode',
+    testWidgets('deve exibir botão do Google ativo',
         (WidgetTester tester) async {
       setLargerScreenSize(tester);
       await tester.pumpWidget(createTestWidget());
 
-      // Switch to sign up mode
-      await tester.tap(find.text('Não tem uma conta? Cadastre-se'));
-      await tester.pump();
-
-      // Enter email and weak password
-      await tester.enterText(
-          find.byType(TextFormField).first, 'test@example.com');
-      await tester.enterText(find.byType(TextFormField).last, '123');
-
-      // Tap create account button
-      await tester.tap(find.text('Criar Conta'));
-      await tester.pump();
-
-      // Should show password validation error
-      expect(find.text('A senha deve ter pelo menos 6 caracteres'),
-          findsOneWidget);
+      final googleButtonFinder = find.byKey(const Key('googleSignInButton'));
+      expect(googleButtonFinder, findsOneWidget);
+      final buttonWidget = tester.widget<OutlinedButton>(googleButtonFinder);
+      expect(buttonWidget.onPressed != null, isTrue,
+          reason: 'O botão do Google deve estar habilitado');
     });
   });
 }

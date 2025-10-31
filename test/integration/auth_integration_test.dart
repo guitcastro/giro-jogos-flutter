@@ -233,9 +233,8 @@ void main() {
       // Should handle the error gracefully (stay on login screen)
       expect(find.text('Entre na sua conta'), findsOneWidget);
 
-      // Should show error message in AlertDialog
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Erro'), findsOneWidget);
+      // Deve exibir mensagem de erro em SnackBar
+      expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('User not found'), findsOneWidget);
     });
   });
