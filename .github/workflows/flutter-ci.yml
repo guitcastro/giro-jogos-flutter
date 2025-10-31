@@ -233,9 +233,12 @@ jobs:
           path: |
             ~/.pub-cache
             .dart_tool
-          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.yaml') }}
+          key: flutter-${{ runner.os }}
           restore-keys: |
-            flutter-${{ runner.os }}-
+            flutter-${{ runner.os }}
+
+      - name: Clean
+        run: flutter clean            
       
       - name: Install dependencies
         run: flutter pub get
