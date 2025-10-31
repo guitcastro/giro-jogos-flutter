@@ -9,6 +9,18 @@ import '../fakes/fake_duo_service.dart';
 
 // Fake AuthService for integration testing (completely independent of Firebase)
 class FakeAuthService extends ChangeNotifier implements AuthService {
+  @override
+  bool get isAuthLoading => false;
+
+  PendingJoinInfo? _pendingJoin;
+  @override
+  PendingJoinInfo? get pendingJoin => _pendingJoin;
+  @override
+  set pendingJoin(PendingJoinInfo? value) {
+    _pendingJoin = value;
+    notifyListeners();
+  }
+
   bool _isAuthenticated = false;
   String? _lastEmail;
   String? _lastPassword;
@@ -221,8 +233,10 @@ void main() {
       // Should handle the error gracefully (stay on login screen)
       expect(find.text('Entre na sua conta'), findsOneWidget);
 
-      // Should show error message in SnackBar
-      expect(find.byType(SnackBar), findsOneWidget);
+      // Should show error message in AlertDialog
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Erro'), findsOneWidget);
+      expect(find.text('User not found'), findsOneWidget);
     });
   });
 }

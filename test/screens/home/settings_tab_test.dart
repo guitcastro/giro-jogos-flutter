@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/screens/home/settings_tab.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:giro_jogos/src/services/join_duo_params.dart';
 
 class MockAuthService extends Mock implements AuthService {}
 
@@ -25,7 +26,10 @@ void main() {
         home: Scaffold(
           body: ChangeNotifierProvider<AuthService>.value(
             value: mockAuthService,
-            child: child,
+            child: ChangeNotifierProvider<JoinDuoParams>(
+              create: (_) => JoinDuoParams(),
+              child: child,
+            ),
           ),
         ),
       );

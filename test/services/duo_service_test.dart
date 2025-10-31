@@ -139,8 +139,30 @@ void main() {
     });
 
     test('getDuoByInviteCode retorna null se não existe', () async {
-      final result = await duoService.getDuoByInviteCode('NAOEXISTE');
+      final result = await duoService.getDuoByInviteCode(
+          duoId: 'duo1', inviteCode: 'NAOEXISTE');
       expect(result, isNull);
+    });
+
+    test('getDuoByInviteCode retorna o duo correto se existir', () async {
+      // Cria o duo na subcoleção invites
+      await firestore
+          .collection('duos')
+          .doc('duo1')
+          .collection('invites')
+          .doc('ABC123')
+          .set({
+        'participants': ['user1'],
+        'name': 'Duo Teste',
+        'inviteCode': 'ABC123',
+        'createdAt': Timestamp.now(),
+        'updatedAt': Timestamp.now(),
+      });
+      final result = await duoService.getDuoByInviteCode(
+          duoId: 'duo1', inviteCode: 'ABC123');
+      expect(result, isNotNull);
+      expect(result!.name, 'Duo Teste');
+      expect(result.participants, contains('user1'));
     });
   });
 }

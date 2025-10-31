@@ -5,6 +5,18 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 
 // Mock AuthService for testing (avoiding Firebase dependency)
 class MockAuthServiceForTest extends ChangeNotifier implements AuthService {
+  @override
+  bool get isAuthLoading => false;
+
+  PendingJoinInfo? _pendingJoin;
+  @override
+  PendingJoinInfo? get pendingJoin => _pendingJoin;
+  @override
+  set pendingJoin(PendingJoinInfo? value) {
+    _pendingJoin = value;
+    notifyListeners();
+  }
+
   bool _isAuthenticated = false;
   User? _user;
 

@@ -8,6 +8,7 @@ import '../fakes/fake_duo_service.dart';
 import '../test_helpers.dart';
 import 'mock_duo_wrapper_screen.dart';
 import 'package:giro_jogos/src/screens/duo/no_duo_screen.dart';
+import 'package:giro_jogos/src/services/join_duo_params.dart';
 
 void main() {
   group('DuoWrapperScreen loading', () {
@@ -18,12 +19,15 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Provider<DuoService>.value(
           value: fakeDuoService,
-          child: Builder(
-            builder: (context) => MockDuoWrapperScreen(
-              userId: 'userX',
-              getNames: (_) async => const ['A', 'B'],
-              getScore: (_) async => 0,
-              stream: controller.stream,
+          child: ChangeNotifierProvider<JoinDuoParams>(
+            create: (_) => JoinDuoParams(),
+            child: Builder(
+              builder: (context) => MockDuoWrapperScreen(
+                userId: 'userX',
+                getNames: (_) async => const ['A', 'B'],
+                getScore: (_) async => 0,
+                stream: controller.stream,
+              ),
             ),
           ),
         ),
@@ -45,11 +49,14 @@ void main() {
           home: Builder(
             builder: (context) => Provider<DuoService>.value(
               value: fakeDuoService,
-              child: MockDuoWrapperScreen(
-                userId: 'userX',
-                getNames: (_) async => const ['A', 'B'],
-                getScore: (_) async => 0,
-                stream: controller.stream,
+              child: ChangeNotifierProvider<JoinDuoParams>(
+                create: (_) => JoinDuoParams(),
+                child: MockDuoWrapperScreen(
+                  userId: 'userX',
+                  getNames: (_) async => const ['A', 'B'],
+                  getScore: (_) async => 0,
+                  stream: controller.stream,
+                ),
               ),
             ),
           ),

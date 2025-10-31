@@ -4,9 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:giro_jogos/src/auth_wrapper.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
+import 'package:giro_jogos/src/services/join_duo_params.dart';
 
 // Mock AuthService for testing
 class MockAuthService extends ChangeNotifier implements AuthService {
+  @override
+  bool get isAuthLoading => false;
+
+  PendingJoinInfo? _pendingJoin;
+  @override
+  PendingJoinInfo? get pendingJoin => _pendingJoin;
+  @override
+  set pendingJoin(PendingJoinInfo? value) {
+    _pendingJoin = value;
+    notifyListeners();
+  }
+
   bool _isAuthenticated = false;
 
   @override
@@ -60,8 +73,11 @@ void main() {
     Widget createTestWidget(Widget child) {
       return ChangeNotifierProvider<AuthService>.value(
         value: mockAuthService,
-        child: MaterialApp(
-          home: AuthWrapper(child: child),
+        child: ChangeNotifierProvider<JoinDuoParams>(
+          create: (_) => JoinDuoParams(),
+          child: MaterialApp(
+            home: AuthWrapper(child: child),
+          ),
         ),
       );
     }

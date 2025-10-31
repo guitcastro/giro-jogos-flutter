@@ -1,1 +1,52 @@
-{"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}]},"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"giro-jogos","appId":"1:820256283325:android:1e97a199c3bab8c6c7f5d4","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"giro-jogos","appId":"1:820256283325:ios:f70d86331ccda4a3c7f5d4","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"giro-jogos","configurations":{"android":"1:820256283325:android:1e97a199c3bab8c6c7f5d4","ios":"1:820256283325:ios:f70d86331ccda4a3c7f5d4","web":"1:820256283325:web:e7a2aad8ab708910c7f5d4"}}}}}}
+{
+    "hosting": {
+        "public": "build/web",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ],
+        "rewrites": [
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ]
+    },
+    "firestore": {
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    },
+    "storage": {
+        "rules": "storage.rules"
+    },
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "giro-jogos",
+                    "appId": "1:820256283325:android:1e97a199c3bab8c6c7f5d4",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "giro-jogos",
+                    "appId": "1:820256283325:ios:f70d86331ccda4a3c7f5d4",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "giro-jogos",
+                    "configurations": {
+                        "android": "1:820256283325:android:1e97a199c3bab8c6c7f5d4",
+                        "ios": "1:820256283325:ios:f70d86331ccda4a3c7f5d4",
+                        "web": "1:820256283325:web:e7a2aad8ab708910c7f5d4"
+                    }
+                }
+            }
+        }
+    }
+}

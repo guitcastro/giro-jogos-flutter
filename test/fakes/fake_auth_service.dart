@@ -4,6 +4,18 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 
 /// Mock centralizado para AuthService, usando MockUser do firebase_auth_mocks
 class FakeAuthService extends ChangeNotifier implements AuthService {
+  @override
+  bool get isAuthLoading => false;
+
+  PendingJoinInfo? _pendingJoin;
+  @override
+  PendingJoinInfo? get pendingJoin => _pendingJoin;
+  @override
+  set pendingJoin(PendingJoinInfo? value) {
+    _pendingJoin = value;
+    notifyListeners();
+  }
+
   bool _isAuthenticated;
   User? _currentUser;
 

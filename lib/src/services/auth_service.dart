@@ -3,20 +3,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:io' show Platform;
 
+class PendingJoinInfo {
+  final String duoId;
+  final String inviteCode;
+  PendingJoinInfo(this.duoId, this.inviteCode);
+}
+
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // Note: Google Sign In 7.x simplifies authentication to use only Firebase Auth
   User? _user;
+  PendingJoinInfo? pendingJoin;
+  bool _isAuthLoading = true;
 
   AuthService() {
+    // Inicializa o estado de loading como true até receber o primeiro evento.
     _auth.authStateChanges().listen((User? user) {
       _user = user;
+      _isAuthLoading = false;
       notifyListeners();
     });
   }
 
   User? get currentUser => _user;
   bool get isAuthenticated => _user != null;
+  bool get isAuthLoading => _isAuthLoading;
 
   Future<UserCredential?> signInWithEmailAndPassword(
     String email,

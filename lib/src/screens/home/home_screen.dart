@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
+import '../../services/join_duo_params.dart';
 import 'duo_wrapper_screen.dart';
 import 'settings_tab.dart';
 
@@ -16,6 +17,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final joinParams = Provider.of<JoinDuoParams>(context, listen: false);
+    if (!authService.isAuthenticated) {
+      return;
+    }
+    if (!joinParams.hasParams) {}
+  }
+
   int _selectedIndex = 0;
 
   @override

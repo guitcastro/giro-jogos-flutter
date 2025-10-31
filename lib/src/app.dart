@@ -5,6 +5,7 @@ import 'screens/home/home_screen.dart';
 import 'screens/admin/admin_screen.dart';
 import 'package:provider/provider.dart';
 import 'services/duo_service.dart';
+import 'services/join_duo_params.dart';
 
 class GiroJogosApp extends StatelessWidget {
   final DuoService? duoService;
@@ -12,8 +13,11 @@ class GiroJogosApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider<DuoService>.value(
-      value: duoService ?? DuoService(),
+    return MultiProvider(
+      providers: [
+        Provider<DuoService>.value(value: duoService ?? DuoService()),
+        ChangeNotifierProvider(create: (_) => JoinDuoParams()),
+      ],
       child: MaterialApp.router(
         title: 'Giro Jogos',
         theme: ThemeData(
@@ -26,22 +30,38 @@ class GiroJogosApp extends StatelessWidget {
     );
   }
 
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
   static GoRouter _buildRouter() {
-    return GoRouter(
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const AuthWrapper(
-            child: HomeScreen(),
-          ),
+    return GoRouter(navigatorKey: _rootNavigatorKey, routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) {
+          return const AuthWrapper(child: HomeScreen());
+        },
+      ),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AuthWrapper(
+          child: AdminScreen(),
         ),
-        GoRoute(
-          path: '/admin',
-          builder: (context, state) => const AuthWrapper(
-            child: AdminScreen(),
-          ),
-        ),
-      ],
-    );
+      ),
+      GoRoute(
+        path: '/join/:duoId/:inviteCode',
+        builder: (context, state) {
+          final duoId = state.pathParameters['duoId'] ?? '';
+          final inviteCode = state.pathParameters['inviteCode'] ?? '';
+          // Seta os params e redireciona para home sem usar context após async gap
+          Future.microtask(() {
+            final joinParams = Provider.of<JoinDuoParams>(
+              _rootNavigatorKey.currentContext!,
+              listen: false,
+            );
+            joinParams.setParams(duoId, inviteCode);
+          });
+          return const AuthWrapper(child: HomeScreen());
+        },
+      ),
+    ]);
   }
 }

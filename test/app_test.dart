@@ -7,6 +7,7 @@ import 'package:giro_jogos/src/services/auth_service.dart';
 import 'test_helpers.dart';
 import 'fakes/fake_duo_service.dart';
 import 'fakes/fake_auth_service.dart';
+import 'package:giro_jogos/src/services/join_duo_params.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
@@ -24,9 +25,15 @@ void main() {
       );
       final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthService>(
-          create: (_) =>
-              FakeAuthService(isAuthenticated: true, currentUser: mockUser),
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthService>(
+              create: (_) =>
+                  FakeAuthService(isAuthenticated: true, currentUser: mockUser),
+            ),
+            ChangeNotifierProvider<JoinDuoParams>(
+                create: (_) => JoinDuoParams()),
+          ],
           child: GiroJogosApp(duoService: fakeDuoService),
         ),
       );
@@ -39,8 +46,14 @@ void main() {
         (WidgetTester tester) async {
       final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthService>(
-          create: (_) => FakeAuthService(isAuthenticated: false),
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthService>(
+              create: (_) => FakeAuthService(isAuthenticated: false),
+            ),
+            ChangeNotifierProvider<JoinDuoParams>(
+                create: (_) => JoinDuoParams()),
+          ],
           child: GiroJogosApp(duoService: fakeDuoService),
         ),
       );

@@ -4,9 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:giro_jogos/src/screens/auth/login_screen.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
+import 'package:giro_jogos/src/services/join_duo_params.dart';
 
 // Mock AuthService for testing
 class MockAuthService extends ChangeNotifier implements AuthService {
+  @override
+  bool get isAuthLoading => false;
+
+  PendingJoinInfo? _pendingJoin;
+  @override
+  PendingJoinInfo? get pendingJoin => _pendingJoin;
+  @override
+  set pendingJoin(PendingJoinInfo? value) {
+    _pendingJoin = value;
+    notifyListeners();
+  }
+
   bool _isAuthenticated = false;
   String? _lastEmail;
   String? _lastPassword;
@@ -86,6 +99,30 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 }
 
 void main() {
+  testWidgets('exibe mensagem para login ao tentar entrar em dupla',
+      (WidgetTester tester) async {
+    // Setup igual aos outros testes
+    final mockAuthService = MockAuthService();
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    // Cria JoinDuoParams com parâmetros para simular acesso via convite
+    final joinDuoParams = JoinDuoParams();
+    joinDuoParams.setParams('duo1', 'INVITE123');
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AuthService>.value(
+        value: mockAuthService,
+        child: ChangeNotifierProvider<JoinDuoParams>.value(
+          value: joinDuoParams,
+          child: const MaterialApp(
+            home: LoginScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Faça login para se juntar à dupla'), findsOneWidget);
+  });
   group('LoginScreen Widget Tests', () {
     late MockAuthService mockAuthService;
 
@@ -101,8 +138,11 @@ void main() {
     Widget createTestWidget() {
       return ChangeNotifierProvider<AuthService>.value(
         value: mockAuthService,
-        child: const MaterialApp(
-          home: LoginScreen(),
+        child: ChangeNotifierProvider<JoinDuoParams>(
+          create: (_) => JoinDuoParams(),
+          child: const MaterialApp(
+            home: LoginScreen(),
+          ),
         ),
       );
     }
@@ -256,9 +296,10 @@ void main() {
       // Wait for async operations and SnackBar animation
       await tester.pumpAndSettle();
 
-      // Should show error message in SnackBar
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Erro: Exception: Test error'), findsOneWidget);
+      // Should show error message in AlertDialog
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Erro'), findsOneWidget);
+      expect(find.text('Exception: Test error'), findsOneWidget);
     });
 
     testWidgets('should validate password length in sign up mode',

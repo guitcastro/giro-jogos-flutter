@@ -23,7 +23,6 @@ class MockDuoWrapperScreen extends DuoWrapperScreen {
         if (!snapshot.hasData) {
           return NoDuoScreen(
             onCreateDuo: (_) {},
-            onJoinDuo: (_) {},
           );
         }
         final duo = snapshot.data!;

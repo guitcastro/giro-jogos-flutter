@@ -11,7 +11,7 @@ class PendingDuoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inviteText =
-        'Junte-se ao meu duo "${duo.name}" no Giro Jogos!\nUse o código: ${duo.inviteCode}\nAcesse: https://giro-jogos.web.app/';
+        'Junte-se ao meu duo "${duo.name}" no Giro Jogos!\nAcesse: https://giro-jogos.web.app/join/${duo.id}/${duo.inviteCode}';
     final colorScheme = Theme.of(context).colorScheme;
     Color fadedPrimary = colorScheme.primary.withAlpha((0.07 * 255).round());
     final duoService = Provider.of<DuoService>(context, listen: false);
@@ -32,30 +32,6 @@ class PendingDuoScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: fadedPrimary,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    const Text('Código de convite:',
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    const SizedBox(height: 6),
-                    SelectableText(
-                      duo.inviteCode,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                        letterSpacing: 2,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,

@@ -62,8 +62,6 @@ void main() {
       );
       expect(find.byIcon(Icons.hourglass_empty), findsOneWidget);
       expect(find.text('Convide alguém para sua dupla!'), findsOneWidget);
-      expect(find.text('Código de convite:'), findsOneWidget);
-      expect(find.text('ZZZZ99'), findsOneWidget);
       expect(find.text('Compartilhar convite'), findsOneWidget);
       expect(find.text('Desfazer dupla'), findsOneWidget);
       expect(
@@ -88,8 +86,6 @@ void main() {
           child: MaterialApp(home: PendingDuoScreen(duo: duo)),
         ),
       );
-      expect(find.text('Código de convite:'), findsOneWidget);
-      expect(find.text('ABC123'), findsOneWidget);
       expect(find.text('Compartilhar convite'), findsOneWidget);
       expect(find.text('Desfazer dupla'), findsOneWidget);
     });
