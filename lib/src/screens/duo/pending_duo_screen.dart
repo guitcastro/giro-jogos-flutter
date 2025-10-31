@@ -16,11 +16,6 @@ class PendingDuoScreen extends StatelessWidget {
     Color fadedPrimary = colorScheme.primary.withAlpha((0.07 * 255).round());
     final duoService = Provider.of<DuoService>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Aguardando parceiro'),
-        backgroundColor: colorScheme.inversePrimary,
-        elevation: 0,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
