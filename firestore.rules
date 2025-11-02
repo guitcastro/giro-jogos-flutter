@@ -9,6 +9,23 @@ service cloud.firestore {
     function getUserId() {
       return request.auth.uid;
     }
+
+    function validParticipants(participants) {
+      return participants is list
+        && participants.size() >= 1
+        && participants.size() <= 2
+        && (
+          (participants.size() == 1
+            && participants[0].id is string
+            && participants[0].name is string)
+          ||
+          (participants.size() == 2
+            && participants[0].id is string
+            && participants[0].name is string
+            && participants[1].id is string
+            && participants[1].name is string)
+        );
+    }
     
     // Users collection
     match /users/{userId} {
@@ -31,34 +48,32 @@ service cloud.firestore {
       allow get: if isAuthenticated() && inviteCode == resource.data.inviteCode;
       allow list: if false;
 
-      // Criação: qualquer usuário autenticado pode criar um duo, inviteCode obrigatório, máximo 2 participantes
-      allow create: if isAuthenticated() &&
-        request.resource.data.participants is list &&
-        request.resource.data.participants.size() >= 1 &&
-        request.resource.data.participants.size() <= 2 &&
-  request.resource.data.participants.all(p, p is map && p.id is string && p.name is string) &&
-        request.resource.data.inviteCode is string &&
-        request.resource.data.inviteCode.size() == 6 &&
-        request.resource.data.createdAt is timestamp &&
-        request.resource.data.updatedAt is timestamp &&
-        inviteCode == request.resource.data.inviteCode;
+      // Criação: só é permitido se participants for uma lista com UM único usuário, e esse id for igual ao usuário autenticado
+        allow create: if isAuthenticated()
+        && request.resource.data.participants is list
+        && request.resource.data.participants.size() == 1
+        && request.resource.data.participants[0] is map
+        && request.resource.data.participants[0].id is string
+        && request.resource.data.participants[0].name is string
+        && request.resource.data.participants[0].id == getUserId()
+        && request.resource.data.inviteCode is string
+        && request.resource.data.inviteCode.size() == 6
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && inviteCode == request.resource.data.inviteCode
 
       // Atualização: só pode atualizar participantes (adicionar/remover), inviteCode não pode mudar, máximo 2 participantes
-      allow update: if isAuthenticated() &&
-        request.resource.data.inviteCode == resource.data.inviteCode &&
-        request.resource.data.participants is list &&
-        request.resource.data.participants.size() >= 1 &&
-        request.resource.data.participants.size() <= 2 &&
-  request.resource.data.participants.all(p, p is map && p.id is string && p.name is string) &&
-        inviteCode == resource.data.inviteCode;
+        allow update: if isAuthenticated() &&
+          request.resource.data.inviteCode == resource.data.inviteCode &&
+          validParticipants(request.resource.data.participants)
 
   // Exclusão: qualquer participante pode deletar
-  allow delete: if isAuthenticated()
-    && exists(/databases/$(database)/documents/duos/$(duoId)/invites/$(inviteCode))
-    && resource.data.participants is list
-    && resource.data.participants.size() == 1
-    && resource.data.participants[0].id == getUserId()
-    && inviteCode == resource.data.inviteCode;
+    allow delete: if isAuthenticated()
+      && exists(/databases/$(database)/documents/duos/$(duoId)/invites/$(inviteCode))
+      && resource.data.participants is list
+      && resource.data.participants.size() == 1
+      && resource.data.participants[0].id == getUserId()
+      && inviteCode == resource.data.inviteCode
     }
     
     // Games collection (existing)

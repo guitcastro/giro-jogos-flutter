@@ -1,17 +1,15 @@
 describe('Firestore Security Rules - User Duo Document', () => {
-  it('Usuário pode ler e escrever seu próprio duo em /users/{userId}/duo/current', async () => {
+  it('Usuário pode criar, ler e escrever seu próprio duo em /users/{userId}/duo/current', async () => {
     const userId = 'user123';
-    // Cria o duo como admin
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await ctx.firestore().doc(`users/${userId}/duo/current`).set({
-        duoId: 'duo456',
-        inviteCode: 'ABC123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    });
-    // O próprio usuário pode ler
     const db = testEnv.authenticatedContext(userId).firestore();
+    // O próprio usuário pode criar
+    await assertSucceeds(db.doc(`users/${userId}/duo/current`).set({
+      duoId: 'duo456',
+      inviteCode: 'ABC123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+    // O próprio usuário pode ler
     await assertSucceeds(db.doc(`users/${userId}/duo/current`).get());
     // O próprio usuário pode escrever
     await assertSucceeds(db.doc(`users/${userId}/duo/current`).set({
@@ -76,6 +74,48 @@ after(async () => {
 });
 
 describe('Firestore Security Rules - Duos', () => {
+  it('Usuário autenticado pode criar um duo válido', async () => {
+    const userId = 'user123';
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const duoId = 'duo' + Math.floor(Math.random() * 1000000).toString();
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertSucceeds(db.doc(`duos/${duoId}/invites/${inviteCode}`).set({
+      participants: [{ id: userId, name: 'User 123' }],
+      name: 'Meu Duo',
+      inviteCode,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  });
+  it('Não permite criar duo com mais de um participante', async () => {
+    const userId = 'user123';
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const duoId = 'duo' + Math.floor(Math.random() * 1000000).toString();
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertFails(db.doc(`duos/${duoId}/invites/${inviteCode}`).set({
+      participants: [
+        { id: userId, name: 'User 123' },
+        { id: 'user456', name: 'Outro' }
+      ],
+      name: 'Meu Duo',
+      inviteCode,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  });
+  it('Não permite criar duo se id do participante for diferente do usuário autenticado', async () => {
+    const userId = 'user123';
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const duoId = 'duo' + Math.floor(Math.random() * 1000000).toString();
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertFails(db.doc(`duos/${duoId}/invites/${inviteCode}`).set({
+      participants: [{ id: 'user456', name: 'Outro' }],
+      name: 'Meu Duo',
+      inviteCode,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  });
   it('Participante pode deletar seu próprio duo', async () => {
     const userId = 'user123';
     const inviteCode = 'ABC123';
