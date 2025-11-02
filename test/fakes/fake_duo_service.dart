@@ -60,7 +60,7 @@ class FakeDuoService implements DuoService {
   }
 
   @override
-  Future<void> leaveDuo(String duoId) async {
+  Future<void> leaveDuo() async {
     // Fake: não faz nada
     return;
   }

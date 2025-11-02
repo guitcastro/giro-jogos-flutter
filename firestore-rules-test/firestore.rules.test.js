@@ -83,7 +83,7 @@ describe('Firestore Security Rules - Duos', () => {
     // Cria o duo como admin
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
-        participants: [userId],
+        participants: [{ id: userId, name: 'User 123' }],
         name: 'Meu Duo',
         inviteCode,
         createdAt: new Date(),
@@ -102,7 +102,7 @@ describe('Firestore Security Rules - Duos', () => {
     // Cria o duo como admin
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
-        participants: [userId],
+  participants: [{ id: userId, name: 'User 123' }],
         name: 'Meu Duo',
         inviteCode,
         createdAt: new Date(),
@@ -121,7 +121,10 @@ describe('Firestore Security Rules - Duos', () => {
     // Cria o duo como admin
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
-        participants: [userId, 'user456'],
+        participants: [
+          { id: userId, name: 'User 123' },
+          { id: 'user456', name: 'User 456' }
+        ],
         name: 'Meu Duo',
         inviteCode,
         createdAt: new Date(),
@@ -140,7 +143,10 @@ describe('Firestore Security Rules - Duos', () => {
     // Cria o duo como admin
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
-        participants: [userId, 'user456'],
+        participants: [
+          { id: userId, name: 'User 123' },
+          { id: 'user456', name: 'User 456' }
+        ],
         name: 'Meu Duo',
         inviteCode,
         createdAt: new Date(),
@@ -150,7 +156,11 @@ describe('Firestore Security Rules - Duos', () => {
     // Tenta atualizar para 3 participantes
     const db = testEnv.authenticatedContext(userId).firestore();
     await assertFails(db.doc(`duos/${duoId}/invites/${inviteCode}`).update({
-      participants: [userId, 'user2', 'user3'],
+      participants: [
+        { id: userId, name: 'User 123' },
+        { id: 'user2', name: 'User 2' },
+        { id: 'user3', name: 'User 3' }
+      ],
       updatedAt: new Date(),
     }));
   });
