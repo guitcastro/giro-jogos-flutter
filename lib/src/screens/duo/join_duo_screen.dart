@@ -243,7 +243,7 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
             const Text('Participantes:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ...duo.participants.map<Widget>(
-                (p) => Text(p, style: const TextStyle(fontSize: 16))),
+                (p) => Text(p.name, style: const TextStyle(fontSize: 16))),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _confirming

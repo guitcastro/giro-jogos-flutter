@@ -1,8 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+class DuoParticipant {
+  final String id;
+  final String name;
+
+  const DuoParticipant({
+    required this.id,
+    required this.name,
+  });
+
+  factory DuoParticipant.fromMap(Map<String, dynamic> map) {
+    return DuoParticipant(
+      id: map['id'] as String,
+      name: map['name'] as String,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {'id': id, 'name': name};
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DuoParticipant &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name;
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode;
+}
+
 class Duo {
   final String id;
-  final List<String> participants;
+  final List<DuoParticipant> participants;
   final String name;
   final String inviteCode;
   final DateTime createdAt;
@@ -16,7 +46,7 @@ class Duo {
     required this.inviteCode,
     required this.createdAt,
     required this.updatedAt,
-    this.maxParticipants = 2, // Limite padrão de participantes
+    this.maxParticipants = 2,
   });
 
   // Factory constructor para criar um Duo a partir do Firestore
@@ -24,7 +54,10 @@ class Duo {
     final data = doc.data() as Map<String, dynamic>;
     return Duo(
       id: doc.reference.parent.parent?.id ?? '',
-      participants: List<String>.from(data['participants'] ?? []),
+      participants: (data['participants'] as List?)
+              ?.map((e) => DuoParticipant.fromMap(Map<String, dynamic>.from(e)))
+              .toList() ??
+          [],
       name: data['name'] ?? '',
       inviteCode: data['inviteCode'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -37,7 +70,10 @@ class Duo {
   factory Duo.fromMap(Map<String, dynamic> data, String id) {
     return Duo(
       id: id,
-      participants: List<String>.from(data['participants'] ?? []),
+      participants: (data['participants'] as List?)
+              ?.map((e) => DuoParticipant.fromMap(Map<String, dynamic>.from(e)))
+              .toList() ??
+          [],
       name: data['name'] ?? '',
       inviteCode: data['inviteCode'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -49,7 +85,7 @@ class Duo {
   // Converter para Map para salvar no Firestore
   Map<String, dynamic> toMap() {
     return {
-      'participants': participants,
+      'participants': participants.map((e) => e.toMap()).toList(),
       'name': name,
       'inviteCode': inviteCode,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -61,7 +97,7 @@ class Duo {
   // Cópia com modificações
   Duo copyWith({
     String? id,
-    List<String>? participants,
+    List<DuoParticipant>? participants,
     String? name,
     String? inviteCode,
     DateTime? createdAt,
@@ -80,7 +116,7 @@ class Duo {
   }
 
   // Verificar se o usuário é participante
-  bool isParticipant(String userId) => participants.contains(userId);
+  bool isParticipant(String userId) => participants.any((p) => p.id == userId);
 
   // Verificar se o usuário é membro (dono ou participante)
   bool isMember(String userId) => isParticipant(userId);

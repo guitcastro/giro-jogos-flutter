@@ -198,7 +198,12 @@ class _FakeDuo extends Duo {
   _FakeDuo({bool isFull = false})
       : super(
           id: 'duo1',
-          participants: isFull ? ['user1', 'user2'] : ['user1'],
+          participants: isFull
+              ? [
+                  const DuoParticipant(id: 'user1', name: 'User 1'),
+                  const DuoParticipant(id: 'user2', name: 'User 2')
+                ]
+              : [const DuoParticipant(id: 'user1', name: 'User 1')],
           name: 'Dupla Teste',
           inviteCode: 'ABC123',
           createdAt: DateTime.now(),

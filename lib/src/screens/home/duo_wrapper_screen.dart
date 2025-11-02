@@ -66,7 +66,7 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
             // Buscar nomes e pontuação
             return FutureBuilder(
               future: Future.wait([
-                widget.getNames(duo.participants),
+                widget.getNames(duo.participants.map((p) => p.name).toList()),
                 widget.getScore(duo.id),
               ]),
               builder: (context, snap) {

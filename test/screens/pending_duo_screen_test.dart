@@ -13,7 +13,7 @@ void main() {
       id: 'duo1',
       name: 'Dupla Teste',
       inviteCode: 'ABC123',
-      participants: ['user1'],
+      participants: [const DuoParticipant(id: 'user1', name: 'User 1')],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -48,7 +48,7 @@ void main() {
       id: 'duo1',
       name: 'Dupla Visual',
       inviteCode: 'ZZZZ99',
-      participants: ['user1'],
+      participants: [const DuoParticipant(id: 'user1', name: 'User 1')],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -74,7 +74,7 @@ void main() {
       id: 'duo1',
       name: 'Dupla Teste',
       inviteCode: 'ABC123',
-      participants: ['user1'],
+      participants: [const DuoParticipant(id: 'user1', name: 'User 1')],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

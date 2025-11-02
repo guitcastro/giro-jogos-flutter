@@ -39,7 +39,7 @@ class FakeDuoService implements DuoService {
       id: name,
       name: name,
       inviteCode: 'INVITE',
-      participants: [],
+      participants: const [],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

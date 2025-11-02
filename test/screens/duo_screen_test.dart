@@ -9,7 +9,10 @@ void main() {
       id: 'duo2',
       name: 'Dupla Completa',
       inviteCode: 'XYZ789',
-      participants: ['user1', 'user2'],
+      participants: const [
+        DuoParticipant(id: 'user1', name: 'Alice'),
+        DuoParticipant(id: 'user2', name: 'Bob'),
+      ],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

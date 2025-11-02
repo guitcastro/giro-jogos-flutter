@@ -41,7 +41,10 @@ void main() {
           .collection('invites')
           .doc('ABC123')
           .set({
-        'participants': ['user1', 'user2'],
+        'participants': [
+          {'id': 'user1', 'name': 'User 1'},
+          {'id': 'user2', 'name': 'User 2'}
+        ],
         'name': 'Duo Teste',
         'inviteCode': 'ABC123',
         'createdAt': Timestamp.now(),
@@ -90,7 +93,9 @@ void main() {
     test('createDuo cria e lê um duo simples', () async {
       final duoId = 'duo1';
       final duoData = {
-        'participants': ['user1'],
+        'participants': [
+          {'id': 'user1', 'name': 'User 1'}
+        ],
         'name': 'Duo Teste',
         'inviteCode': 'ABC123',
         'createdAt': Timestamp.now(),
@@ -100,7 +105,11 @@ void main() {
       final snapshot = await firestore.collection('duos').doc(duoId).get();
       expect(snapshot.exists, isTrue);
       expect(snapshot['name'], 'Duo Teste');
-      expect(snapshot['participants'], contains('user1'));
+      expect(
+        (snapshot['participants'] as List)
+            .any((p) => p['id'] == 'user1' && p['name'] == 'User 1'),
+        isTrue,
+      );
     });
 
     test('getUserDuo retorna null se usuário não tem duo', () async {
@@ -126,7 +135,9 @@ void main() {
           .collection('invites')
           .doc('ABC123')
           .set({
-        'participants': ['user1'],
+        'participants': [
+          {'id': 'user1', 'name': 'User 1'}
+        ],
         'name': 'Duo Teste',
         'inviteCode': 'ABC123',
         'createdAt': Timestamp.now(),
@@ -135,7 +146,7 @@ void main() {
       final result = await duoService.getUserDuo();
       expect(result, isNotNull);
       expect(result!.name, 'Duo Teste');
-      expect(result.participants, contains('user1'));
+      expect(result.participants.map((p) => p.id), contains('user1'));
     });
 
     test('getDuoByInviteCode retorna null se não existe', () async {
@@ -152,7 +163,9 @@ void main() {
           .collection('invites')
           .doc('ABC123')
           .set({
-        'participants': ['user1'],
+        'participants': [
+          {'id': 'user1', 'name': 'User 1'}
+        ],
         'name': 'Duo Teste',
         'inviteCode': 'ABC123',
         'createdAt': Timestamp.now(),
@@ -162,7 +175,7 @@ void main() {
           duoId: 'duo1', inviteCode: 'ABC123');
       expect(result, isNotNull);
       expect(result!.name, 'Duo Teste');
-      expect(result.participants, contains('user1'));
+      expect(result.participants.map((p) => p.id), contains('user1'));
     });
   });
 }

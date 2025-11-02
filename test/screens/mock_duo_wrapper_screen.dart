@@ -31,7 +31,7 @@ class MockDuoWrapperScreen extends DuoWrapperScreen {
         }
         return FutureBuilder(
           future: Future.wait([
-            getNames(duo.participants),
+            getNames(duo.participants.map((p) => p.id).toList()),
             getScore(duo.id),
           ]),
           builder: (context, snap) {

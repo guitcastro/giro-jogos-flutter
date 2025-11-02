@@ -36,11 +36,20 @@ service cloud.firestore {
         request.resource.data.participants is list &&
         request.resource.data.participants.size() >= 1 &&
         request.resource.data.participants.size() <= 2 &&
+        request.resource.data.participants.hasAll(participantObj() && participantObj()) &&
         request.resource.data.inviteCode is string &&
         request.resource.data.inviteCode.size() == 6 &&
         request.resource.data.createdAt is timestamp &&
         request.resource.data.updatedAt is timestamp &&
         inviteCode == request.resource.data.inviteCode;
+
+      function participantObj() {
+        // Cada participante deve ser um objeto com id e name
+        return participant in request.resource.data.participants &&
+          participant is map &&
+          participant.id is string &&
+          participant.name is string;
+      }
 
       // Atualização: só pode atualizar participantes (adicionar/remover), inviteCode não pode mudar, máximo 2 participantes
       allow update: if isAuthenticated() &&
@@ -48,10 +57,11 @@ service cloud.firestore {
         request.resource.data.participants is list &&
         request.resource.data.participants.size() >= 1 &&
         request.resource.data.participants.size() <= 2 &&
+        request.resource.data.participants.hasAll(participantObj() && participantObj()) &&
         inviteCode == resource.data.inviteCode;
 
-      // Exclusão: qualquer participante pode deletar
-      allow delete: if isAuthenticated() && getUserId() in resource.data.participants && inviteCode == resource.data.inviteCode;
+  // Exclusão: qualquer participante pode deletar
+  allow delete: if isAuthenticated() && resource.data.participants.hasAny(p => p.id == getUserId()) && inviteCode == resource.data.inviteCode;
     }
     
     // Games collection (existing)
