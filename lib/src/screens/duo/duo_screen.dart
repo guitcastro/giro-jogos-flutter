@@ -41,18 +41,12 @@ class DuoScreen extends StatelessWidget {
               const Icon(Icons.groups, size: 64, color: Colors.deepPurple),
               const SizedBox(height: 24),
               Text(
-                'Dupla',
+                'Dupla: ${duo.name}',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: colorScheme.primary,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                duo.name,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -99,15 +93,12 @@ class DuoScreen extends StatelessWidget {
                         color: Colors.amber, size: 24),
                     const SizedBox(width: 8),
                     Text(
-                      'Pontuação total: ',
+                      'Pontuação total: $totalScore',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.secondary),
-                    ),
-                    Text(
-                      '$totalScore',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 18),
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.secondary,
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),
