@@ -74,6 +74,35 @@ after(async () => {
 });
 
 describe('Firestore Security Rules - Duos', () => {
+  it('Usuário pode sair de um duo (update removendo ele da lista, restando outro participante)', async () => {
+    const userId = 'user123';
+    const otherId = 'user456';
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const duoId = 'duo' + Math.floor(Math.random() * 1000000).toString();
+    // Cria o duo com dois participantes
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
+        participants: [
+          { id: userId, name: 'User 123' },
+          { id: otherId, name: 'User 456' }
+        ],
+        name: 'Meu Duo',
+        inviteCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    // Usuário sai (update: remove userId)
+    const db = testEnv.authenticatedContext(userId).firestore();
+    await assertSucceeds(db.doc(`duos/${duoId}/invites/${inviteCode}`).update({
+      participants: [
+        { id: otherId, name: 'User 456' }
+      ],
+      inviteCode,
+      updatedAt: new Date(),
+    }));
+  });
+
   it('Usuário autenticado pode criar um duo válido', async () => {
     const userId = 'user123';
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
