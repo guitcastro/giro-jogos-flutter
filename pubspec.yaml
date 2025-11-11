@@ -3,6 +3,10 @@ description: A Flutter project for iOS, Android, and PWA with Firebase backend
 publish_to: 'none'
 version: 1.0.0+1
 
+homepage: https://github.com/guitcastro/giro-jogos-flutter
+repository: https://github.com/guitcastro/giro-jogos-flutter
+license: AGPL-3.0
+
 environment:
   sdk: '>=3.5.0 <4.0.0'
 
