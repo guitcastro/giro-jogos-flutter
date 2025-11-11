@@ -1,0 +1,164 @@
+{
+  "challenges": [
+    {
+      "id": 1,
+      "title": "Encontre o lambe",
+      "description": "Encontre o lambe do artista @danieldecarvalhoarte na parede da antiga Growleria de Arte (atrás do CCBB). Tire foto e poste nos stories marcando @danieldecarvalhoarte e @girorua.",
+      "order": 1,
+      "maxPoints": 150,
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "title": "Meu amigo motô",
+      "description": "Convencer motorista de ônibus a posar na janela fazendo joinha para foto com integrante da dupla (bike deve aparecer).",
+      "order": 2,
+      "maxPoints": 150,
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "title": "Lambe Lambe",
+      "description": "A dupla deve fazer um stencil ou lambe e postar o processo nos stories marcando @girorua.",
+      "order": 3,
+      "maxPoints": 300,
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "title": "Ghisallo caça colante",
+      "description": "Encontre 3 colantes GHISALLO no centro de BH e poste nos stories marcando @ghisallo e @girorua.",
+      "order": 4,
+      "maxPoints": 350,
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "title": "Coleta seletiva",
+      "description": "Catar papel, plástico e metal pedalando e depositar corretamente nos coletores da UFMG (Faculdade de Direito).",
+      "order": 5,
+      "maxPoints": 350,
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "title": "2Black",
+      "description": "Virar um chopp (ou outra bebida) do 2Black em menos de 1 minuto e postar marcando @girorua e @2black.",
+      "order": 6,
+      "maxPoints": 400,
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "title": "Bike Horizonte",
+      "description": "Competição de troca de câmara de ar entre duplas. Vence quem terminar primeiro.",
+      "order": 7,
+      "maxPoints": 550,
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "title": "Ciclista criativo",
+      "description": "Desenhar uma bicicleta com trajeto no Strava e postar atividade pública.",
+      "order": 8,
+      "maxPoints": 600,
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "title": "BHFXD Fixolimpíadas",
+      "description": "Trackstand mínimo de 15 segundos, filmado. Pontos conforme duração e dificuldade.",
+      "order": 9,
+      "maxPoints": 850,
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "title": "Ciclovias Raul Soares",
+      "description": "Percorrer ciclovias da Av. Olegário Maciel e Av. Augusto de Lima conforme trajeto definido.",
+      "order": 10,
+      "maxPoints": 300,
+      "isActive": true
+    },
+    {
+      "id": 11,
+      "title": "Pedalovo",
+      "description": "Pedalar equilibrando uma bolinha de ping pong na colher por pelo menos 15 segundos.",
+      "order": 11,
+      "maxPoints": 750,
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "title": "A Roda Canábica",
+      "description": "Um integrante deve bolar, acender e fumar pedalando enquanto o outro filma.",
+      "order": 12,
+      "maxPoints": 500,
+      "isActive": true
+    },
+    {
+      "id": 13,
+      "title": "Giro na minha casa",
+      "description": "Chegar na Roda às 16h20 com uma bíblia de pelo menos 4 cm de espessura.",
+      "order": 13,
+      "maxPoints": 500,
+      "isActive": true
+    },
+    {
+      "id": 14,
+      "title": "Giro Guignard",
+      "description": "Entrar no top 10 do segmento GIRO GUIGNARD no Strava.",
+      "order": 14,
+      "maxPoints": 800,
+      "isActive": true
+    },
+    {
+      "id": 15,
+      "title": "Ciclista consciente",
+      "description": "Interagir com um pedestre, filmar e postar nos stories marcando @girorua e @bhpedala.",
+      "order": 15,
+      "maxPoints": 300,
+      "isActive": true
+    },
+    {
+      "id": 16,
+      "title": "Giro ciclista apoiador",
+      "description": "Criar e demonstrar um novo desafio para o Giro Jogos 2025.",
+      "order": 16,
+      "maxPoints": 250,
+      "isActive": true
+    },
+    {
+      "id": 17,
+      "title": "Artista ou vândalo?",
+      "description": "Pixar 'GIRO RUA' em parede (não tombada) e postar vídeo sem ser autuado.",
+      "order": 17,
+      "maxPoints": 400,
+      "isActive": true
+    },
+    {
+      "id": 18,
+      "title": "Plotagem profissional",
+      "description": "Colar adesivo GIRO RUA em local não convencional.",
+      "order": 18,
+      "maxPoints": 250,
+      "isActive": true
+    },
+    {
+      "id": 19,
+      "title": "Ovelha negra da família",
+      "description": "Postar mensagem real de parente desaprovando rotina ciclística.",
+      "order": 19,
+      "maxPoints": 200,
+      "isActive": true
+    },
+    {
+      "id": 20,
+      "title": "Giro Clube de Vantagens",
+      "description": "Apresentar itens de edições anteriores na largada.",
+      "order": 20,
+      "maxPoints": 425,
+      "isActive": true
+    }
+  ]
+}

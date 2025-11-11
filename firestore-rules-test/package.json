@@ -10,5 +10,9 @@
     "@firebase/rules-unit-testing": "^3.0.0",
     "firebase": "^10.0.0",
     "mocha": "^11.0.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "node-fetch": "^3.3.2"
   }
 }

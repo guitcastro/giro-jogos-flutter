@@ -76,6 +76,19 @@ service cloud.firestore {
       && inviteCode == resource.data.inviteCode
     }
     
+    // Challenges collection
+    match /challenges/{challengeId} {
+      allow read: if resource.data.isActive == true;
+      allow write: if false;
+      // Validação dos campos obrigatórios
+      function validChallenge(data) {
+        return data.title is string &&
+               data.description is string &&
+               data.order is int &&
+               data.isActive is bool &&
+               data.maxPoints is int;
+      }
+    }
     // Games collection (existing)
     match /games/{gameId} {
       allow read: if true;

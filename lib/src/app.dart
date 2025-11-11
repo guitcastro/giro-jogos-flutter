@@ -6,6 +6,7 @@ import 'screens/admin/admin_screen.dart';
 import 'package:provider/provider.dart';
 import 'services/duo_service.dart';
 import 'services/join_duo_params.dart';
+import 'services/challenge_service.dart';
 
 class GiroJogosApp extends StatelessWidget {
   final DuoService? duoService;
@@ -16,6 +17,7 @@ class GiroJogosApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<DuoService>.value(value: duoService ?? DuoService()),
+        Provider<ChallengeService>(create: (_) => ChallengeService()),
         ChangeNotifierProvider(create: (_) => JoinDuoParams()),
       ],
       child: MaterialApp.router(

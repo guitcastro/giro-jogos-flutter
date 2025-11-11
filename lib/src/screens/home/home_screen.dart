@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../services/join_duo_params.dart';
 import 'duo_wrapper_screen.dart';
 import 'settings_tab.dart';
+import '../challenge/challenge_screen.dart';
 
 import '../../services/duo_service.dart';
 
@@ -43,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             getScore: (duoId) async =>
                 0, // TODO: Substitua por função real de score
           ),
+          const ChallengeScreen(),
           const SettingsTab(),
         ];
         return Scaffold(
@@ -98,6 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
               NavigationDestination(
                 icon: Icon(Icons.group),
                 label: 'Dupla',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.flag),
+                label: 'Desafios',
               ),
               NavigationDestination(
                 icon: Icon(Icons.settings),
