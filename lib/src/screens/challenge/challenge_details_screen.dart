@@ -40,11 +40,24 @@ class ChallengeDetailsScreen extends StatefulWidget {
 
 class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   bool _isUploading = false;
+  late final ChallengeService _challengeService;
+
+  @override
+  void initState() {
+    super.initState();
+    // Capture ChallengeService once to avoid using BuildContext after async gaps
+    _challengeService = Provider.of<ChallengeService>(
+      // listen: false because we don't want rebuilds of this State when service changes
+      // and accessing provider in initState with listen:false is safe.
+      // This prevents lint warnings about using BuildContext across async gaps.
+      context,
+      listen: false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final duoService = Provider.of<DuoService>(context, listen: false);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.challenge.title),
@@ -235,67 +248,6 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
     );
   }
 
-  // Kept for backward compatibility; may be called from other UIs.
-  // ignore: unused_element
-  Future<void> _uploadMedia(Duo duo, MediaType mediaType) async {
-    if (_isUploading) return;
-
-    setState(() => _isUploading = true);
-
-    try {
-      final picker = ImagePicker();
-      XFile? file;
-
-      if (mediaType == MediaType.image) {
-        file = await picker.pickImage(source: ImageSource.gallery);
-      } else {
-        file = await picker.pickVideo(source: ImageSource.gallery);
-      }
-
-      if (file != null) {
-        final challengeService =
-            Provider.of<ChallengeService>(context, listen: false);
-        if (mediaType == MediaType.image) {
-          await challengeService.submitImage(
-            challengeId: widget.challenge.id,
-            duoId: duo.id,
-            duoInviteCode: duo.inviteCode,
-            imageFile: file,
-          );
-        } else {
-          await challengeService.submitVideo(
-            challengeId: widget.challenge.id,
-            duoId: duo.id,
-            duoInviteCode: duo.inviteCode,
-            videoFile: file,
-          );
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Upload realizado com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao fazer upload: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isUploading = false);
-      }
-    }
-  }
-
   /// Abre o seletor do SO que permite escolher imagens ou vídeos em uma só ação
   /// e envia a mídia apropriada usando o MediaUploadService.
   Future<void> _pickAnyMediaAndSubmit(Duo duo) async {
@@ -359,14 +311,14 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       final isVideo = videoExtensions.contains(ext);
 
       if (isVideo) {
-        await Provider.of<ChallengeService>(context, listen: false).submitVideo(
+        await _challengeService.submitVideo(
           challengeId: widget.challenge.id,
           duoId: duo.id,
           duoInviteCode: duo.inviteCode,
           videoFile: xfile,
         );
       } else {
-        await Provider.of<ChallengeService>(context, listen: false).submitImage(
+        await _challengeService.submitImage(
           challengeId: widget.challenge.id,
           duoId: duo.id,
           duoInviteCode: duo.inviteCode,
@@ -413,8 +365,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
               final scaffoldMessenger = ScaffoldMessenger.of(context);
               navigator.pop();
               try {
-                await Provider.of<ChallengeService>(context, listen: false)
-                    .deleteSubmission(
+                await _challengeService.deleteSubmission(
                   challengeId: widget.challenge.id,
                   submissionId: submission.id,
                 );
