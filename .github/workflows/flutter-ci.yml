@@ -253,14 +253,11 @@ jobs:
 
       - name: Deploy Firestore indexes
         env:
-          # service account JSON provided as secret
-          FIREBASE_SERVICE_ACCOUNT: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          # use token-based auth instead of service account
+          FIREBASE_TOKEN: '${{ secrets.FIREBASE_TOKEN }}'
         run: |
-          echo "Writing service account to file"
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > $GITHUB_WORKSPACE/firebase-service-account.json
-          export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/firebase-service-account.json
-          echo "Deploying firestore indexes..."
-          firebase deploy --only firestore:indexes --project giro-jogos
+          echo "Deploying firestore indexes using FIREBASE_TOKEN..."
+          firebase deploy --only firestore:indexes --project giro-jogos --token "$FIREBASE_TOKEN"
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
