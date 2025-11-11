@@ -27,6 +27,7 @@ class FakeDuoService implements DuoService {
   DuoFuture? _getDuoByInviteCodeImpl;
   UserDuoFuture? _getUserDuoImpl;
   JoinDuoFuture? _joinDuoImpl;
+  Stream<Duo?>? _userDuoStream;
 
   void stubGetDuoByInviteCode(DuoFuture impl) {
     _getDuoByInviteCodeImpl = impl;
@@ -34,6 +35,10 @@ class FakeDuoService implements DuoService {
 
   void stubGetUserDuo(UserDuoFuture impl) {
     _getUserDuoImpl = impl;
+  }
+
+  void stubGetUserDuoStream(Stream<Duo?> stream) {
+    _userDuoStream = stream;
   }
 
   void stubJoinDuo(JoinDuoFuture impl) {
@@ -99,7 +104,7 @@ class FakeDuoService implements DuoService {
 
   @override
   Stream<Duo?> getUserDuoStream() {
-    return Stream<Duo?>.value(null);
+    return _userDuoStream ?? Stream<Duo?>.value(null);
   }
 
   @override

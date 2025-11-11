@@ -16,15 +16,78 @@
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/challenge.dart';
+import '../models/challenge_submission.dart';
+import 'media_upload_service.dart';
 
 class ChallengeService {
   final FirebaseFirestore _firestore;
   static const int _totalChallenges = 20;
 
-  ChallengeService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  // Optional MediaUploadService - injected for tests to avoid initializing
+  // Firebase during unit tests. If null, a real MediaUploadService will be
+  // created lazily when needed.
+  final MediaUploadService? _mediaService;
+
+  ChallengeService(
+      {FirebaseFirestore? firestore, MediaUploadService? mediaService})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _mediaService = mediaService;
+
+  /// Stream de submissões para um desafio por dupla
+  Stream<List<ChallengeSubmission>> getSubmissionsStream({
+    required String challengeId,
+    required String duoId,
+  }) {
+    return (_mediaService ?? MediaUploadService()).getSubmissionsStream(
+      challengeId: challengeId,
+      duoId: duoId,
+    );
+  }
+
+  Future<ChallengeSubmission> submitImage({
+    required String challengeId,
+    required String duoId,
+    required String duoInviteCode,
+    required XFile imageFile,
+    String? description,
+  }) async {
+    return (_mediaService ?? MediaUploadService()).submitImage(
+      challengeId: challengeId,
+      duoId: duoId,
+      duoInviteCode: duoInviteCode,
+      imageFile: imageFile,
+      description: description,
+    );
+  }
+
+  Future<ChallengeSubmission> submitVideo({
+    required String challengeId,
+    required String duoId,
+    required String duoInviteCode,
+    required XFile videoFile,
+    String? description,
+  }) async {
+    return (_mediaService ?? MediaUploadService()).submitVideo(
+      challengeId: challengeId,
+      duoId: duoId,
+      duoInviteCode: duoInviteCode,
+      videoFile: videoFile,
+      description: description,
+    );
+  }
+
+  Future<void> deleteSubmission({
+    required String challengeId,
+    required String submissionId,
+  }) async {
+    return (_mediaService ?? MediaUploadService()).deleteSubmission(
+      challengeId: challengeId,
+      submissionId: submissionId,
+    );
+  }
 
   Stream<List<Challenge>> getChallengesStream() {
     return _firestore

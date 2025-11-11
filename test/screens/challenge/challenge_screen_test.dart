@@ -21,8 +21,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/screens/challenge/challenge_screen.dart';
+import 'package:giro_jogos/src/screens/challenge/challenge_details_screen.dart';
 import 'package:giro_jogos/src/services/challenge_service.dart';
 import 'package:giro_jogos/src/models/challenge.dart';
+import '../../fakes/fake_duo_service.dart' show FakeDuoService;
+import 'package:giro_jogos/src/services/duo_service.dart';
+import 'package:giro_jogos/src/models/duo.dart';
+import 'package:giro_jogos/src/models/challenge_submission.dart';
+import 'package:image_picker/image_picker.dart';
 
 // Implementação simplificada do ChallengeService para testes
 class MockChallengeService implements ChallengeService {
@@ -90,11 +96,74 @@ class MockChallengeService implements ChallengeService {
   void dispose() {
     _streamController.close();
   }
+
+  // Submission-related stubs so tests that depend on ChallengeDetailsScreen
+  // or submission streams don't need Firebase. These provide simple, test-
+  // friendly implementations.
+  @override
+  Stream<List<ChallengeSubmission>> getSubmissionsStream({
+    required String challengeId,
+    required String duoId,
+  }) {
+    // Return an empty stream by default; tests can override behavior if needed.
+    return Stream.value(<ChallengeSubmission>[]);
+  }
+
+  @override
+  Future<ChallengeSubmission> submitImage({
+    required String challengeId,
+    required String duoId,
+    required String duoInviteCode,
+    required XFile imageFile,
+    String? description,
+  }) async {
+    // Return a fake submission
+    return ChallengeSubmission(
+      id: 'mock',
+      challengeId: challengeId,
+      duoId: duoId,
+      duoInviteCode: duoInviteCode,
+      mediaUrl: 'https://example.com/mock.jpg',
+      mediaType: MediaType.image,
+      submissionTime: DateTime.now(),
+      description: description,
+    );
+  }
+
+  @override
+  Future<ChallengeSubmission> submitVideo({
+    required String challengeId,
+    required String duoId,
+    required String duoInviteCode,
+    required XFile videoFile,
+    String? description,
+  }) async {
+    return ChallengeSubmission(
+      id: 'mock',
+      challengeId: challengeId,
+      duoId: duoId,
+      duoInviteCode: duoInviteCode,
+      mediaUrl: 'https://example.com/mock.mp4',
+      mediaType: MediaType.video,
+      submissionTime: DateTime.now(),
+      description: description,
+    );
+  }
+
+  @override
+  Future<void> deleteSubmission({
+    required String challengeId,
+    required String submissionId,
+  }) async {
+    return;
+  }
 }
 
 void main() {
   group('ChallengeScreen', () {
     late MockChallengeService mockChallengeService;
+
+    // We'll use FakeDuoService from test/fakes which can stub the user duo stream.
 
     setUp(() {
       mockChallengeService = MockChallengeService();
@@ -105,10 +174,29 @@ void main() {
     });
 
     Widget createWidgetUnderTest() {
-      return MaterialApp(
-        home: Provider<ChallengeService>.value(
-          value: mockChallengeService,
-          child: const ChallengeScreen(),
+      // Provide both ChallengeService and a minimal DuoService so
+      // ChallengeDetailsScreen can be navigated-to safely in tests.
+      final duo = Duo(
+        id: 'duo_test',
+        participants: [],
+        name: 'Duo Test',
+        inviteCode: 'INV',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final fakeDuoService = FakeDuoService();
+      fakeDuoService.stubGetUserDuoStream(Stream<Duo?>.value(duo));
+
+      // Put providers above MaterialApp so routes pushed by Navigator
+      // (ChallengeDetailsScreen) can access them as well.
+      return MultiProvider(
+        providers: [
+          Provider<ChallengeService>.value(value: mockChallengeService),
+          Provider<DuoService>.value(value: fakeDuoService),
+        ],
+        child: const MaterialApp(
+          home: ChallengeScreen(),
         ),
       );
     }
@@ -212,7 +300,7 @@ void main() {
       expect(find.text('500 pts'), findsOneWidget);
     });
 
-    testWidgets('abre dialog ao tocar em um challenge', (tester) async {
+    testWidgets('abre detalhes ao tocar em um challenge', (tester) async {
       // Arrange
       final mockChallenge = const Challenge(
         id: '1',
@@ -227,24 +315,19 @@ void main() {
       mockChallengeService.setMockChallenges([mockChallenge]);
       await tester.pump();
 
-      // Toca no challenge
+      // Tap the challenge to navigate to details
       await tester.tap(find.byType(ListTile));
-      await tester.pump(); // Trigger dialog animation
+      await tester.pumpAndSettle(); // Wait for navigation animation
 
-      // Assert
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Desafio Teste'),
-          findsNWidgets(2)); // Title no ListTile e no Dialog
-      expect(find.text('Descrição detalhada do desafio'),
-          findsNWidgets(2)); // Subtitle e no Dialog
-      expect(find.text('Máximo de pontos: 400'), findsOneWidget);
-      expect(find.text('Pontuação por usuário:'), findsOneWidget);
-      expect(find.text('user1: 350 pts'), findsOneWidget);
-      expect(find.text('user2: 200 pts'), findsOneWidget);
-      expect(find.text('Fechar'), findsOneWidget);
+      // Assert: ChallengeDetailsScreen is shown with title, description and max points
+      expect(find.byType(ChallengeDetailsScreen), findsOneWidget);
+      // Title appears in the details screen AppBar
+      expect(find.text('Desafio Teste'), findsOneWidget);
+      expect(find.text('Descrição detalhada do desafio'), findsOneWidget);
+      expect(find.text('Máximo: 400 pontos'), findsOneWidget);
     });
 
-    testWidgets('fecha dialog ao tocar no botão fechar', (tester) async {
+    testWidgets('fecha detalhes ao voltar', (tester) async {
       // Arrange
       final mockChallenge = const Challenge(
         id: '1',
@@ -258,19 +341,19 @@ void main() {
       mockChallengeService.setMockChallenges([mockChallenge]);
       await tester.pump();
 
-      // Abre o dialog
+      // Open the details screen
       await tester.tap(find.byType(ListTile));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      // Assert que dialog está aberto
-      expect(find.byType(AlertDialog), findsOneWidget);
+      // Assert details screen is open
+      expect(find.byType(ChallengeDetailsScreen), findsOneWidget);
 
-      // Act: Fecha o dialog
-      await tester.tap(find.text('Fechar'));
-      await tester.pump(); // Trigger dialog close animation
+      // Act: navigate back (simulate user tapping back button)
+      await tester.pageBack();
+      await tester.pumpAndSettle();
 
-      // Assert que dialog foi fechado
-      expect(find.byType(AlertDialog), findsNothing);
+      // Assert that details screen was popped
+      expect(find.byType(ChallengeDetailsScreen), findsNothing);
     });
 
     testWidgets('exibe separadores entre items da lista', (tester) async {
@@ -335,6 +418,34 @@ void main() {
               'Este desafio será liberado em breve. Fique atento às atualizações!'),
           findsOneWidget);
       expect(find.text('0 pts'), findsOneWidget);
+    });
+
+    testWidgets('tocar placeholder mostra snackbar em vez de navegar',
+        (tester) async {
+      // Arrange
+      final mockChallenges = [
+        const Challenge(
+          id: '1',
+          title: 'Esse desafio ainda não está disponível',
+          description:
+              'Este desafio será liberado em breve. Fique atento às atualizações!',
+          maxPoints: 0,
+          points: {},
+        ),
+      ];
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+      mockChallengeService.setMockChallenges(mockChallenges);
+      await tester.pump();
+
+      // Tap no placeholder
+      await tester.tap(find.byType(ListTile));
+      await tester.pump();
+
+      // Assert: snackbar exibido e não navega
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Esse desafio ainda não está disponível'), findsWidgets);
     });
 
     testWidgets('atualiza lista quando stream emite novos dados',

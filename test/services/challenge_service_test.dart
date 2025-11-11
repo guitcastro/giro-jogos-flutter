@@ -141,5 +141,119 @@ void main() {
         expect(challenge.maxPoints, equals(0));
       });
     });
+
+    group('challenge submissions', () {
+      test('cria submission válida sob um challenge ativo e pode ler de volta',
+          () async {
+        // Arrange: cria um challenge ativo e estrutura mínima de duo
+        const challengeId = '10';
+        const duoId = 'duo_submissions_test';
+        const inviteCode = 'SUB123';
+        const memberUserId = 'user_member_1';
+
+        await firestore.collection('challenges').doc(challengeId).set({
+          'id': 10,
+          'title': 'Desafio Submissions',
+          'description': 'Descrição teste submissions',
+          'order': 10,
+          'maxPoints': 100,
+          'isActive': true,
+        });
+
+        await firestore
+            .collection('duos')
+            .doc(duoId)
+            .collection('invites')
+            .doc(inviteCode)
+            .set({
+          'participants': [
+            {'id': memberUserId, 'name': 'Member User'},
+          ],
+          'name': 'Duo Submissions',
+          'inviteCode': inviteCode,
+          'createdAt': DateTime.now(),
+          'updatedAt': DateTime.now(),
+        });
+
+        await firestore
+            .collection('users')
+            .doc(memberUserId)
+            .collection('duo')
+            .doc('current')
+            .set({
+          'duoId': duoId,
+          'inviteCode': inviteCode,
+          'createdAt': DateTime.now(),
+          'updatedAt': DateTime.now(),
+        });
+
+        // Act: cria uma submission no subpath correto
+        const submissionId = 'submission_valid_1';
+        await firestore
+            .collection('challenges')
+            .doc(challengeId)
+            .collection('submissions')
+            .doc(submissionId)
+            .set({
+          'duoId': duoId,
+          'duoInviteCode': inviteCode,
+          'mediaUrl': 'https://example.com/photo.jpg',
+          'mediaType': 'image',
+          'submissionTime': DateTime.now(),
+        });
+
+        // Assert: a submission existe e possui os campos esperados
+        final created = await firestore
+            .collection('challenges')
+            .doc(challengeId)
+            .collection('submissions')
+            .doc(submissionId)
+            .get();
+
+        expect(created.exists, isTrue);
+        expect(created.data(), isNotNull);
+        final data = created.data()!;
+        expect(data['duoId'], equals(duoId));
+        expect(data['duoInviteCode'], equals(inviteCode));
+        expect(data['mediaUrl'], isA<String>());
+        expect(data['mediaType'], anyOf(equals('image'), equals('video')));
+        expect(data.containsKey('submissionTime'), isTrue);
+      });
+
+      test('stream de desafios continua funcionando com submissions criadas',
+          () async {
+        // Arrange: challenge ativo + submission
+        await firestore.collection('challenges').doc('11').set({
+          'id': 11,
+          'title': 'Desafio 11',
+          'description': 'Descrição',
+          'order': 11,
+          'maxPoints': 150,
+          'isActive': true,
+        });
+        await firestore
+            .collection('challenges')
+            .doc('11')
+            .collection('submissions')
+            .doc('s1')
+            .set({
+          'duoId': 'duo1',
+          'duoInviteCode': 'INV111',
+          'mediaUrl': 'https://example.com/v.mp4',
+          'mediaType': 'video',
+          'submissionTime': DateTime.now(),
+        });
+
+        // Act
+        final stream = challengeService.getChallengesStream();
+        final challenges = await stream.first;
+
+        // Assert: stream ainda retorna 20 itens com o challenge ativo em sua posição
+        expect(challenges.length, equals(20));
+        expect(challenges[10].id, equals('11'));
+        expect(challenges[10].title, equals('Desafio 11'));
+        expect(challenges[10].maxPoints, equals(150));
+      });
+    });
   });
 }

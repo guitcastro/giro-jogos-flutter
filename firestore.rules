@@ -88,7 +88,119 @@ service cloud.firestore {
                data.isActive is bool &&
                data.maxPoints is int;
       }
+      
+      // Challenge submissions subcollection
+      match /submissions/{submissionId} {
+        // Função para verificar se o usuário é membro da dupla que fez a submissão
+        function isSubmissionOwner(submissionData) {
+          return submissionData != null
+            && 'duoId' in submissionData 
+            && 'duoInviteCode' in submissionData
+            && submissionData.duoId is string 
+            && submissionData.duoInviteCode is string
+            && exists(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode))
+            && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants is list
+            && (
+              (
+                get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants.size() == 1
+                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0] is map
+                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id is string
+                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id == getUserId()
+              ) || (
+                get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants.size() == 2
+                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0] is map
+                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1] is map
+                && (
+                  (
+                    get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id is string
+                    && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id == getUserId()
+                  ) || (
+                    get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1].id is string
+                    && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1].id == getUserId()
+                  )
+                )
+              )
+            );
+        }
+        
+        // Função para validar dados da submissão
+        function validSubmissionData(data) {
+          return data.duoId is string
+            && data.duoInviteCode is string
+            && data.mediaUrl is string
+            && data.mediaType is string
+            && (data.mediaType == 'image' || data.mediaType == 'video')
+            && data.submissionTime is timestamp;
+        }
+        
+        // Função para verificar se o usuário é admin
+        function isAdmin() {
+          return exists(/databases/$(database)/documents/users/$(getUserId()))
+            && get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true;
+        }
+        
+        // Leitura de documento individual: apenas membros da dupla ou admins
+        allow get: if isAuthenticated() && (
+          // resource is available for get
+          isSubmissionOwner(resource.data) || isAdmin()
+        );
+
+        // Listagem (queries): permitir que membros da dupla consultem a
+        // coleção (por exemplo para obter zero ou mais documentos) e que
+        // admins também leiam. Aqui não podemos usar `resource.data` pois
+        // em operações de list o `resource` pode não existir e causar erro
+        // de avaliação. Em vez disso validamos que o usuário esteja autenticado
+        // e possua um documento `users/{uid}/duo/current` (ou seja, está em uma dupla).
+        allow list: if isAuthenticated() && (
+          // Usuário é admin
+          isAdmin()
+          // Ou possui um duo associado (membro de alguma dupla)
+          || exists(/databases/$(database)/documents/users/$(getUserId())/duo/current)
+        );
+        
+        // Criação: apenas membros da dupla, validando estrutura
+        allow create: if isAuthenticated() 
+          && validSubmissionData(request.resource.data)
+          && isSubmissionOwner(request.resource.data);
+        
+        // Atualização: não permitida (submissões são imutáveis)
+        allow update: if false;
+        
+        // Exclusão: apenas membros da dupla
+        allow delete: if isAuthenticated() && isSubmissionOwner(resource.data);
+      }
     }
+    
+    // Duo submissions index collection
+    match /duo_submissions_index/{duoId} {
+      // Função para verificar se o usuário é membro da dupla
+      function isDuoMember(duoId) {
+        let userDuoDoc = get(/databases/$(database)/documents/users/$(getUserId())/duo/current);
+        return userDuoDoc != null && userDuoDoc.data.duoId == duoId;
+      }
+      
+      // Leitura: apenas membros da dupla ou admins
+      allow read: if isAuthenticated() && (
+        isDuoMember(duoId)
+        || get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true
+      );
+      
+      // Criação/Atualização: apenas pelo sistema (através de Cloud Functions)
+      allow write: if false;
+      
+      // Subcollection para challenges específicos
+      match /challenges/{challengeId} {
+        // Leitura: apenas membros da dupla ou admins  
+        allow read: if isAuthenticated() && (
+          isDuoMember(duoId)
+          || get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true
+        );
+        
+        // Escrita: apenas pelo sistema
+        allow write: if false;
+      }
+    }
+    
     // Games collection (existing)
     match /games/{gameId} {
       allow read: if true;

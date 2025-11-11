@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/challenge.dart';
 import '../../services/challenge_service.dart';
+import 'challenge_details_screen.dart';
 
 class ChallengeScreen extends StatelessWidget {
   const ChallengeScreen({super.key});
@@ -68,29 +69,22 @@ class ChallengeScreen extends StatelessWidget {
                   ],
                 ),
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: Text(challenge.title),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(challenge.description),
-                          const SizedBox(height: 16),
-                          Text('Máximo de pontos: ${challenge.maxPoints}'),
-                          const SizedBox(height: 8),
-                          const Text('Pontuação por usuário:'),
-                          ...challenge.points.entries
-                              .map((e) => Text('${e.key}: ${e.value} pts')),
-                        ],
+                  // If this is a placeholder (not available yet), show a SnackBar
+                  // instead of navigating to the details screen.
+                  if (challenge.maxPoints == 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Desafio ainda não disponível.'),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('Fechar'),
-                        ),
-                      ],
+                    );
+                    return;
+                  }
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChallengeDetailsScreen(
+                        challenge: challenge,
+                      ),
                     ),
                   );
                 },

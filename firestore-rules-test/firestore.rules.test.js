@@ -6,7 +6,26 @@
 
 const fs = require('fs');
 const { initializeTestEnvironment, assertFails, assertSucceeds } = require('@firebase/rules-unit-testing');
-const { setLogLevel } = require('firebase/firestore');
+
+// Silence noisy Firestore SDK logs during tests (permission_denied diagnostics)
+// We filter messages that come from '@firebase/firestore' while keeping other output intact
+const __origConsole = { warn: console.warn, error: console.error, info: console.info, log: console.log };
+function __shouldSuppressFirestoreLog(args) {
+  try {
+    const text = args.map(a => (typeof a === 'string' ? a : (a && a.message ? a.message : ''))).join(' ');
+    return text.includes('@firebase/firestore');
+  } catch (_) {
+    return false;
+  }
+}
+console.warn = (...args) => {
+  if (__shouldSuppressFirestoreLog(args)) return;
+  return __origConsole.warn(...args);
+};
+console.error = (...args) => {
+  if (__shouldSuppressFirestoreLog(args)) return;
+  return __origConsole.error(...args);
+};
 
 const rules = fs.readFileSync('../firestore.rules', 'utf8');
 
@@ -21,7 +40,6 @@ before(async () => {
       rules,
     },
   });
-  setLogLevel('error');
 });
 
 after(async () => {
@@ -320,5 +338,217 @@ describe('Firestore Security Rules - Challenges', () => {
   it('Usuário autenticado pode fazer query com where isActive=true', async () => {
     const db = testEnv.authenticatedContext('user123').firestore();
     await assertSucceeds(db.collection('challenges').where('isActive', '==', true).get());
+  });
+
+  // after(async () => {
+  //   // Limpa dados antes do próximo teste
+  //   await testEnv.clearFirestore();
+  // });
+});
+
+describe('Firestore Security Rules - Challenge Submissions', () => {
+  // IDs constantes para evitar recriações e conflitos de ambiente
+  const CHALLENGE_ID = 'challenge_submissions_test';
+  const DUO_ID = 'duo_submissions_test';
+  const INVITE_CODE = 'SUB123';
+  const MEMBER_USER_ID = 'user_sub_member';
+  const OUTSIDER_USER_ID = 'user_sub_outsider';
+  const SUBMISSION_VALID_ID = 'submission_valid';
+  const SUBMISSION_OUTSIDER_ID = 'submission_outsider_attempt';
+
+  before(async () => {
+    // Limpa restos antigos (se existirem) e cria fixtures necessárias
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const f = ctx.firestore();
+      // Delete antigos se existirem
+      await f.doc(`challenges/${CHALLENGE_ID}`).delete().catch(()=>{});
+      await f.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_VALID_ID}`).delete().catch(()=>{});
+      await f.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_OUTSIDER_ID}`).delete().catch(()=>{});
+      await f.doc(`duos/${DUO_ID}/invites/${INVITE_CODE}`).delete().catch(()=>{});
+      await f.doc(`users/${MEMBER_USER_ID}/duo/current`).delete().catch(()=>{});
+      // Cria challenge ativo
+      await f.doc(`challenges/${CHALLENGE_ID}`).set({
+        id: 9999,
+        title: 'Desafio Submissions',
+        description: 'Descrição teste submissions',
+        order: 9999,
+        maxPoints: 100,
+        isActive: true,
+      });
+      // Cria duo com participante membro
+      await f.doc(`duos/${DUO_ID}/invites/${INVITE_CODE}`).set({
+        participants: [{ id: MEMBER_USER_ID, name: 'Member User' }],
+        name: 'Duo Submissions',
+        inviteCode: INVITE_CODE,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      // Referência de duo para o membro
+      await f.doc(`users/${MEMBER_USER_ID}/duo/current`).set({
+        duoId: DUO_ID,
+        inviteCode: INVITE_CODE,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+  });
+
+  it('Membro da dupla pode listar submissões mesmo quando não há nenhuma', async () => {
+    const db = testEnv.authenticatedContext(MEMBER_USER_ID).firestore();
+    // Deve conseguir listar (get) a coleção, mesmo que esteja vazia
+    await assertSucceeds(db.collection(`challenges/${CHALLENGE_ID}/submissions`).get());
+  });
+
+  it('Usuário não membro da dupla não pode criar submission', async () => {
+    const db = testEnv.authenticatedContext(OUTSIDER_USER_ID).firestore();
+    await assertFails(
+      db.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_OUTSIDER_ID}`).set({
+        duoId: DUO_ID,
+        duoInviteCode: INVITE_CODE,
+        mediaUrl: 'https://example.com/photo.jpg',
+        mediaType: 'image',
+        submissionTime: new Date(),
+      })
+    );
+  });
+
+  it('Membro da dupla pode criar submission válida', async () => {
+    const db = testEnv.authenticatedContext(MEMBER_USER_ID).firestore();
+    await assertSucceeds(
+      db.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_VALID_ID}`).set({
+        duoId: DUO_ID,
+        duoInviteCode: INVITE_CODE,
+        mediaUrl: 'https://example.com/photo.jpg',
+        mediaType: 'image',
+        submissionTime: new Date(),
+      })
+    );
+  });
+});
+
+describe('Firestore Security Rules - Duo Submissions Index', () => {
+  let duoId, userId1, inviteCode;
+
+  before(async () => {
+    duoId = 'duo' + Math.floor(Math.random() * 1000000).toString();
+    inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    userId1 = 'user123';
+
+    // Cria duo
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
+        participants: [{ id: userId1, name: 'User 123' }],
+        name: 'Duo Teste',
+        inviteCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+
+    // Cria referência de duo para o usuário
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${userId1}/duo/current`).set({
+        duoId,
+        inviteCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+  });
+
+  it('Membro da dupla pode ler índice de submissions', async () => {
+    const challengeId = '1';
+    
+    // Cria índice como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).set({
+        submissionCount: 1,
+        lastSubmission: new Date(),
+      });
+    });
+
+    const db = testEnv.authenticatedContext(userId1).firestore();
+    await assertSucceeds(
+      db.doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).get()
+    );
+  });
+
+  it('Usuário não membro da dupla não pode ler índice', async () => {
+    const challengeId = '1';
+    const outsiderUserId = 'outsider999';
+    
+    // Cria índice como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).set({
+        submissionCount: 1,
+        lastSubmission: new Date(),
+      });
+    });
+
+    const db = testEnv.authenticatedContext(outsiderUserId).firestore();
+    await assertFails(
+      db.doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).get()
+    );
+  });
+
+  it('Membro da dupla pode ler documento principal do índice', async () => {
+    // Cria índice principal como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duo_submissions_index/${duoId}`).set({
+        totalSubmissions: 5,
+        lastActivity: new Date(),
+      });
+    });
+
+    const db = testEnv.authenticatedContext(userId1).firestore();
+    await assertSucceeds(
+      db.doc(`duo_submissions_index/${duoId}`).get()
+    );
+  });
+
+  it('Nenhum usuário pode escrever no índice (apenas sistema)', async () => {
+    const challengeId = '1';
+    const db = testEnv.authenticatedContext(userId1).firestore();
+    
+    await assertFails(
+      db.doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).set({
+        submissionCount: 1,
+        lastSubmission: new Date(),
+      })
+    );
+
+    await assertFails(
+      db.doc(`duo_submissions_index/${duoId}`).set({
+        totalSubmissions: 5,
+        lastActivity: new Date(),
+      })
+    );
+  });
+
+  it('Admin pode ler qualquer índice', async () => {
+    const adminUserId = 'admin123';
+    const challengeId = '1';
+    
+    // Cria admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${adminUserId}`).set({
+        email: 'admin@example.com',
+        isAdmin: true,
+        name: 'Admin User',
+      });
+    });
+
+    // Cria índice como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).set({
+        submissionCount: 1,
+        lastSubmission: new Date(),
+      });
+    });
+
+    const db = testEnv.authenticatedContext(adminUserId).firestore();
+    await assertSucceeds(
+      db.doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).get()
+    );
   });
 });

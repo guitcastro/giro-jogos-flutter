@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Este app precisa acessar sua galeria de fotos para permitir que você envie fotos dos desafios.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Este app precisa acessar sua câmera para permitir que você tire fotos dos desafios.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Este app precisa acessar seu microfone para permitir que você grave vídeos dos desafios.</string>
 </dict>
 </plist>
