@@ -1,19 +1,39 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow authenticated users to upload files
-    match /uploads/{userId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Admin uploads
+
+    // ----------------------------
+    // Admin uploads (somente leitura)
+    // ----------------------------
     match /admin/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false;
     }
-    
-    // Default deny all
+
+    // ----------------------------
+    // Challenge uploads (por duo)
+    // ----------------------------
+    match /challenges/{challengeId}/duos/{duoId}/{allPaths=**} {
+
+      // Função auxiliar: verifica se o usuário autenticado
+      // pertence ao duo informado, usando Firestore cross-service rules.
+      function isDuoMemberByUserDoc() {
+        return request.auth != null
+          && firestore.exists(
+               /databases/(default)/documents/users/$(request.auth.uid)/duo/current
+             )
+          && firestore.get(
+               /databases/(default)/documents/users/$(request.auth.uid)/duo/current
+             ).data.duoId == duoId;
+      }
+
+      // Permite leitura e escrita apenas para membros do duo
+      allow read, write: if isDuoMemberByUserDoc();
+    }
+
+    // ----------------------------
+    // Default: nega tudo
+    // ----------------------------
     match /{allPaths=**} {
       allow read, write: if false;
     }

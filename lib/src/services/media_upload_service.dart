@@ -16,7 +16,9 @@
  */
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/challenge_submission.dart';
@@ -31,6 +33,21 @@ class MediaUploadService {
     FirebaseStorage? storage,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _storage = storage ?? FirebaseStorage.instance;
+
+  // Try to extract the file extension (including the leading dot) from XFile
+  String _fileExtension(XFile file) {
+    try {
+      final name = file.name.isNotEmpty ? file.name : file.path;
+      final idx = name.lastIndexOf('.');
+      if (idx == -1 || idx == name.length - 1) return '';
+      return name.substring(idx).toLowerCase();
+    } catch (_) {
+      // Fallback: try to parse path
+      final idx = file.path.lastIndexOf('.');
+      if (idx == -1 || idx == file.path.length - 1) return '';
+      return file.path.substring(idx).toLowerCase();
+    }
+  }
 
   /// Seleciona uma imagem da galeria
   Future<XFile?> pickImageFromGallery() async {
@@ -59,14 +76,57 @@ class MediaUploadService {
   }
 
   /// Faz upload do arquivo para o Firebase Storage
-  Future<String> _uploadFile(XFile file, String path) async {
+  Future<String> _uploadFile(XFile file, String path,
+      {Map<String, String>? customMetadata}) async {
     try {
       final ref = _storage.ref().child(path);
-      final uploadTask = ref.putFile(File(file.path));
+
+      UploadTask uploadTask;
+      if (kIsWeb) {
+        final Uint8List bytes = await file.readAsBytes();
+        String contentType = 'application/octet-stream';
+        final lower = path.toLowerCase();
+        if (lower.endsWith('.mp4')) {
+          contentType = 'video/mp4';
+        } else if (lower.endsWith('.mov')) {
+          contentType = 'video/quicktime';
+        } else if (lower.endsWith('.png')) {
+          contentType = 'image/png';
+        } else if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+          contentType = 'image/jpeg';
+        }
+
+        uploadTask = ref.putData(
+          bytes,
+          SettableMetadata(
+            contentType: contentType,
+            customMetadata: customMetadata,
+          ),
+        );
+      } else {
+        uploadTask = ref.putFile(
+          File(file.path),
+          SettableMetadata(
+            contentType: null,
+            customMetadata: customMetadata,
+          ),
+        );
+      }
 
       final snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
     } catch (e) {
+      if (e is FirebaseException) {
+        throw Exception(
+            'Erro ao fazer upload do arquivo: FirebaseException(code=${e.code}, message=${e.message})');
+      }
+
+      if (e is UnsupportedError) {
+        throw Exception(
+            'Erro ao fazer upload do arquivo: Unsupported operation detected (running on web?). Verifique se está usando `kIsWeb` e use `putData` para uploads no web. Detalhes: $e');
+      }
+
       throw Exception('Erro ao fazer upload do arquivo: $e');
     }
   }
@@ -75,36 +135,56 @@ class MediaUploadService {
   Future<ChallengeSubmission> submitImage({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile imageFile,
     String? description,
   }) async {
     try {
       final timestamp = DateTime.now();
-      final fileName =
-          '${duoId}_${challengeId}_${timestamp.millisecondsSinceEpoch}.jpg';
-      final path = 'challenges/$challengeId/$fileName';
 
-      final downloadUrl = await _uploadFile(imageFile, path);
+      // Ensure user is authenticated
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('Usuário não autenticado');
+      }
+
+      // Reserve a Firestore document id so we can name the file with it
+      final docRef = _firestore
+          .collection('challenges')
+          .doc(challengeId)
+          .collection('submissions')
+          .doc();
+      final submissionId = docRef.id;
+
+      var ext = _fileExtension(imageFile);
+      if (ext.isEmpty) ext = '.jpg';
+      final fileName = '$submissionId$ext';
+      final path = 'challenges/$challengeId/duos/$duoId/$fileName';
+
+      // Prepare metadata to be checked by storage rules
+      final metadata = <String, String>{
+        'uploaderUid': currentUser.uid,
+        'duoId': duoId,
+        'challengeId': challengeId,
+        'submissionId': submissionId,
+      };
+
+      final downloadUrl =
+          await _uploadFile(imageFile, path, customMetadata: metadata);
 
       final submission = ChallengeSubmission(
-        id: '', // Will be set by Firestore
+        id: submissionId,
         challengeId: challengeId,
         duoId: duoId,
-        duoInviteCode: duoInviteCode,
+        uploaderUid: currentUser.uid,
         mediaUrl: downloadUrl,
         mediaType: MediaType.image,
         submissionTime: timestamp,
         description: description,
       );
 
-      final docRef = await _firestore
-          .collection('challenges')
-          .doc(challengeId)
-          .collection('submissions')
-          .add(submission.toMap());
+      await docRef.set(submission.toMap());
 
-      return submission.copyWith(id: docRef.id);
+      return submission;
     } catch (e) {
       throw Exception('Erro ao submeter imagem: $e');
     }
@@ -114,36 +194,55 @@ class MediaUploadService {
   Future<ChallengeSubmission> submitVideo({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile videoFile,
     String? description,
   }) async {
     try {
       final timestamp = DateTime.now();
-      final fileName =
-          '${duoId}_${challengeId}_${timestamp.millisecondsSinceEpoch}.mp4';
-      final path = 'challenges/$challengeId/$fileName';
 
-      final downloadUrl = await _uploadFile(videoFile, path);
+      // Ensure user is authenticated
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('Usuário não autenticado');
+      }
+
+      // Reserve a Firestore document id so we can name the file with it
+      final docRef = _firestore
+          .collection('challenges')
+          .doc(challengeId)
+          .collection('submissions')
+          .doc();
+      final submissionId = docRef.id;
+
+      var ext = _fileExtension(videoFile);
+      if (ext.isEmpty) ext = '.mp4';
+      final fileName = '$submissionId$ext';
+      final path = 'challenges/$challengeId/duos/$duoId/$fileName';
+
+      final metadata = <String, String>{
+        'uploaderUid': currentUser.uid,
+        'duoId': duoId,
+        'challengeId': challengeId,
+        'submissionId': submissionId,
+      };
+
+      final downloadUrl =
+          await _uploadFile(videoFile, path, customMetadata: metadata);
 
       final submission = ChallengeSubmission(
-        id: '', // Will be set by Firestore
+        id: submissionId,
         challengeId: challengeId,
         duoId: duoId,
-        duoInviteCode: duoInviteCode,
+        uploaderUid: currentUser.uid,
         mediaUrl: downloadUrl,
         mediaType: MediaType.video,
         submissionTime: timestamp,
         description: description,
       );
 
-      final docRef = await _firestore
-          .collection('challenges')
-          .doc(challengeId)
-          .collection('submissions')
-          .add(submission.toMap());
+      await docRef.set(submission.toMap());
 
-      return submission.copyWith(id: docRef.id);
+      return submission;
     } catch (e) {
       throw Exception('Erro ao submeter vídeo: $e');
     }
@@ -189,7 +288,7 @@ extension ChallengeSubmissionCopyWith on ChallengeSubmission {
     String? id,
     String? challengeId,
     String? duoId,
-    String? duoInviteCode,
+    String? uploaderUid,
     String? mediaUrl,
     MediaType? mediaType,
     DateTime? submissionTime,
@@ -199,7 +298,7 @@ extension ChallengeSubmissionCopyWith on ChallengeSubmission {
       id: id ?? this.id,
       challengeId: challengeId ?? this.challengeId,
       duoId: duoId ?? this.duoId,
-      duoInviteCode: duoInviteCode ?? this.duoInviteCode,
+      uploaderUid: uploaderUid ?? this.uploaderUid,
       mediaUrl: mediaUrl ?? this.mediaUrl,
       mediaType: mediaType ?? this.mediaType,
       submissionTime: submissionTime ?? this.submissionTime,

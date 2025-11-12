@@ -404,10 +404,10 @@ describe('Firestore Security Rules - Challenge Submissions', () => {
     await assertFails(
       db.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_OUTSIDER_ID}`).set({
         duoId: DUO_ID,
-        duoInviteCode: INVITE_CODE,
         mediaUrl: 'https://example.com/photo.jpg',
         mediaType: 'image',
         submissionTime: new Date(),
+        uploaderUid: OUTSIDER_USER_ID,
       })
     );
   });
@@ -417,10 +417,10 @@ describe('Firestore Security Rules - Challenge Submissions', () => {
     await assertSucceeds(
       db.doc(`challenges/${CHALLENGE_ID}/submissions/${SUBMISSION_VALID_ID}`).set({
         duoId: DUO_ID,
-        duoInviteCode: INVITE_CODE,
         mediaUrl: 'https://example.com/photo.jpg',
         mediaType: 'image',
         submissionTime: new Date(),
+        uploaderUid: MEMBER_USER_ID,
       })
     );
   });

@@ -95,42 +95,19 @@ service cloud.firestore {
         function isSubmissionOwner(submissionData) {
           return submissionData != null
             && 'duoId' in submissionData 
-            && 'duoInviteCode' in submissionData
-            && submissionData.duoId is string 
-            && submissionData.duoInviteCode is string
-            && exists(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode))
-            && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants is list
-            && (
-              (
-                get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants.size() == 1
-                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0] is map
-                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id is string
-                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id == getUserId()
-              ) || (
-                get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants.size() == 2
-                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0] is map
-                && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1] is map
-                && (
-                  (
-                    get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id is string
-                    && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[0].id == getUserId()
-                  ) || (
-                    get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1].id is string
-                    && get(/databases/$(database)/documents/duos/$(submissionData.duoId)/invites/$(submissionData.duoInviteCode)).data.participants[1].id == getUserId()
-                  )
-                )
-              )
-            );
+            && submissionData.duoId is string
+            && exists(/databases/$(database)/documents/users/$(getUserId())/duo/current)
+            && get(/databases/$(database)/documents/users/$(getUserId())/duo/current).data.duoId == submissionData.duoId;
         }
         
         // Função para validar dados da submissão
         function validSubmissionData(data) {
           return data.duoId is string
-            && data.duoInviteCode is string
             && data.mediaUrl is string
             && data.mediaType is string
             && (data.mediaType == 'image' || data.mediaType == 'video')
-            && data.submissionTime is timestamp;
+            && data.submissionTime is timestamp
+            && data.uploaderUid is string;
         }
         
         // Função para verificar se o usuário é admin
@@ -159,8 +136,10 @@ service cloud.firestore {
         );
         
         // Criação: apenas membros da dupla, validando estrutura
-        allow create: if isAuthenticated() 
+        allow create: if isAuthenticated()
           && validSubmissionData(request.resource.data)
+          // uploaderUid in payload must match authenticated user
+          && request.resource.data.uploaderUid == getUserId()
           && isSubmissionOwner(request.resource.data);
         
         // Atualização: não permitida (submissões são imutáveis)

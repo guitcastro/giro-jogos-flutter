@@ -196,10 +196,10 @@ void main() {
             .doc(submissionId)
             .set({
           'duoId': duoId,
-          'duoInviteCode': inviteCode,
           'mediaUrl': 'https://example.com/photo.jpg',
           'mediaType': 'image',
           'submissionTime': DateTime.now(),
+          'uploaderUid': memberUserId,
         });
 
         // Assert: a submission existe e possui os campos esperados
@@ -214,7 +214,6 @@ void main() {
         expect(created.data(), isNotNull);
         final data = created.data()!;
         expect(data['duoId'], equals(duoId));
-        expect(data['duoInviteCode'], equals(inviteCode));
         expect(data['mediaUrl'], isA<String>());
         expect(data['mediaType'], anyOf(equals('image'), equals('video')));
         expect(data.containsKey('submissionTime'), isTrue);
@@ -238,10 +237,10 @@ void main() {
             .doc('s1')
             .set({
           'duoId': 'duo1',
-          'duoInviteCode': 'INV111',
           'mediaUrl': 'https://example.com/v.mp4',
           'mediaType': 'video',
           'submissionTime': DateTime.now(),
+          'uploaderUid': 'user123',
         });
 
         // Act

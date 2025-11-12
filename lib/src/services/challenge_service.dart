@@ -50,14 +50,12 @@ class ChallengeService {
   Future<ChallengeSubmission> submitImage({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile imageFile,
     String? description,
   }) async {
     return (_mediaService ?? MediaUploadService()).submitImage(
       challengeId: challengeId,
       duoId: duoId,
-      duoInviteCode: duoInviteCode,
       imageFile: imageFile,
       description: description,
     );
@@ -66,14 +64,12 @@ class ChallengeService {
   Future<ChallengeSubmission> submitVideo({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile videoFile,
     String? description,
   }) async {
     return (_mediaService ?? MediaUploadService()).submitVideo(
       challengeId: challengeId,
       duoId: duoId,
-      duoInviteCode: duoInviteCode,
       videoFile: videoFile,
       description: description,
     );

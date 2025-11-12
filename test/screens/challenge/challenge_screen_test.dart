@@ -113,7 +113,6 @@ class MockChallengeService implements ChallengeService {
   Future<ChallengeSubmission> submitImage({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile imageFile,
     String? description,
   }) async {
@@ -122,7 +121,7 @@ class MockChallengeService implements ChallengeService {
       id: 'mock',
       challengeId: challengeId,
       duoId: duoId,
-      duoInviteCode: duoInviteCode,
+      uploaderUid: 'mockUser',
       mediaUrl: 'https://example.com/mock.jpg',
       mediaType: MediaType.image,
       submissionTime: DateTime.now(),
@@ -134,7 +133,6 @@ class MockChallengeService implements ChallengeService {
   Future<ChallengeSubmission> submitVideo({
     required String challengeId,
     required String duoId,
-    required String duoInviteCode,
     required XFile videoFile,
     String? description,
   }) async {
@@ -142,7 +140,7 @@ class MockChallengeService implements ChallengeService {
       id: 'mock',
       challengeId: challengeId,
       duoId: duoId,
-      duoInviteCode: duoInviteCode,
+      uploaderUid: 'mockUser',
       mediaUrl: 'https://example.com/mock.mp4',
       mediaType: MediaType.video,
       submissionTime: DateTime.now(),

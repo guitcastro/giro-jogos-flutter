@@ -23,7 +23,7 @@ class ChallengeSubmission {
   final String id;
   final String challengeId;
   final String duoId;
-  final String duoInviteCode;
+  final String uploaderUid;
   final String mediaUrl;
   final MediaType mediaType;
   final DateTime submissionTime;
@@ -33,7 +33,7 @@ class ChallengeSubmission {
     required this.id,
     required this.challengeId,
     required this.duoId,
-    required this.duoInviteCode,
+    required this.uploaderUid,
     required this.mediaUrl,
     required this.mediaType,
     required this.submissionTime,
@@ -46,7 +46,7 @@ class ChallengeSubmission {
       id: doc.id,
       challengeId: data['challengeId'] ?? '',
       duoId: data['duoId'] ?? '',
-      duoInviteCode: data['duoInviteCode'] ?? '',
+      uploaderUid: data['uploaderUid'] ?? '',
       mediaUrl: data['mediaUrl'] ?? '',
       mediaType:
           data['mediaType'] == 'video' ? MediaType.video : MediaType.image,
@@ -59,7 +59,7 @@ class ChallengeSubmission {
     return {
       'challengeId': challengeId,
       'duoId': duoId,
-      'duoInviteCode': duoInviteCode,
+      'uploaderUid': uploaderUid,
       'mediaUrl': mediaUrl,
       'mediaType': mediaType == MediaType.video ? 'video' : 'image',
       'submissionTime': Timestamp.fromDate(submissionTime),

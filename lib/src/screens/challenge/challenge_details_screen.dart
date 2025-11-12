@@ -314,14 +314,12 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
         await _challengeService.submitVideo(
           challengeId: widget.challenge.id,
           duoId: duo.id,
-          duoInviteCode: duo.inviteCode,
           videoFile: xfile,
         );
       } else {
         await _challengeService.submitImage(
           challengeId: widget.challenge.id,
           duoId: duo.id,
-          duoInviteCode: duo.inviteCode,
           imageFile: xfile,
         );
       }
