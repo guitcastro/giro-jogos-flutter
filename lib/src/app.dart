@@ -16,7 +16,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'auth_wrapper.dart';
 import 'screens/home/home_screen.dart';
@@ -45,33 +44,19 @@ class GiroJogosApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              // Set the predictive back transitions for Android.
+              TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+              // Use zoom page transition for web to handle back gestures properly
+              TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+              TargetPlatform.macOS: ZoomPageTransitionsBuilder(),
+              TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+            },
+          ),
         ),
         routerConfig: _buildRouter(),
         debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          return PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-
-              // Primeiro verifica se há navegação modal (dialogs, bottom sheets, etc)
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-                return;
-              }
-
-              // Depois verifica se há navegação de rotas do GoRouter
-              final router = GoRouter.of(context);
-              if (router.canPop()) {
-                router.pop();
-              } else {
-                // Se está no primeiro nível de navegação, fecha o app
-                SystemNavigator.pop();
-              }
-            },
-            child: child ?? const SizedBox.shrink(),
-          );
-        },
       ),
     );
   }

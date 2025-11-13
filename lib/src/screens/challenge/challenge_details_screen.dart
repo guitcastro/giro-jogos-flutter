@@ -59,192 +59,197 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final duoService = Provider.of<DuoService>(context, listen: false);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.challenge.title),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: StreamBuilder<Duo?>(
-        stream: duoService.getUserDuoStream(),
-        builder: (context, duoSnapshot) {
-          if (duoSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.challenge.title),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: StreamBuilder<Duo?>(
+          stream: duoService.getUserDuoStream(),
+          builder: (context, duoSnapshot) {
+            if (duoSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final duo = duoSnapshot.data;
-          if (duo == null) {
-            return const Center(
-              child: Text(
-                  'Você precisa estar em uma dupla para participar dos desafios.'),
-            );
-          }
+            final duo = duoSnapshot.data;
+            if (duo == null) {
+              return const Center(
+                child: Text(
+                    'Você precisa estar em uma dupla para participar dos desafios.'),
+              );
+            }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Challenge Description in Markdown
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Descrição do Desafio',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 16),
-                        MarkdownBody(
-                          data: widget.challenge.description,
-                          styleSheet: MarkdownStyleSheet(
-                            p: const TextStyle(fontSize: 16),
-                            h1: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            h2: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            h3: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Challenge Description in Markdown
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Descrição do Desafio',
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            const Icon(Icons.star, color: Colors.amber),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Máximo: ${widget.challenge.maxPoints} pontos',
-                              style: const TextStyle(
-                                fontSize: 16,
+                          const SizedBox(height: 16),
+                          MarkdownBody(
+                            data: widget.challenge.description,
+                            styleSheet: MarkdownStyleSheet(
+                              p: const TextStyle(fontSize: 16),
+                              h1: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              h2: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              h3: const TextStyle(
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Upload Buttons
-                Text(
-                  'Enviar Comprovação',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                // Single action button that opens the native OS picker for both
-                // images and videos using file_picker (FileType.media).
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _isUploading
-                        ? null
-                        : () async {
-                            await _pickAnyMediaAndSubmit(duo);
-                          },
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Enviar mídia'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-
-                if (_isUploading) ...[
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 8),
-                        Text('Fazendo upload...'),
-                      ],
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 24),
-
-                // Submissions List
-                Text(
-                  'Suas Submissões',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                StreamBuilder<List<ChallengeSubmission>>(
-                  stream: Provider.of<ChallengeService>(context, listen: false)
-                      .getSubmissionsStream(
-                    challengeId: widget.challenge.id,
-                    duoId: duo.id,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                            'Erro ao carregar submissões: ${snapshot.error}'),
-                      );
-                    }
-
-                    final submissions = snapshot.data ?? [];
-                    if (submissions.isEmpty) {
-                      return const Card(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(
-                            child: Text('Nenhuma submissão ainda.'),
                           ),
-                        ),
-                      );
-                    }
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: Colors.amber),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Máximo: ${widget.challenge.maxPoints} pontos',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                    return Column(
-                      children: submissions.map((submission) {
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: Icon(
-                              submission.mediaType == MediaType.video
-                                  ? Icons.play_circle_filled
-                                  : Icons.image,
-                              color: submission.mediaType == MediaType.video
-                                  ? Colors.red
-                                  : Colors.blue,
+                  // Upload Buttons
+                  Text(
+                    'Enviar Comprovação',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  // Single action button that opens the native OS picker for both
+                  // images and videos using file_picker (FileType.media).
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isUploading
+                          ? null
+                          : () async {
+                              await _pickAnyMediaAndSubmit(duo);
+                            },
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text('Enviar mídia'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+
+                  if (_isUploading) ...[
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 8),
+                          Text('Fazendo upload...'),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+
+                  // Submissions List
+                  Text(
+                    'Suas Submissões',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  StreamBuilder<List<ChallengeSubmission>>(
+                    stream:
+                        Provider.of<ChallengeService>(context, listen: false)
+                            .getSubmissionsStream(
+                      challengeId: widget.challenge.id,
+                      duoId: duo.id,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                              'Erro ao carregar submissões: ${snapshot.error}'),
+                        );
+                      }
+
+                      final submissions = snapshot.data ?? [];
+                      if (submissions.isEmpty) {
+                        return const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(
+                              child: Text('Nenhuma submissão ainda.'),
                             ),
-                            title: Text(
-                              submission.mediaType == MediaType.video
-                                  ? 'Vídeo'
-                                  : 'Foto',
-                            ),
-                            subtitle: Text(
-                              'Enviado em ${_formatDate(submission.submissionTime)}',
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteSubmission(submission),
-                            ),
-                            onTap: () => _showMedia(submission),
                           ),
                         );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+                      }
+
+                      return Column(
+                        children: submissions.map((submission) {
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              leading: Icon(
+                                submission.mediaType == MediaType.video
+                                    ? Icons.play_circle_filled
+                                    : Icons.image,
+                                color: submission.mediaType == MediaType.video
+                                    ? Colors.red
+                                    : Colors.blue,
+                              ),
+                              title: Text(
+                                submission.mediaType == MediaType.video
+                                    ? 'Vídeo'
+                                    : 'Foto',
+                              ),
+                              subtitle: Text(
+                                'Enviado em ${_formatDate(submission.submissionTime)}',
+                              ),
+                              trailing: IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteSubmission(submission),
+                              ),
+                              onTap: () => _showMedia(submission),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

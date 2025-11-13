@@ -33,129 +33,132 @@ class MediaPreviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: colorScheme.inversePrimary,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              submission.mediaType == MediaType.video ? 'Vídeo' : 'Foto',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'Enviado em ${_formatDate(submission.submissionTime)}',
-              style: const TextStyle(fontSize: 12),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          backgroundColor: colorScheme.inversePrimary,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                submission.mediaType == MediaType.video ? 'Vídeo' : 'Foto',
+                style: const TextStyle(fontSize: 18),
+              ),
+              Text(
+                'Enviado em ${_formatDate(submission.submissionTime)}',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.open_in_new),
+              tooltip: 'Abrir no navegador',
+              onPressed: () => _openInBrowser(context),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.open_in_new),
-            tooltip: 'Abrir no navegador',
-            onPressed: () => _openInBrowser(context),
-          ),
-        ],
-      ),
-      body: Center(
-        child: submission.mediaType == MediaType.video
-            ? VideoPlayerWidget(videoUrl: submission.mediaUrl)
-            : InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 4.0,
-                child: CachedNetworkImage(
-                  imageUrl: submission.mediaUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              colorScheme.primary),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Carregando imagem...',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  errorWidget: (context, url, error) {
-                    // Log the error for debugging
-                    debugPrint('Error loading image: $error');
-                    debugPrint('URL: $url');
-
-                    return Center(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: colorScheme.error,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Erro ao carregar imagem',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              error.toString(),
-                              style: TextStyle(
-                                color: colorScheme.onSurface.withAlpha(179),
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            SelectableText(
-                              url,
-                              style: TextStyle(
-                                color: colorScheme.onSurface.withAlpha(137),
-                                fontFamily: 'monospace',
-                                fontSize: 10,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: () => _openInBrowser(context),
-                              icon: const Icon(Icons.open_in_new),
-                              label: const Text('Abrir no navegador'),
-                            ),
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () {
-                                // Clear cache and try to reload
-                                CachedNetworkImage.evictFromCache(url);
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => MediaPreviewScreen(
-                                        submission: submission),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                'Limpar cache e tentar novamente',
-                              ),
-                            ),
-                          ],
-                        ),
+        body: Center(
+          child: submission.mediaType == MediaType.video
+              ? VideoPlayerWidget(videoUrl: submission.mediaUrl)
+              : InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: CachedNetworkImage(
+                    imageUrl: submission.mediaUrl,
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                colorScheme.primary),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Carregando imagem...',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                    errorWidget: (context, url, error) {
+                      // Log the error for debugging
+                      debugPrint('Error loading image: $error');
+                      debugPrint('URL: $url');
+
+                      return Center(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: colorScheme.error,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Erro ao carregar imagem',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                error.toString(),
+                                style: TextStyle(
+                                  color: colorScheme.onSurface.withAlpha(179),
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              SelectableText(
+                                url,
+                                style: TextStyle(
+                                  color: colorScheme.onSurface.withAlpha(137),
+                                  fontFamily: 'monospace',
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () => _openInBrowser(context),
+                                icon: const Icon(Icons.open_in_new),
+                                label: const Text('Abrir no navegador'),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  // Clear cache and try to reload
+                                  CachedNetworkImage.evictFromCache(url);
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => MediaPreviewScreen(
+                                          submission: submission),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Limpar cache e tentar novamente',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }
