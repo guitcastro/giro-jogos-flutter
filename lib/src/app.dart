@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'auth_wrapper.dart';
 import 'screens/home/home_screen.dart';
@@ -50,16 +51,22 @@ class GiroJogosApp extends StatelessWidget {
         builder: (context, child) {
           return PopScope(
             canPop: false,
-            onPopInvokedWithResult: (didPop, result) async {
+            onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
 
+              // Primeiro verifica se há navegação modal (dialogs, bottom sheets, etc)
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+                return;
+              }
+
+              // Depois verifica se há navegação de rotas do GoRouter
               final router = GoRouter.of(context);
               if (router.canPop()) {
                 router.pop();
               } else {
-                // Se não pode voltar mais, fecha o app
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pop();
+                // Se está no primeiro nível de navegação, fecha o app
+                SystemNavigator.pop();
               }
             },
             child: child ?? const SizedBox.shrink(),
