@@ -59,8 +59,13 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final duoService = Provider.of<DuoService>(context, listen: false);
-    return PopScope(
-      canPop: true,
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
+          // User swiped right, go back
+          Navigator.of(context).pop();
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.challenge.title),

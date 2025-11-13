@@ -33,8 +33,13 @@ class MediaPreviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return PopScope(
-      canPop: true,
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
+          // User swiped right, go back
+          Navigator.of(context).pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
