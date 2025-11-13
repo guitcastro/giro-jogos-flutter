@@ -25,6 +25,7 @@ import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
 import '../../services/duo_service.dart';
 import '../../models/duo.dart';
+import '../media/media_preview_screen.dart';
 
 class ChallengeDetailsScreen extends StatefulWidget {
   final Challenge challenge;
@@ -394,37 +395,9 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   }
 
   void _showMedia(ChallengeSubmission submission) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          submission.mediaType == MediaType.video ? 'Vídeo' : 'Foto',
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Enviado em ${_formatDate(submission.submissionTime)}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement media viewing (will need url_launcher)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        'Visualização de mídia será implementada em breve'),
-                  ),
-                );
-              },
-              child: const Text('Visualizar'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
-          ),
-        ],
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MediaPreviewScreen(submission: submission),
       ),
     );
   }

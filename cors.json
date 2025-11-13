@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["https://giro-jogos.web.app", "http://localhost:8080"],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600
+  }
+]

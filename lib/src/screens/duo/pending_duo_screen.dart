@@ -43,6 +43,16 @@ class PendingDuoScreen extends StatelessWidget {
               const Icon(Icons.hourglass_empty,
                   size: 64, color: Colors.blueGrey),
               const SizedBox(height: 24),
+              Text(
+                duo.name,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
               const Text(
                 'Convide alguém para sua dupla!',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

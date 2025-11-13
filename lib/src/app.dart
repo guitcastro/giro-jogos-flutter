@@ -47,6 +47,24 @@ class GiroJogosApp extends StatelessWidget {
         ),
         routerConfig: _buildRouter(),
         debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
+
+              final router = GoRouter.of(context);
+              if (router.canPop()) {
+                router.pop();
+              } else {
+                // Se não pode voltar mais, fecha o app
+                // ignore: use_build_context_synchronously
+                Navigator.of(context).pop();
+              }
+            },
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
       ),
     );
   }
