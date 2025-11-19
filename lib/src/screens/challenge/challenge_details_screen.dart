@@ -18,8 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
 import '../../models/challenge.dart';
 import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
@@ -238,10 +239,22 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                               subtitle: Text(
                                 'Enviado em ${_formatDate(submission.submissionTime)}',
                               ),
-                              trailing: IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteSubmission(submission),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.share,
+                                        color: Colors.blue),
+                                    onPressed: () =>
+                                        _shareSubmission(submission),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _deleteSubmission(submission),
+                                  ),
+                                ],
                               ),
                               onTap: () => _showMedia(submission),
                             ),
@@ -354,6 +367,154 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  Future<void> _shareSubmission(ChallengeSubmission submission) async {
+    try {
+      // Mostra indicador de carregamento
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Text('Preparando para compartilhar...'),
+              ],
+            ),
+            duration: Duration(seconds: 30),
+          ),
+        );
+      }
+
+      // Baixa o arquivo da URL remota
+      final response = await http.get(Uri.parse(submission.mediaUrl));
+      if (response.statusCode != 200) {
+        throw Exception('Falha ao baixar o arquivo');
+      }
+
+      // Detecta o MIME type do content-type da resposta ou da URL
+      String? mimeType = response.headers['content-type'];
+
+      // Se não houver content-type, tenta extrair da URL
+      if (mimeType == null || mimeType.isEmpty) {
+        final uri = Uri.parse(submission.mediaUrl);
+        final path = uri.path.toLowerCase();
+
+        if (submission.mediaType == MediaType.video) {
+          if (path.endsWith('.mp4')) {
+            mimeType = 'video/mp4';
+          } else if (path.endsWith('.mov')) {
+            mimeType = 'video/quicktime';
+          } else if (path.endsWith('.avi')) {
+            mimeType = 'video/x-msvideo';
+          } else if (path.endsWith('.mkv')) {
+            mimeType = 'video/x-matroska';
+          } else if (path.endsWith('.webm')) {
+            mimeType = 'video/webm';
+          } else {
+            mimeType = 'video/mp4'; // fallback
+          }
+        } else {
+          if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+            mimeType = 'image/jpeg';
+          } else if (path.endsWith('.png')) {
+            mimeType = 'image/png';
+          } else if (path.endsWith('.gif')) {
+            mimeType = 'image/gif';
+          } else if (path.endsWith('.webp')) {
+            mimeType = 'image/webp';
+          } else if (path.endsWith('.heic')) {
+            mimeType = 'image/heic';
+          } else {
+            mimeType = 'image/jpeg'; // fallback
+          }
+        }
+      }
+
+      // Extrai extensão do MIME type ou da URL
+      String extension;
+      if (mimeType.contains('jpeg')) {
+        extension = 'jpg';
+      } else if (mimeType.contains('png')) {
+        extension = 'png';
+      } else if (mimeType.contains('gif')) {
+        extension = 'gif';
+      } else if (mimeType.contains('webp')) {
+        extension = 'webp';
+      } else if (mimeType.contains('heic')) {
+        extension = 'heic';
+      } else if (mimeType.contains('mp4')) {
+        extension = 'mp4';
+      } else if (mimeType.contains('quicktime') || mimeType.contains('mov')) {
+        extension = 'mov';
+      } else if (mimeType.contains('avi')) {
+        extension = 'avi';
+      } else if (mimeType.contains('matroska') || mimeType.contains('mkv')) {
+        extension = 'mkv';
+      } else if (mimeType.contains('webm')) {
+        extension = 'webm';
+      } else {
+        // Tenta extrair da URL como último recurso
+        final uri = Uri.parse(submission.mediaUrl);
+        final urlPath = uri.path;
+        final lastDot = urlPath.lastIndexOf('.');
+        if (lastDot != -1 && lastDot < urlPath.length - 1) {
+          extension = urlPath.substring(lastDot + 1).split('?').first;
+        } else {
+          extension = submission.mediaType == MediaType.video ? 'mp4' : 'jpg';
+        }
+      }
+
+      final fileName =
+          'giro_jogos_${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+      // Cria XFile a partir dos bytes baixados
+      final xFile = XFile.fromData(
+        response.bodyBytes,
+        mimeType: mimeType,
+        name: fileName,
+      );
+
+      // Compartilha usando SharePlus
+      final params = ShareParams(
+        files: [xFile],
+        fileNameOverrides: [fileName],
+      );
+
+      final result = await SharePlus.instance.share(params);
+
+      // Remove a snackbar de carregamento
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
+
+      if (result.status == ShareResultStatus.success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Compartilhado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao compartilhar: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
