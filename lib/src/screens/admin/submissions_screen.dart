@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
+import '../media/media_preview_screen.dart';
 
 class SubmissionsScreen extends StatelessWidget {
   const SubmissionsScreen({super.key});
@@ -251,33 +252,53 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                       itemBuilder: (context, index) {
                         final item = group.submissions[index];
                         if (item.mediaType == MediaType.image) {
-                          return Image.network(
-                            item.mediaUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                                child: const Center(
-                                  child: Icon(Icons.broken_image, size: 48),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      MediaPreviewScreen(submission: item),
                                 ),
                               );
                             },
+                            child: Image.network(
+                              item.mediaUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  child: const Center(
+                                    child: Icon(Icons.broken_image, size: 48),
+                                  ),
+                                );
+                              },
+                            ),
                           );
                         }
-                        return Container(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.play_circle_outline, size: 48),
-                                SizedBox(height: 8),
-                                Text('Vídeo'),
-                              ],
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MediaPreviewScreen(submission: item),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                            child: const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.play_circle_outline, size: 48),
+                                  SizedBox(height: 8),
+                                  Text('Vídeo'),
+                                ],
+                              ),
                             ),
                           ),
                         );
