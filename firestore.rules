@@ -10,6 +10,12 @@ service cloud.firestore {
       return request.auth.uid;
     }
 
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token != null
+        && request.auth.token.admin == true;
+    }
+
     function validParticipants(participants) {
       return participants is list
         && participants.size() >= 1
@@ -29,7 +35,8 @@ service cloud.firestore {
     
     // Users collection
     match /users/{userId} {
-      allow read, write: if isAuthenticated() && getUserId() == userId;
+      allow read: if isAuthenticated() && (getUserId() == userId || isAdmin());
+      allow write: if isAuthenticated() && getUserId() == userId;
 
       // Permitir acesso ao documento único de duo do próprio usuário
       match /duo/current {
@@ -44,9 +51,9 @@ service cloud.firestore {
     
     // Duos collection com invites como subcoleção
     match /duos/{duoId}/invites/{inviteCode} {
-      // Leitura: só se o inviteCode do path for igual ao do documento
-      allow get: if isAuthenticated() && inviteCode == resource.data.inviteCode;
-      allow list: if false;
+      // Leitura: só se o inviteCode do path for igual ao do documento, ou se for admin
+      allow get: if isAuthenticated() && (inviteCode == resource.data.inviteCode || isAdmin());
+      allow list: if isAdmin();
 
       // Criação: só é permitido se participants for uma lista com UM único usuário, e esse id for igual ao usuário autenticado
         allow create: if isAuthenticated()
@@ -78,7 +85,7 @@ service cloud.firestore {
     
     // Challenges collection
     match /challenges/{challengeId} {
-      allow read: if resource.data.isActive == true;
+      allow read: if resource.data.isActive == true || isAdmin();
       allow write: if false;
       // Validação dos campos obrigatórios
       function validChallenge(data) {
@@ -89,8 +96,8 @@ service cloud.firestore {
                data.maxPoints is int;
       }
       
-      // Challenge submissions subcollection
-      match /submissions/{submissionId} {
+      // Challenge submissions subcollection (supports collectionGroup queries)
+      match /{path=**}/submissions/{submissionId} {
         // Função para verificar se o usuário é membro da dupla que fez a submissão
         function isSubmissionOwner(submissionData) {
           return submissionData != null
@@ -110,30 +117,16 @@ service cloud.firestore {
             && data.uploaderUid is string;
         }
         
-        // Função para verificar se o usuário é admin
-        function isAdmin() {
-          return exists(/databases/$(database)/documents/users/$(getUserId()))
-            && get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true;
-        }
-        
         // Leitura de documento individual: apenas membros da dupla ou admins
         allow get: if isAuthenticated() && (
           // resource is available for get
           isSubmissionOwner(resource.data) || isAdmin()
         );
 
-        // Listagem (queries): permitir que membros da dupla consultem a
-        // coleção (por exemplo para obter zero ou mais documentos) e que
-        // admins também leiam. Aqui não podemos usar `resource.data` pois
-        // em operações de list o `resource` pode não existir e causar erro
-        // de avaliação. Em vez disso validamos que o usuário esteja autenticado
-        // e possua um documento `users/{uid}/duo/current` (ou seja, está em uma dupla).
-        allow list: if isAuthenticated() && (
-          // Usuário é admin
-          isAdmin()
-          // Ou possui um duo associado (membro de alguma dupla)
-          || exists(/databases/$(database)/documents/users/$(getUserId())/duo/current)
-        );
+          // Leitura abrangente (get/list): admins ou membros da dupla
+          allow read: if isAuthenticated()
+            && (isAdmin()
+                || exists(/databases/$(database)/documents/users/$(getUserId())/duo/current));
         
         // Criação: apenas membros da dupla, validando estrutura
         allow create: if isAuthenticated()
@@ -152,16 +145,11 @@ service cloud.firestore {
     
     // Duo submissions index collection
     match /duo_submissions_index/{duoId} {
-      // Função para verificar se o usuário é membro da dupla
-      function isDuoMember(duoId) {
-        let userDuoDoc = get(/databases/$(database)/documents/users/$(getUserId())/duo/current);
-        return userDuoDoc != null && userDuoDoc.data.duoId == duoId;
-      }
-      
       // Leitura: apenas membros da dupla ou admins
       allow read: if isAuthenticated() && (
-        isDuoMember(duoId)
-        || get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true
+        isAdmin() 
+        || (exists(/databases/$(database)/documents/users/$(getUserId())/duo/current)
+            && get(/databases/$(database)/documents/users/$(getUserId())/duo/current).data.duoId == duoId)
       );
       
       // Criação/Atualização: apenas pelo sistema (através de Cloud Functions)
@@ -171,8 +159,9 @@ service cloud.firestore {
       match /challenges/{challengeId} {
         // Leitura: apenas membros da dupla ou admins  
         allow read: if isAuthenticated() && (
-          isDuoMember(duoId)
-          || get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true
+          isAdmin() 
+          || (exists(/databases/$(database)/documents/users/$(getUserId())/duo/current)
+              && get(/databases/$(database)/documents/users/$(getUserId())/duo/current).data.duoId == duoId)
         );
         
         // Escrita: apenas pelo sistema
@@ -183,7 +172,7 @@ service cloud.firestore {
     // Games collection (existing)
     match /games/{gameId} {
       allow read: if true;
-      allow write: if isAuthenticated() && get(/databases/$(database)/documents/users/$(getUserId())).data.isAdmin == true;
+      allow write: if isAdmin();
     }
     
     // Default deny all other documents

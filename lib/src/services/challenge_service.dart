@@ -174,4 +174,15 @@ class ChallengeService {
       }
     });
   }
+
+  /// Stream de todas as submissões de todos os challenges (para admin)
+  Stream<List<ChallengeSubmission>> getAllSubmissionsStream() {
+    return _firestore
+        .collectionGroup('submissions')
+        .orderBy('submissionTime', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ChallengeSubmission.fromFirestore(doc))
+            .toList());
+  }
 }

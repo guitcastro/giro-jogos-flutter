@@ -104,9 +104,8 @@ void main() {
           .pumpWidget(createTestWidget(HomeScreen(duoService: fakeDuoService)));
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
-      expect(find.text('Admin Panel'), findsOneWidget);
+      // Admin Panel item foi removido para usuários normais
       expect(find.text('Sair'), findsOneWidget);
-      expect(find.byIcon(Icons.admin_panel_settings), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);
     });
 

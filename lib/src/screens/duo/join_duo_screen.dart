@@ -42,7 +42,7 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4FF),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -125,12 +125,13 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, color: Colors.red.shade300, size: 64),
+              Icon(Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error, size: 64),
               const SizedBox(height: 24),
               Text(
                 _error!,
-                style: const TextStyle(
-                  color: Colors.red,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
@@ -166,12 +167,13 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, color: Colors.red.shade300, size: 64),
+              Icon(Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error, size: 64),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Você já está em uma dupla.',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.error,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
@@ -182,8 +184,10 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
                 width: 180,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade100,
-                    foregroundColor: Colors.red.shade800,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.errorContainer,
+                    foregroundColor:
+                        Theme.of(context).colorScheme.onErrorContainer,
                     textStyle: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                     elevation: 0,
@@ -215,12 +219,12 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.error_outline,
-                      color: Colors.red.shade300, size: 64),
+                      color: Theme.of(context).colorScheme.error, size: 64),
                   const SizedBox(height: 24),
                   Text(
                     data['error'],
-                    style: const TextStyle(
-                      color: Colors.red,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
@@ -232,8 +236,10 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
                     child: ElevatedButton(
                       onPressed: () => _handleBack(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade100,
-                        foregroundColor: Colors.red.shade800,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.errorContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onErrorContainer,
                         textStyle: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                         elevation: 0,

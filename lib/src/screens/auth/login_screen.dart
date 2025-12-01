@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red[700],
+        backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -200,7 +200,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
-                              ?.copyWith(color: Colors.grey[600]),
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant),
                         ),
                         if (joinParams.hasParams)
                           Padding(
@@ -217,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 'Faça login para se juntar à dupla',
                                 style: TextStyle(
-                                  color: Colors.blue[900],
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
                                 ),
@@ -276,15 +279,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 32),
                     Row(
                       children: [
-                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Expanded(
+                            child: Divider(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'ou continue com',
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant),
                           ),
                         ),
-                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Expanded(
+                            child: Divider(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant)),
                       ],
                     ),
                     const SizedBox(height: 24),

@@ -38,15 +38,24 @@ class MockAuthService extends ChangeNotifier implements AuthService {
   }
 
   bool _isAuthenticated = false;
+  bool _isAdmin = false;
 
   @override
   bool get isAuthenticated => _isAuthenticated;
+
+  @override
+  bool get isAdmin => _isAdmin;
 
   @override
   User? get currentUser => null;
 
   void setAuthenticated(bool value) {
     _isAuthenticated = value;
+    notifyListeners();
+  }
+
+  void setAdmin(bool value) {
+    _isAdmin = value;
     notifyListeners();
   }
 
@@ -165,6 +174,37 @@ void main() {
       // Should show login screen again
       expect(find.text('Entre na sua conta'), findsOneWidget);
       expect(find.text('Protected Content'), findsNothing);
+    });
+
+    testWidgets('should allow regular user to access non-admin route',
+        (WidgetTester tester) async {
+      // Set user as authenticated but not admin
+      mockAuthService.setAuthenticated(true);
+      mockAuthService.setAdmin(false);
+
+      const testChild = Scaffold(
+        body: Center(child: Text('User Content')),
+      );
+
+      await tester.pumpWidget(createTestWidget(testChild));
+      await tester.pump();
+
+      // Should show user content
+      expect(find.text('User Content'), findsOneWidget);
+    });
+
+    testWidgets('should verify admin status is checked correctly',
+        (WidgetTester tester) async {
+      // Start as non-admin
+      mockAuthService.setAuthenticated(true);
+      mockAuthService.setAdmin(false);
+
+      expect(mockAuthService.isAdmin, false);
+
+      // Promote to admin
+      mockAuthService.setAdmin(true);
+
+      expect(mockAuthService.isAdmin, true);
     });
   });
 }

@@ -30,7 +30,9 @@ class NoDuoScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.group_outlined, size: 64, color: Colors.blueGrey),
+            Icon(Icons.group_outlined,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 24),
             const Text(
               'Você ainda não faz parte de uma dupla',

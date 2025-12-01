@@ -40,15 +40,16 @@ class PendingDuoScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.hourglass_empty,
-                  size: 64, color: Colors.blueGrey),
+              Icon(Icons.hourglass_empty,
+                  size: 64,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 24),
               Text(
                 duo.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -141,9 +142,11 @@ class PendingDuoScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Assim que outra pessoa entrar, vocês poderão participar dos jogos!',
-                style: TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurface),
                 textAlign: TextAlign.center,
               ),
             ],

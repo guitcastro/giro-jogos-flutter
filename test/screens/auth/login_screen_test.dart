@@ -46,6 +46,9 @@ class MockAuthService extends ChangeNotifier implements AuthService {
   bool get isAuthenticated => _isAuthenticated;
 
   @override
+  bool get isAdmin => false;
+
+  @override
   User? get currentUser => null;
 
   void setShouldThrowError(bool value) {

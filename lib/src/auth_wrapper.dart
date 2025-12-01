@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 // import 'services/join_duo_params.dart';
@@ -23,8 +24,13 @@ import 'screens/auth/login_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
   final Widget child;
+  final bool requireAdmin;
 
-  const AuthWrapper({super.key, required this.child});
+  const AuthWrapper({
+    super.key,
+    required this.child,
+    this.requireAdmin = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +48,37 @@ class AuthWrapper extends StatelessWidget {
         if (!authService.isAuthenticated) {
           return const LoginScreen();
         }
-        // Usuário autenticado, mostra a tela solicitada
+
+        // Verifica permissões de admin e redireciona se necessário
+        if (requireAdmin && !authService.isAdmin) {
+          // Admin requerido mas usuário não é admin, redireciona para home
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/');
+            }
+          });
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (!requireAdmin && authService.isAdmin) {
+          // Página de usuário mas usuário é admin, redireciona para admin
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/admin');
+            }
+          });
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Usuário autenticado com permissões corretas, mostra a tela solicitada
         return child;
       },
     );

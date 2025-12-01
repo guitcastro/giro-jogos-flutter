@@ -125,7 +125,9 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              const Icon(Icons.star, color: Colors.amber),
+                              Icon(Icons.star,
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
                               const SizedBox(width: 8),
                               Text(
                                 'Máximo: ${widget.challenge.maxPoints} pontos',
@@ -228,8 +230,8 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                                     ? Icons.play_circle_filled
                                     : Icons.image,
                                 color: submission.mediaType == MediaType.video
-                                    ? Colors.red
-                                    : Colors.blue,
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.primary,
                               ),
                               title: Text(
                                 submission.mediaType == MediaType.video
@@ -243,14 +245,18 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.share,
-                                        color: Colors.blue),
+                                    icon: Icon(Icons.share,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
                                     onPressed: () =>
                                         _shareSubmission(submission),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
+                                    icon: Icon(Icons.delete,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .error),
                                     onPressed: () =>
                                         _deleteSubmission(submission),
                                   ),
@@ -312,9 +318,9 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       if (ext == null || !allowedExtensions.contains(ext)) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Selecione apenas imagens ou vídeos.'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('Selecione apenas imagens ou vídeos.'),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -350,9 +356,9 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Upload realizado com sucesso!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Upload realizado com sucesso!'),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
         );
       }
@@ -361,7 +367,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao fazer upload: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -375,7 +381,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       // Mostra indicador de carregamento
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
                 SizedBox(
@@ -383,7 +389,8 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
                 SizedBox(width: 16),
@@ -499,9 +506,9 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 
       if (result.status == ShareResultStatus.success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Compartilhado com sucesso!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Compartilhado com sucesso!'),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
         );
       }
@@ -511,7 +518,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao compartilhar: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -541,9 +548,10 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                 );
                 if (mounted) {
                   scaffoldMessenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Submissão excluída com sucesso!'),
-                      backgroundColor: Colors.green,
+                    SnackBar(
+                      content: const Text('Submissão excluída com sucesso!'),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
                     ),
                   );
                 }
@@ -552,13 +560,14 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text('Erro ao excluir: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: Theme.of(context).colorScheme.error,
                     ),
                   );
                 }
               }
             },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text('Excluir',
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),

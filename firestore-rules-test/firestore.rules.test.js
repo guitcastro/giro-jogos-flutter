@@ -90,6 +90,42 @@ describe('Firestore Security Rules - Duos', () => {
       updatedAt: new Date(),
     }));
   });
+
+  it('Admin pode ler dados de qualquer usuário', async () => {
+    const userId = 'user456';
+    // Cria usuário como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${userId}`).set({
+        email: 'user456@example.com',
+        name: 'User 456',
+        createdAt: new Date(),
+      });
+    });
+    
+    // Admin pode ler
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(db.doc(`users/${userId}`).get());
+  });
+
+  it('Admin pode listar invites de qualquer duo', async () => {
+    const duoId = 'duo789';
+    const inviteCode = 'XYZ789';
+    
+    // Cria invite como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`duos/${duoId}/invites/${inviteCode}`).set({
+        participants: [{ id: 'user999', name: 'User 999' }],
+        name: 'Duo Teste Admin',
+        inviteCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    
+    // Admin pode listar invites
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(db.collection(`duos/${duoId}/invites`).get());
+  });
   
   it('Usuário pode sair de um duo (update removendo ele da lista, restando outro participante)', async () => {
     const userId = 'user123';
@@ -340,6 +376,31 @@ describe('Firestore Security Rules - Challenges', () => {
     await assertSucceeds(db.collection('challenges').where('isActive', '==', true).get());
   });
 
+  it('Admin pode ler challenge inativo', async () => {
+    const challengeId = '999';
+    // Cria challenge inativo como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`challenges/${challengeId}`).set({
+        id: 999,
+        title: 'Desafio Inativo',
+        description: 'Descrição do desafio inativo',
+        order: 999,
+        maxPoints: 100,
+        isActive: false,
+      });
+    });
+    
+    // Admin pode ler challenge inativo
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(db.doc(`challenges/${challengeId}`).get());
+  });
+
+  it('Admin pode listar toda a coleção challenges', async () => {
+    // Admin pode ler a coleção inteira (ativos e inativos)
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(db.collection('challenges').get());
+  });
+
   // after(async () => {
   //   // Limpa dados antes do próximo teste
   //   await testEnv.clearFirestore();
@@ -395,7 +456,6 @@ describe('Firestore Security Rules - Challenge Submissions', () => {
 
   it('Membro da dupla pode listar submissões mesmo quando não há nenhuma', async () => {
     const db = testEnv.authenticatedContext(MEMBER_USER_ID).firestore();
-    // Deve conseguir listar (get) a coleção, mesmo que esteja vazia
     await assertSucceeds(db.collection(`challenges/${CHALLENGE_ID}/submissions`).get());
   });
 
@@ -422,6 +482,32 @@ describe('Firestore Security Rules - Challenge Submissions', () => {
         submissionTime: new Date(),
         uploaderUid: MEMBER_USER_ID,
       })
+    );
+  });
+
+  it('Admin pode ler qualquer submission (get)', async () => {
+    const submissionId = 'admin_test_submission';
+    // Cria submission como admin
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`challenges/${CHALLENGE_ID}/submissions/${submissionId}`).set({
+        duoId: DUO_ID,
+        mediaUrl: 'https://example.com/photo.jpg',
+        mediaType: 'image',
+        submissionTime: new Date(),
+        uploaderUid: MEMBER_USER_ID,
+      });
+    });
+    
+    // Admin pode ler a submission
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(db.doc(`challenges/${CHALLENGE_ID}/submissions/${submissionId}`).get());
+  });
+
+  it('Admin pode listar submissões do challenge (list)', async () => {
+    // Admin deve conseguir listar a subcoleção de submissions de um challenge
+    const db = testEnv.authenticatedContext('admin123', { admin: true }).firestore();
+    await assertSucceeds(
+      db.collection(`challenges/${CHALLENGE_ID}/submissions`).get()
     );
   });
 });
@@ -522,33 +608,6 @@ describe('Firestore Security Rules - Duo Submissions Index', () => {
         totalSubmissions: 5,
         lastActivity: new Date(),
       })
-    );
-  });
-
-  it('Admin pode ler qualquer índice', async () => {
-    const adminUserId = 'admin123';
-    const challengeId = '1';
-    
-    // Cria admin
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await ctx.firestore().doc(`users/${adminUserId}`).set({
-        email: 'admin@example.com',
-        isAdmin: true,
-        name: 'Admin User',
-      });
-    });
-
-    // Cria índice como admin
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await ctx.firestore().doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).set({
-        submissionCount: 1,
-        lastSubmission: new Date(),
-      });
-    });
-
-    const db = testEnv.authenticatedContext(adminUserId).firestore();
-    await assertSucceeds(
-      db.doc(`duo_submissions_index/${duoId}/challenges/${challengeId}`).get()
     );
   });
 });

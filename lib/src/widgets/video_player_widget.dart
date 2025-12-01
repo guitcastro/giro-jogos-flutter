@@ -78,10 +78,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 48,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
             const Text('Erro ao carregar vídeo'),
@@ -130,7 +130,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                     duration: const Duration(milliseconds: 300),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black54,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .scrim
+                            .withValues(alpha: 0.54),
                         borderRadius: BorderRadius.circular(50),
                       ),
                       padding: const EdgeInsets.all(16),
@@ -139,7 +142,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                             ? Icons.pause
                             : Icons.play_arrow,
                         size: 50,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -156,8 +159,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 allowScrubbing: true,
                 colors: VideoProgressColors(
                   playedColor: Theme.of(context).colorScheme.primary,
-                  bufferedColor: Colors.grey,
-                  backgroundColor: Colors.grey.shade800,
+                  bufferedColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceDim,
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               ),

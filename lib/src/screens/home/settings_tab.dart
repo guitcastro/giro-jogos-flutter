@@ -79,9 +79,11 @@ class SettingsTab extends StatelessWidget {
                               if (user?.email != null)
                                 Text(
                                   user!.email!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                 ),
                             ],
@@ -253,13 +255,14 @@ class SettingsTab extends StatelessWidget {
 
             // Botão de logout
             Card(
-              color: Colors.red.shade50,
+              color: Theme.of(context).colorScheme.errorContainer,
               child: ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text(
+                leading: Icon(Icons.logout,
+                    color: Theme.of(context).colorScheme.error),
+                title: Text(
                   'Sair da Conta',
                   style: TextStyle(
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -335,29 +338,29 @@ class SettingsTab extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Sobre o Giro Jogos'),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Giro Jogos',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
-              Text('Versão: 1.0.0'),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text('Versão: 1.0.0'),
+              const SizedBox(height: 8),
+              const Text(
                 'A plataforma definitiva para gamers encontrarem seus parceiros de jogo e formarem equipes incríveis.',
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Desenvolvido com ❤️ usando Flutter',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -391,7 +394,7 @@ class SettingsTab extends StatelessWidget {
                 await authService.signOut();
               },
               style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
+                foregroundColor: Theme.of(context).colorScheme.error,
               ),
               child: const Text('Sair'),
             ),

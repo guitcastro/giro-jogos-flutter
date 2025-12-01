@@ -155,6 +155,12 @@ class MockChallengeService implements ChallengeService {
   }) async {
     return;
   }
+
+  @override
+  Stream<List<ChallengeSubmission>> getAllSubmissionsStream() {
+    // Return an empty stream by default for admin functionality
+    return Stream.value(<ChallengeSubmission>[]);
+  }
 }
 
 void main() {

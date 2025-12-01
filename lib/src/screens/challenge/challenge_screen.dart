@@ -43,7 +43,9 @@ class ChallengeScreen extends StatelessWidget {
                   const Text('Erro ao carregar desafios'),
                   const SizedBox(height: 8),
                   Text('${snapshot.error}',
-                      style: const TextStyle(fontSize: 12, color: Colors.red)),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.error)),
                 ],
               ),
             );
@@ -63,7 +65,9 @@ class ChallengeScreen extends StatelessWidget {
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.star,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 20),
                     Text('${challenge.maxPoints} pts',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],

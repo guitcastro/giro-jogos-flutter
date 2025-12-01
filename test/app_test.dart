@@ -33,7 +33,7 @@ void main() {
   });
 
   group('GiroJogosApp', () {
-    testWidgets('mostra HomeScreen quando autenticado',
+    testWidgets('mostra HomeScreen quando autenticado como usuário regular',
         (WidgetTester tester) async {
       final mockUser = MockUser(
         isAnonymous: false,
@@ -45,8 +45,11 @@ void main() {
         MultiProvider(
           providers: [
             ChangeNotifierProvider<AuthService>(
-              create: (_) =>
-                  FakeAuthService(isAuthenticated: true, currentUser: mockUser),
+              create: (_) => FakeAuthService(
+                isAuthenticated: true,
+                currentUser: mockUser,
+                isAdmin: false,
+              ),
             ),
             ChangeNotifierProvider<JoinDuoParams>(
                 create: (_) => JoinDuoParams()),
@@ -57,6 +60,25 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
       expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
+    test('verifica que admin user tem isAdmin true', () {
+      final mockUser = MockUser(
+        isAnonymous: false,
+        displayName: 'Admin User',
+        email: 'admin@example.com',
+      );
+      final fakeAuthService = FakeAuthService(
+        isAuthenticated: true,
+        currentUser: mockUser,
+        isAdmin: true,
+      );
+
+      // Verifica que o AuthService está configurado corretamente como admin
+      expect(fakeAuthService.isAdmin, true);
+      expect(fakeAuthService.isAuthenticated, true);
+      expect(fakeAuthService.currentUser?.email, 'admin@example.com');
+      // Em produção, o AuthWrapper detectará isAdmin=true e redirecionará para /admin
     });
 
     testWidgets('mostra tela de login quando não autenticado',

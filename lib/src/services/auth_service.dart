@@ -31,11 +31,13 @@ class AuthService extends ChangeNotifier {
   User? _user;
   PendingJoinInfo? pendingJoin;
   bool _isAuthLoading = true;
+  bool _isAdmin = false;
 
   AuthService() {
     // Inicializa o estado de loading como true até receber o primeiro evento.
-    _auth.authStateChanges().listen((User? user) {
+    _auth.authStateChanges().listen((User? user) async {
       _user = user;
+      await _checkAdminStatus();
       _isAuthLoading = false;
       notifyListeners();
     });
@@ -44,6 +46,24 @@ class AuthService extends ChangeNotifier {
   User? get currentUser => _user;
   bool get isAuthenticated => _user != null;
   bool get isAuthLoading => _isAuthLoading;
+  bool get isAdmin => _isAdmin;
+
+  Future<void> _checkAdminStatus() async {
+    if (_user == null) {
+      _isAdmin = false;
+      return;
+    }
+
+    try {
+      final idTokenResult = await _user!.getIdTokenResult();
+      _isAdmin = idTokenResult.claims?['admin'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking admin status: $e');
+      }
+      _isAdmin = false;
+    }
+  }
 
   Future<UserCredential?> signInWithEmailAndPassword(
     String email,

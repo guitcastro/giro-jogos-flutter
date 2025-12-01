@@ -175,9 +175,9 @@ class MediaPreviewScreen extends StatelessWidget {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Não foi possível abrir o link'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Não foi possível abrir o link'),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

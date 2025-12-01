@@ -55,7 +55,8 @@ class DuoScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.groups, size: 64, color: Colors.deepPurple),
+              Icon(Icons.groups,
+                  size: 64, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 24),
               Text(
                 'Dupla: ${duo.name}',
@@ -86,8 +87,9 @@ class DuoScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                           child: Row(
                             children: [
-                              const Icon(Icons.person,
-                                  size: 18, color: Colors.deepPurple),
+                              Icon(Icons.person,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary),
                               const SizedBox(width: 8),
                               Text(name, style: const TextStyle(fontSize: 15)),
                             ],
@@ -106,8 +108,9 @@ class DuoScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.emoji_events,
-                        color: Colors.amber, size: 24),
+                    Icon(Icons.emoji_events,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 24),
                     const SizedBox(width: 8),
                     Text(
                       'Pontuação total: $totalScore',

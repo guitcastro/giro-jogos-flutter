@@ -16,7 +16,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/join_duo_params.dart';
@@ -73,22 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 onSelected: (value) async {
                   if (value == 'logout') {
                     await authService.signOut();
-                  } else if (value == 'admin') {
-                    context.go('/admin');
                   }
                 },
                 itemBuilder: (BuildContext context) {
                   return [
-                    const PopupMenuItem<String>(
-                      value: 'admin',
-                      child: Row(
-                        children: [
-                          Icon(Icons.admin_panel_settings),
-                          SizedBox(width: 8),
-                          Text('Admin Panel'),
-                        ],
-                      ),
-                    ),
                     const PopupMenuItem<String>(
                       value: 'logout',
                       child: Row(

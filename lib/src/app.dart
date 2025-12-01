@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'auth_wrapper.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/admin/admin_screen.dart';
+import 'screens/admin/admin_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'services/duo_service.dart';
 import 'services/join_duo_params.dart';
@@ -74,7 +74,8 @@ class GiroJogosApp extends StatelessWidget {
       GoRoute(
         path: '/admin',
         builder: (context, state) => const AuthWrapper(
-          child: AdminScreen(),
+          requireAdmin: true,
+          child: AdminHomeScreen(),
         ),
       ),
       GoRoute(
@@ -83,6 +84,7 @@ class GiroJogosApp extends StatelessWidget {
           final duoId = state.pathParameters['duoId'] ?? '';
           final inviteCode = state.pathParameters['inviteCode'] ?? '';
           // Seta os params e redireciona para home sem usar context após async gap
+          // Admins serão redirecionados para /admin pelo AuthWrapper
           Future.microtask(() {
             final joinParams = Provider.of<JoinDuoParams>(
               _rootNavigatorKey.currentContext!,

@@ -35,16 +35,24 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
 
   bool _isAuthenticated;
   User? _currentUser;
+  final bool _isAdmin;
 
-  FakeAuthService({bool isAuthenticated = false, User? currentUser})
-      : _isAuthenticated = isAuthenticated,
-        _currentUser = currentUser;
+  FakeAuthService({
+    bool isAuthenticated = false,
+    User? currentUser,
+    bool isAdmin = false,
+  })  : _isAuthenticated = isAuthenticated,
+        _currentUser = currentUser,
+        _isAdmin = isAdmin;
 
   @override
   bool get isAuthenticated => _isAuthenticated;
 
   @override
   User? get currentUser => _currentUser;
+
+  @override
+  bool get isAdmin => _isAdmin;
 
   @override
   Future<UserCredential?> signInWithEmailAndPassword(

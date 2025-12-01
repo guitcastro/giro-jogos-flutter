@@ -41,6 +41,9 @@ class MockAuthServiceForTest extends ChangeNotifier implements AuthService {
   bool get isAuthenticated => _isAuthenticated;
 
   @override
+  bool get isAdmin => false;
+
+  @override
   User? get currentUser => _user;
 
   @override
