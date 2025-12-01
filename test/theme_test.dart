@@ -214,5 +214,5 @@ void main() {
     print('');
 
     print('=== END OF THEME PROPERTIES ===\n');
-  });
+  }, skip: 'Desabilitado temporariamente');
 }

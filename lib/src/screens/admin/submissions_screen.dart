@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
 import '../media/media_preview_screen.dart';
+import 'package:video_player/video_player.dart' as video_player;
 
 class SubmissionsScreen extends StatelessWidget {
   const SubmissionsScreen({super.key});
@@ -286,21 +287,7 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                               ),
                             );
                           },
-                          child: Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            child: const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.play_circle_outline, size: 48),
-                                  SizedBox(height: 8),
-                                  Text('Vídeo'),
-                                ],
-                              ),
-                            ),
-                          ),
+                          child: _VideoPreview(url: item.mediaUrl),
                         );
                       },
                     ),
@@ -437,6 +424,110 @@ class _NavButton extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         child: Icon(icon, color: fg, size: 22),
       ),
+    );
+  }
+}
+
+class _VideoPreview extends StatefulWidget {
+  final String url;
+
+  const _VideoPreview({required this.url});
+
+  @override
+  State<_VideoPreview> createState() => _VideoPreviewState();
+}
+
+class _VideoPreviewState extends State<_VideoPreview> {
+  // Lazily import to avoid unnecessary dependency mention at top-level
+  // but we still need the import; keeping it at file top elsewhere is okay.
+  late final video_player.VideoPlayerController _controller;
+  bool _initialized = false;
+  bool _failed = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      _controller = video_player.VideoPlayerController.networkUrl(
+        Uri.parse(widget.url),
+      );
+      await _controller.initialize();
+      await _controller.setVolume(0);
+      await _controller.pause();
+      await _controller.seekTo(Duration.zero);
+      if (mounted) {
+        setState(() => _initialized = true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _failed = true;
+          _error = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    if (_failed) {
+      return Container(
+        color: colorScheme.surfaceContainerHighest,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: colorScheme.error, size: 36),
+              const SizedBox(height: 8),
+              const Text('Erro ao carregar prévia do vídeo'),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    _error!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!_initialized) {
+      return Container(
+        color: colorScheme.surfaceContainerHighest,
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        AspectRatio(
+          aspectRatio: _controller.value.aspectRatio,
+          child: video_player.VideoPlayer(_controller),
+        ),
+        Container(
+          color: Colors.black.withValues(alpha: 0.12),
+        ),
+        const Center(
+          child: Icon(Icons.play_circle_fill, size: 56, color: Colors.white),
+        ),
+      ],
     );
   }
 }
