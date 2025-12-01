@@ -18,11 +18,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
-import '../../services/challenge_service.dart';
-import '../../models/challenge_submission.dart';
+import 'submissions_screen.dart';
+import 'score_screen.dart';
 
-class AdminHomeScreen extends StatelessWidget {
+class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
+
+  @override
+  State<AdminHomeScreen> createState() => _AdminHomeScreenState();
+}
+
+class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  int _currentIndex = 0;
+  final List<Widget> _pages = const [
+    SubmissionsScreen(),
+    ScoreScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +42,7 @@ class AdminHomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: const Text('Painel Admin'),
         actions: [
           PopupMenuButton<String>(
             icon: CircleAvatar(
@@ -52,8 +63,8 @@ class AdminHomeScreen extends StatelessWidget {
                 await authService.signOut();
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
+            itemBuilder: (context) => const [
+              PopupMenuItem(
                 value: 'logout',
                 child: Text('Sair'),
               ),
@@ -61,202 +72,21 @@ class AdminHomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const _SubmissionsListView(),
-    );
-  }
-}
-
-class _SubmissionsListView extends StatelessWidget {
-  const _SubmissionsListView();
-
-  @override
-  Widget build(BuildContext context) {
-    final challengeService = Provider.of<ChallengeService>(context);
-
-    return StreamBuilder<List<ChallengeSubmission>>(
-      stream: challengeService.getAllSubmissionsStream(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline,
-                    size: 48, color: Theme.of(context).colorScheme.error),
-                const SizedBox(height: 16),
-                Text(
-                  'Erro ao carregar submissões',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  snapshot.error.toString(),
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        }
-
-        final submissions = snapshot.data ?? [];
-
-        if (submissions.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.inbox_outlined,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-                const SizedBox(height: 16),
-                Text(
-                  'Nenhuma submissão encontrada',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: submissions.length,
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            final submission = submissions[index];
-            return _SubmissionCard(submission: submission);
-          },
-        );
-      },
-    );
-  }
-}
-
-class _SubmissionCard extends StatelessWidget {
-  final ChallengeSubmission submission;
-
-  const _SubmissionCard({required this.submission});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  submission.mediaType == MediaType.image
-                      ? Icons.image
-                      : Icons.videocam,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Challenge ${submission.challengeId}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      Text(
-                        'Duo: ${submission.duoId}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (submission.mediaType == MediaType.image)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  submission.mediaUrl,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 48),
-                      ),
-                    );
-                  },
-                ),
-              )
-            else
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.play_circle_outline, size: 48),
-                      SizedBox(height: 8),
-                      Text('Vídeo'),
-                    ],
-                  ),
-                ),
-              ),
-            const SizedBox(height: 12),
-            if (submission.description != null &&
-                submission.description!.isNotEmpty) ...[
-              Text(
-                submission.description!,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 12),
-            ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Enviado por: ${submission.uploaderUid.substring(0, 8)}...',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  _formatDate(submission.submissionTime),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ],
-        ),
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'Submissões',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.leaderboard),
+            label: 'Pontuação',
+          ),
+        ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d atrás';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h atrás';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m atrás';
-    } else {
-      return 'Agora';
-    }
   }
 }
