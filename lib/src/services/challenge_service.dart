@@ -17,6 +17,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../models/challenge.dart';
 import '../models/challenge_submission.dart';
@@ -92,8 +93,6 @@ class ChallengeService {
         .snapshots()
         .map((snapshot) => _processChallenges(snapshot))
         .handleError((error) {
-      // TODO: Implement proper error logging in the future
-      // For now, we let the error bubble up to be handled by the UI layer
       throw error;
     });
   }
@@ -177,12 +176,38 @@ class ChallengeService {
 
   /// Stream de todas as submissões de todos os challenges (para admin)
   Stream<List<ChallengeSubmission>> getAllSubmissionsStream() {
-    return _firestore
-        .collectionGroup('submissions')
-        .orderBy('submissionTime', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ChallengeSubmission.fromFirestore(doc))
-            .toList());
+    // Observa a lista de challenges e reconstrói a combinação dos streams
+    // de submissions sempre que a lista de challenges mudar.
+    return _firestore.collection('challenges').snapshots().switchMap((snap) {
+      final challengeIds = snap.docs.map((d) => d.id).toList();
+
+      if (challengeIds.isEmpty) {
+        return Stream.value(<ChallengeSubmission>[]);
+      }
+
+      final perChallengeStreams = challengeIds.map((id) {
+        return _firestore
+            .collection('challenges')
+            .doc(id)
+            .collection('submissions')
+            .orderBy('submissionTime', descending: true)
+            .snapshots()
+            .map((submissionSnap) => submissionSnap.docs
+                .map((doc) => ChallengeSubmission.fromFirestore(doc))
+                .toList());
+      }).toList();
+
+      return Rx.combineLatestList<List<ChallengeSubmission>>(
+              perChallengeStreams)
+          .map((lists) {
+        final merged = <ChallengeSubmission>[];
+        for (final list in lists) {
+          merged.addAll(list);
+        }
+        // Ordena por data de submissão (desc)
+        merged.sort((a, b) => b.submissionTime.compareTo(a.submissionTime));
+        return merged;
+      });
+    });
   }
 }

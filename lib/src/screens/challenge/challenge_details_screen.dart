@@ -393,11 +393,11 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                         Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
-                SizedBox(width: 16),
-                Text('Preparando para compartilhar...'),
+                const SizedBox(width: 16),
+                const Text('Preparando para compartilhar...'),
               ],
             ),
-            duration: Duration(seconds: 30),
+            duration: const Duration(seconds: 30),
           ),
         );
       }
@@ -540,30 +540,26 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
             onPressed: () async {
               final navigator = Navigator.of(context);
               final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final theme = Theme.of(context);
               navigator.pop();
               try {
                 await _challengeService.deleteSubmission(
                   challengeId: widget.challenge.id,
                   submissionId: submission.id,
                 );
-                if (mounted) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: const Text('Submissão excluída com sucesso!'),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: const Text('Submissão excluída com sucesso!'),
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                  ),
+                );
               } catch (e) {
-                if (mounted) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text('Erro ao excluir: $e'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Erro ao excluir: $e'),
+                    backgroundColor: theme.colorScheme.error,
+                  ),
+                );
               }
             },
             child: Text('Excluir',
