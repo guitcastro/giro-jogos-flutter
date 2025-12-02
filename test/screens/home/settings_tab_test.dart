@@ -23,6 +23,7 @@ import 'package:giro_jogos/src/screens/home/settings_tab.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:giro_jogos/src/services/join_duo_params.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class MockAuthService extends Mock implements AuthService {}
 
@@ -64,7 +65,7 @@ void main() {
       expect(find.text('Perfil'), findsOneWidget);
       expect(find.text('Test User'), findsOneWidget);
       expect(find.text('test@example.com'), findsOneWidget);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byIcon(Symbols.edit), findsOneWidget);
     });
 
     testWidgets('should render settings tab successfully',

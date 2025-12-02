@@ -16,11 +16,13 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
 import '../media/media_preview_screen.dart';
+import 'score_edit_screen.dart';
 import 'package:video_player/video_player.dart' as video_player;
 
 class SubmissionsScreen extends StatelessWidget {
@@ -43,7 +45,7 @@ class SubmissionsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.error_outline,
+                  Symbols.error,
                   size: 48,
                   color: Theme.of(context).colorScheme.error,
                 ),
@@ -70,7 +72,7 @@ class SubmissionsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.inbox_outlined,
+                  Symbols.inbox,
                   size: 48,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -192,7 +194,7 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
     final group = widget.group;
     final latest = group.submissions.first;
     final leadingIcon =
-        latest.mediaType == MediaType.image ? Icons.image : Icons.videocam;
+        latest.mediaType == MediaType.image ? Symbols.image : Symbols.videocam;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -271,7 +273,7 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                                       .colorScheme
                                       .surfaceContainerHighest,
                                   child: const Center(
-                                    child: Icon(Icons.broken_image, size: 48),
+                                    child: Icon(Symbols.broken_image, size: 48),
                                   ),
                                 );
                               },
@@ -299,7 +301,7 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                       bottom: 0,
                       child: Center(
                         child: _NavButton(
-                          icon: Icons.chevron_left,
+                          icon: Symbols.chevron_left,
                           onTap: _goPrevious,
                           enabled: _pageIndex > 0,
                         ),
@@ -311,7 +313,7 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                       bottom: 0,
                       child: Center(
                         child: _NavButton(
-                          icon: Icons.chevron_right,
+                          icon: Symbols.chevron_right,
                           onTap: _goNext,
                           enabled: _pageIndex < group.submissions.length - 1,
                         ),
@@ -369,6 +371,8 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            _ScoreButton(challengeId: group.challengeId, duoId: group.duoId),
           ],
         ),
       ),
@@ -388,6 +392,40 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
     } else {
       return 'Agora';
     }
+  }
+}
+
+class _ScoreButton extends StatelessWidget {
+  final String challengeId;
+  final String duoId;
+
+  const _ScoreButton({required this.challengeId, required this.duoId});
+
+  @override
+  Widget build(BuildContext context) {
+    final challengeService = Provider.of<ChallengeService>(context);
+    return StreamBuilder(
+      stream: challengeService.getScoreStream(
+          duoId: duoId, challengeId: challengeId),
+      builder: (context, snapshot) {
+        final hasScore = snapshot.data != null;
+        return Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ScoreEditScreen(challengeId: challengeId, duoId: duoId),
+                ),
+              );
+            },
+            icon: Icon(hasScore ? Symbols.edit : Symbols.checklist),
+            label: Text(hasScore ? 'Alterar pontuação' : 'Atribuir pontuação'),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -489,7 +527,7 @@ class _VideoPreviewState extends State<_VideoPreview> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, color: colorScheme.error, size: 36),
+              Icon(Symbols.error, color: colorScheme.error, size: 36),
               const SizedBox(height: 8),
               const Text('Erro ao carregar prévia do vídeo'),
               if (_error != null)
@@ -525,7 +563,7 @@ class _VideoPreviewState extends State<_VideoPreview> {
           color: Colors.black.withValues(alpha: 0.12),
         ),
         const Center(
-          child: Icon(Icons.play_circle_fill, size: 56, color: Colors.white),
+          child: Icon(Symbols.play_circle, size: 56, color: Colors.white),
         ),
       ],
     );

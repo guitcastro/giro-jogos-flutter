@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../services/duo_service.dart';
 import '../../models/duo.dart';
@@ -125,7 +126,7 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline,
+              Icon(Symbols.error,
                   color: Theme.of(context).colorScheme.error, size: 64),
               const SizedBox(height: 24),
               Text(
@@ -167,7 +168,7 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline,
+              Icon(Symbols.error,
                   color: Theme.of(context).colorScheme.error, size: 64),
               const SizedBox(height: 24),
               Text(
@@ -218,7 +219,7 @@ class _JoinDuoScreenState extends State<JoinDuoScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline,
+                  Icon(Symbols.error,
                       color: Theme.of(context).colorScheme.error, size: 64),
                   const SizedBox(height: 24),
                   Text(

@@ -22,6 +22,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:giro_jogos/src/screens/auth/login_screen.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:giro_jogos/src/services/join_duo_params.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 // Mock AuthService for testing
 class MockAuthService extends ChangeNotifier implements AuthService {
@@ -217,7 +218,7 @@ void main() {
 
       // Find password field and visibility toggle
       final passwordField = find.byKey(const Key('passwordField'));
-      final visibilityIcon = find.byIcon(Icons.visibility);
+      final visibilityIcon = find.byIcon(Symbols.visibility);
 
       // Initially password should be hidden
       expect(passwordField, findsOneWidget);
@@ -228,8 +229,8 @@ void main() {
       await tester.pump();
 
       // Check that visibility icon changed to visibility_off
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
-      expect(find.byIcon(Icons.visibility), findsNothing);
+      expect(find.byIcon(Symbols.visibility_off), findsOneWidget);
+      expect(find.byIcon(Symbols.visibility), findsNothing);
     });
 
     testWidgets('should validate email format', (WidgetTester tester) async {

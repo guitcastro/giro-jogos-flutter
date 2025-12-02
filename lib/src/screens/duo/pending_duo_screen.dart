@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/duo.dart';
 import '../../services/duo_service.dart';
@@ -40,7 +41,7 @@ class PendingDuoScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.hourglass_empty,
+              Icon(Symbols.hourglass_empty,
                   size: 64,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 24),
@@ -64,7 +65,7 @@ class PendingDuoScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.share),
+                  icon: const Icon(Symbols.share),
                   onPressed: () {
                     SharePlus.instance.share(
                       ShareParams(text: inviteText),
@@ -87,7 +88,7 @@ class PendingDuoScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Symbols.close),
                   onPressed: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,

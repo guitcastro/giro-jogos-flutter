@@ -1,0 +1,168 @@
+/*
+ * This file is part of Giro Jogos.
+ */
+
+import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:provider/provider.dart';
+
+import '../../models/challenge.dart';
+import '../../models/challenge_score.dart';
+import '../../services/challenge_service.dart';
+
+class ScoreEditScreen extends StatefulWidget {
+  final String challengeId;
+  final String duoId;
+
+  const ScoreEditScreen(
+      {super.key, required this.challengeId, required this.duoId});
+
+  @override
+  State<ScoreEditScreen> createState() => _ScoreEditScreenState();
+}
+
+class _ScoreEditScreenState extends State<ScoreEditScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _pointsCtrl = TextEditingController();
+  final _commentCtrl = TextEditingController();
+  int _totalPoints = 0;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _pointsCtrl.dispose();
+    _commentCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final challengeService = Provider.of<ChallengeService>(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pontuação do desafio'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: StreamBuilder<ChallengeScore?>(
+          stream: challengeService.getScoreStream(
+            duoId: widget.duoId,
+            challengeId: widget.challengeId,
+          ),
+          builder: (context, scoreSnap) {
+            return FutureBuilder<Challenge?>(
+              future: challengeService
+                  .getChallengeById(int.parse(widget.challengeId)),
+              builder: (context, challengeSnap) {
+                final challenge = challengeSnap.data;
+                _totalPoints = challenge?.maxPoints ?? 0;
+
+                final existing = scoreSnap.data;
+                if (existing != null && _pointsCtrl.text.isEmpty) {
+                  _pointsCtrl.text = existing.points.toString();
+                  _commentCtrl.text = existing.comment ?? '';
+                }
+
+                return Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Symbols.star, color: Colors.amber),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Pontos totais do desafio: $_totalPoints',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _pointsCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Pontos atribuídos',
+                          hintText: 'Quantos pontos deseja atribuir?',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Informe os pontos atribuídos';
+                          }
+                          final parsed = int.tryParse(value.trim());
+                          if (parsed == null) {
+                            return 'Informe um número válido';
+                          }
+                          if (parsed < 0 || parsed > _totalPoints) {
+                            return 'Deve estar entre 0 e $_totalPoints';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _commentCtrl,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Comentário (opcional)',
+                          hintText: 'Adicione um comentário para a dupla',
+                        ),
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _saving
+                              ? null
+                              : () async {
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  setState(() => _saving = true);
+                                  try {
+                                    final points =
+                                        int.parse(_pointsCtrl.text.trim());
+                                    // TODO: replace with real admin uid from auth service if available
+                                    final adminUid = 'admin';
+                                    await challengeService.setScore(
+                                      duoId: widget.duoId,
+                                      challengeId: widget.challengeId,
+                                      points: points,
+                                      totalPoints: _totalPoints,
+                                      comment: _commentCtrl.text.trim().isEmpty
+                                          ? null
+                                          : _commentCtrl.text.trim(),
+                                      updatedByUid: adminUid,
+                                    );
+                                    if (!mounted) {
+                                      return;
+                                    }
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        Navigator.of(context).pop(true);
+                                      }
+                                    });
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() => _saving = false);
+                                    }
+                                  }
+                                },
+                          child: Text(existing == null
+                              ? 'Salvar pontuação'
+                              : 'Atualizar pontuação'),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

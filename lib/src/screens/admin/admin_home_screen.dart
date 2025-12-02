@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import 'submissions_screen.dart';
@@ -78,11 +79,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
+            icon: Icon(Symbols.list_alt),
             label: 'Submissões',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard),
+            icon: Icon(Symbols.leaderboard),
             label: 'Pontuação',
           ),
         ],

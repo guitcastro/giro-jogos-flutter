@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 
@@ -93,7 +94,7 @@ class SettingsTab extends StatelessWidget {
                           onPressed: () {
                             _showEditProfileDialog(context);
                           },
-                          icon: const Icon(Icons.edit),
+                          icon: const Icon(Symbols.edit),
                         ),
                       ],
                     ),
@@ -119,7 +120,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _buildSettingsItem(
-                      icon: Icons.notifications,
+                      icon: Symbols.notifications,
                       title: 'Notificações',
                       subtitle: 'Gerencie suas notificações',
                       onTap: () {
@@ -128,7 +129,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const Divider(),
                     _buildSettingsItem(
-                      icon: Icons.privacy_tip,
+                      icon: Symbols.privacy_tip,
                       title: 'Privacidade',
                       subtitle: 'Configurações de privacidade',
                       onTap: () {
@@ -137,7 +138,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const Divider(),
                     _buildSettingsItem(
-                      icon: Icons.language,
+                      icon: Symbols.language,
                       title: 'Idioma',
                       subtitle: 'Português (BR)',
                       onTap: () {
@@ -146,58 +147,11 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const Divider(),
                     _buildSettingsItem(
-                      icon: Icons.dark_mode,
+                      icon: Symbols.dark_mode,
                       title: 'Tema',
                       subtitle: 'Claro/Escuro',
                       onTap: () {
                         _showComingSoonDialog(context, 'Tema');
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Seção de gaming
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Gaming',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSettingsItem(
-                      icon: Icons.games,
-                      title: 'Jogos Favoritos',
-                      subtitle: 'Configure seus jogos preferidos',
-                      onTap: () {
-                        _showComingSoonDialog(context, 'Jogos Favoritos');
-                      },
-                    ),
-                    const Divider(),
-                    _buildSettingsItem(
-                      icon: Icons.leaderboard,
-                      title: 'Ranking',
-                      subtitle: 'Veja suas estatísticas',
-                      onTap: () {
-                        _showComingSoonDialog(context, 'Ranking');
-                      },
-                    ),
-                    const Divider(),
-                    _buildSettingsItem(
-                      icon: Icons.history,
-                      title: 'Histórico de Partidas',
-                      subtitle: 'Suas partidas anteriores',
-                      onTap: () {
-                        _showComingSoonDialog(context, 'Histórico de Partidas');
                       },
                     ),
                   ],
@@ -222,7 +176,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _buildSettingsItem(
-                      icon: Icons.help,
+                      icon: Symbols.help,
                       title: 'Central de Ajuda',
                       subtitle: 'FAQ e tutoriais',
                       onTap: () {
@@ -231,7 +185,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const Divider(),
                     _buildSettingsItem(
-                      icon: Icons.feedback,
+                      icon: Symbols.feedback,
                       title: 'Enviar Feedback',
                       subtitle: 'Conte-nos sua opinião',
                       onTap: () {
@@ -240,7 +194,7 @@ class SettingsTab extends StatelessWidget {
                     ),
                     const Divider(),
                     _buildSettingsItem(
-                      icon: Icons.info,
+                      icon: Symbols.info,
                       title: 'Sobre o App',
                       subtitle: 'Versão e informações',
                       onTap: () {
@@ -257,7 +211,7 @@ class SettingsTab extends StatelessWidget {
             Card(
               color: Theme.of(context).colorScheme.errorContainer,
               child: ListTile(
-                leading: Icon(Icons.logout,
+                leading: Icon(Symbols.logout,
                     color: Theme.of(context).colorScheme.error),
                 title: Text(
                   'Sair da Conta',
@@ -287,7 +241,7 @@ class SettingsTab extends StatelessWidget {
       leading: Icon(icon),
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: const Icon(Symbols.arrow_forward_ios, size: 16),
       onTap: onTap,
     );
   }

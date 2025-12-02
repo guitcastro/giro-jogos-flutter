@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class NoDuoScreen extends StatelessWidget {
   final void Function(BuildContext context) onCreateDuo;
@@ -30,7 +31,7 @@ class NoDuoScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.group_outlined,
+            Icon(Symbols.group,
                 size: 64,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 24),
@@ -47,7 +48,7 @@ class NoDuoScreen extends StatelessWidget {
             ),
             const SizedBox(height: 36),
             ElevatedButton.icon(
-              icon: const Icon(Icons.add),
+              icon: const Icon(Symbols.add),
               onPressed: () => onCreateDuo(context),
               label: const Text('Criar dupla'),
               style: ElevatedButton.styleFrom(

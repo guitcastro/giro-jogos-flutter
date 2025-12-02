@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 
@@ -45,7 +46,7 @@ class AdminScreen extends StatelessWidget {
                       value: 'logout',
                       child: Row(
                         children: [
-                          Icon(Icons.logout),
+                          Icon(Symbols.logout),
                           SizedBox(width: 8),
                           Text('Sair'),
                         ],
@@ -91,21 +92,21 @@ class AdminScreen extends StatelessWidget {
                 _buildAdminCard(
                   context,
                   'Manage Games',
-                  Icons.sports_esports,
+                  Symbols.sports_esports,
                   () {},
                 ),
                 const SizedBox(height: 10),
                 _buildAdminCard(
                   context,
                   'Manage Users',
-                  Icons.people,
+                  Symbols.people,
                   () {},
                 ),
                 const SizedBox(height: 10),
                 _buildAdminCard(
                   context,
                   'Analytics',
-                  Icons.analytics,
+                  Symbols.analytics,
                   () {},
                 ),
               ],
@@ -126,7 +127,7 @@ class AdminScreen extends StatelessWidget {
       child: ListTile(
         leading: Icon(icon, size: 40),
         title: Text(title, style: const TextStyle(fontSize: 18)),
-        trailing: const Icon(Icons.arrow_forward_ios),
+        trailing: const Icon(Symbols.arrow_forward_ios),
         onTap: onTap,
       ),
     );

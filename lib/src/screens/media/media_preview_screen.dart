@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/challenge_submission.dart';
@@ -59,7 +60,7 @@ class MediaPreviewScreen extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.open_in_new),
+              icon: const Icon(Symbols.open_in_new),
               tooltip: 'Abrir no navegador',
               onPressed: () => _openInBrowser(context),
             ),
@@ -102,7 +103,7 @@ class MediaPreviewScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.error_outline,
+                                Symbols.error,
                                 size: 48,
                                 color: colorScheme.error,
                               ),
@@ -137,7 +138,7 @@ class MediaPreviewScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               ElevatedButton.icon(
                                 onPressed: () => _openInBrowser(context),
-                                icon: const Icon(Icons.open_in_new),
+                                icon: const Icon(Symbols.open_in_new),
                                 label: const Text('Abrir no navegador'),
                               ),
                               const SizedBox(height: 8),

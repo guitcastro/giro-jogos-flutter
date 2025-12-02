@@ -24,11 +24,13 @@ import 'package:giro_jogos/src/screens/challenge/challenge_screen.dart';
 import 'package:giro_jogos/src/screens/challenge/challenge_details_screen.dart';
 import 'package:giro_jogos/src/services/challenge_service.dart';
 import 'package:giro_jogos/src/models/challenge.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import '../../fakes/fake_duo_service.dart' show FakeDuoService;
 import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:giro_jogos/src/models/duo.dart';
 import 'package:giro_jogos/src/models/challenge_submission.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:giro_jogos/src/models/challenge_score.dart';
 
 // Implementação simplificada do ChallengeService para testes
 class MockChallengeService implements ChallengeService {
@@ -161,6 +163,35 @@ class MockChallengeService implements ChallengeService {
     // Return an empty stream by default for admin functionality
     return Stream.value(<ChallengeSubmission>[]);
   }
+
+  // Scores API stubs
+  @override
+  Stream<ChallengeScore?> getScoreStream({
+    required String duoId,
+    required String challengeId,
+  }) {
+    return Stream<ChallengeScore?>.value(null);
+  }
+
+  @override
+  Future<ChallengeScore?> getScore({
+    required String duoId,
+    required String challengeId,
+  }) async {
+    return null;
+  }
+
+  @override
+  Future<void> setScore({
+    required String duoId,
+    required String challengeId,
+    required int points,
+    required int totalPoints,
+    String? comment,
+    required String updatedByUid,
+  }) async {
+    return;
+  }
 }
 
 void main() {
@@ -224,7 +255,7 @@ void main() {
           title: 'Desafio 1',
           description: 'Descrição do desafio 1',
           maxPoints: 200,
-          points: {'user1': 150},
+          points: {},
         ),
         const Challenge(
           id: '2',
@@ -300,7 +331,7 @@ void main() {
       await tester.pump();
 
       // Assert
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byIcon(Symbols.star), findsOneWidget);
       expect(find.text('500 pts'), findsOneWidget);
     });
 

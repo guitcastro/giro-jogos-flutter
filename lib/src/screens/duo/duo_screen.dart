@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../models/duo.dart';
 import '../../services/duo_service.dart';
@@ -39,15 +40,6 @@ class DuoScreen extends StatelessWidget {
     final duoService = Provider.of<DuoService>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          duo.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        elevation: 0,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -55,7 +47,7 @@ class DuoScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.groups,
+              Icon(Symbols.groups,
                   size: 64, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 24),
               Text(
@@ -87,7 +79,7 @@ class DuoScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                           child: Row(
                             children: [
-                              Icon(Icons.person,
+                              Icon(Symbols.person,
                                   size: 18,
                                   color: Theme.of(context).colorScheme.primary),
                               const SizedBox(width: 8),
@@ -108,7 +100,7 @@ class DuoScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.emoji_events,
+                    Icon(Symbols.emoji_events,
                         color: Theme.of(context).colorScheme.tertiary,
                         size: 24),
                     const SizedBox(width: 8),
@@ -127,7 +119,7 @@ class DuoScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.logout),
+                  icon: const Icon(Symbols.logout),
                   label: const Text('Sair da dupla'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: fadedPrimary,

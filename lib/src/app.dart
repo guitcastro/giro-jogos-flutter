@@ -42,8 +42,55 @@ class GiroJogosApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Giro Jogos',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          colorScheme: const ColorScheme(
+            brightness: Brightness.light,
+            primary: Color(0xFF000408),
+            onPrimary: Color(0xFFFFFFFF),
+            primaryContainer: Color(0xFF2A3A42),
+            onPrimaryContainer: Color(0xFFD0E4F0),
+            // Use only primary palette across scheme
+            secondary: Color(0xFF000408),
+            onSecondary: Color(0xFFFFFFFF),
+            secondaryContainer: Color(0xFF2A3A42),
+            onSecondaryContainer: Color(0xFFD0E4F0),
+            tertiary: Color(0xFF000408),
+            onTertiary: Color(0xFFFFFFFF),
+            tertiaryContainer: Color(0xFF2A3A42),
+            onTertiaryContainer: Color(0xFFD0E4F0),
+            error: Color(0xFF000408),
+            onError: Color(0xFFFFFFFF),
+            errorContainer: Color(0xFF2A3A42),
+            onErrorContainer: Color(0xFFD0E4F0),
+            surface: Color(0xFFF5F7F9),
+            onSurface: Color(0xFF000408),
+            surfaceDim: Color(0xFFD6DADD),
+            surfaceBright: Color(0xFFF5F7F9),
+            surfaceContainerLowest: Color(0xFFFFFFFF),
+            surfaceContainerLow: Color(0xFFEFF2F4),
+            surfaceContainer: Color(0xFFE9ECEF),
+            surfaceContainerHigh: Color(0xFFE3E6E9),
+            surfaceContainerHighest: Color(0xFFDDE0E3),
+            outline: Color(0xFF6B7278),
+            outlineVariant: Color(0xFFC1C7CD),
+            shadow: Color(0xFF000000),
+            scrim: Color(0xFF000000),
+            inverseSurface: Color(0xFF2E3338),
+            onInverseSurface: Color(0xFFF0F3F5),
+            inversePrimary: Color(0xFF000408),
+          ),
+          primaryColor: const Color(0xFF000408),
+          scaffoldBackgroundColor: const Color(0xFFF5F7F9),
+          canvasColor: const Color(0xFFF5F7F9),
+          cardColor: const Color(0xFFFFFFFF),
+          dividerColor: const Color(0xFFC1C7CD),
+          focusColor: const Color(0xFF000408),
+          // Use subtle, semi-transparent overlays to maintain AA contrast on hover/press
+          hoverColor: const Color(0x1F000408), // ~12% primary tint
+          highlightColor:
+              const Color(0x26000408), // ~15% primary tint for focus
+          splashColor: const Color(0x33000408), // ~20% primary tint for press
+          disabledColor: const Color(0xFF9BA3A9),
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: <TargetPlatform, PageTransitionsBuilder>{
               // Set the predictive back transitions for Android.

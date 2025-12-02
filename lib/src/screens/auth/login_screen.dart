@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
@@ -80,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
         labelText: 'Email',
-        prefixIcon: const Icon(Icons.email_outlined),
+        prefixIcon: const Icon(Symbols.mail),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -104,10 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: !_isPasswordVisible,
       decoration: InputDecoration(
         labelText: 'Senha',
-        prefixIcon: const Icon(Icons.lock_outlined),
+        prefixIcon: const Icon(Symbols.lock),
         suffixIcon: IconButton(
           icon: Icon(
-            _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+            _isPasswordVisible ? Symbols.visibility_off : Symbols.visibility,
           ),
           onPressed: () {
             setState(() {
@@ -152,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (mounted) setState(() => _isLoading = false);
               }
             },
-      icon: const Icon(Icons.g_mobiledata, size: 20),
+      icon: const Icon(Symbols.g_mobiledata, size: 20),
       label: const Text('Google'),
     );
   }
@@ -179,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Column(
                       children: [
                         Icon(
-                          Icons.sports_esports,
+                          Symbols.sports_esports,
                           size: 80,
                           color: Theme.of(context).primaryColor,
                         ),

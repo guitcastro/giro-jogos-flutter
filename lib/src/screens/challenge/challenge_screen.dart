@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../models/challenge.dart';
 import '../../services/challenge_service.dart';
@@ -65,7 +66,7 @@ class ChallengeScreen extends StatelessWidget {
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.star,
+                    Icon(Symbols.star,
                         color: Theme.of(context).colorScheme.tertiary,
                         size: 20),
                     Text('${challenge.maxPoints} pts',

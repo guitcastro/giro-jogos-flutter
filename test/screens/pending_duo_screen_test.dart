@@ -21,6 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:giro_jogos/src/screens/duo/pending_duo_screen.dart';
 import 'package:giro_jogos/src/models/duo.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../fakes/fake_duo_service.dart' show FakeDuoService;
 
@@ -77,7 +78,7 @@ void main() {
           child: MaterialApp(home: PendingDuoScreen(duo: duo)),
         ),
       );
-      expect(find.byIcon(Icons.hourglass_empty), findsOneWidget);
+      expect(find.byIcon(Symbols.hourglass_empty), findsOneWidget);
       expect(find.text('Convide alguém para sua dupla!'), findsOneWidget);
       expect(find.text('Compartilhar convite'), findsOneWidget);
       expect(find.text('Desfazer dupla'), findsOneWidget);

@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -125,7 +126,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              Icon(Icons.star,
+                              Icon(Symbols.star,
                                   color:
                                       Theme.of(context).colorScheme.tertiary),
                               const SizedBox(width: 8),
@@ -160,7 +161,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                           : () async {
                               await _pickAnyMediaAndSubmit(duo);
                             },
-                      icon: const Icon(Icons.upload_file),
+                      icon: const Icon(Symbols.upload_file),
                       label: const Text('Enviar mídia'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),

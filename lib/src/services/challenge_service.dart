@@ -21,6 +21,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../models/challenge.dart';
 import '../models/challenge_submission.dart';
+import '../models/challenge_score.dart';
 import 'media_upload_service.dart';
 
 class ChallengeService {
@@ -95,6 +96,58 @@ class ChallengeService {
         .handleError((error) {
       throw error;
     });
+  }
+
+  /// Scores API
+  DocumentReference<Map<String, dynamic>> _scoreDocRef({
+    required String duoId,
+    required String challengeId,
+  }) {
+    return _firestore
+        .collection('scores')
+        .doc(duoId)
+        .collection('challenges')
+        .doc(challengeId);
+  }
+
+  Stream<ChallengeScore?> getScoreStream({
+    required String duoId,
+    required String challengeId,
+  }) {
+    return _scoreDocRef(duoId: duoId, challengeId: challengeId)
+        .snapshots()
+        .map((doc) => doc.exists ? ChallengeScore.fromFirestore(doc) : null);
+  }
+
+  Future<ChallengeScore?> getScore({
+    required String duoId,
+    required String challengeId,
+  }) async {
+    final doc =
+        await _scoreDocRef(duoId: duoId, challengeId: challengeId).get();
+    if (!doc.exists) return null;
+    return ChallengeScore.fromFirestore(doc);
+  }
+
+  Future<void> setScore({
+    required String duoId,
+    required String challengeId,
+    required int points,
+    required int totalPoints,
+    String? comment,
+    required String updatedByUid,
+  }) async {
+    final data = ChallengeScore(
+      duoId: duoId,
+      challengeId: challengeId,
+      points: points,
+      totalPoints: totalPoints,
+      comment: comment,
+      updatedByUid: updatedByUid,
+      updatedAt: DateTime.now(),
+    ).toMap();
+
+    await _scoreDocRef(duoId: duoId, challengeId: challengeId).set(data);
   }
 
   List<Challenge> _processChallenges(QuerySnapshot snapshot) {

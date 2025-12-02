@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -79,7 +80,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              Symbols.error,
               size: 48,
               color: Theme.of(context).colorScheme.error,
             ),
@@ -139,8 +140,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                       padding: const EdgeInsets.all(16),
                       child: Icon(
                         _controller.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
+                            ? Symbols.pause
+                            : Symbols.play_arrow,
                         size: 50,
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),

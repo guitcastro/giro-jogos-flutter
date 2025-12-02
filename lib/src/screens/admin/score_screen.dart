@@ -16,6 +16,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ScoreScreen extends StatelessWidget {
   const ScoreScreen({super.key});
@@ -26,7 +27,7 @@ class ScoreScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.emoji_events,
+          Icon(Symbols.emoji_events,
               size: 64, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 16),
           Text(

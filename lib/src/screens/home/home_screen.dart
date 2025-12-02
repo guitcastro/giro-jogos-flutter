@@ -16,6 +16,8 @@
  */
 
 import 'package:flutter/material.dart';
+import '../../widgets/app_icon.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/join_duo_params.dart';
@@ -65,8 +67,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ];
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Giro Jogos'),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIcon(size: 24),
+                SizedBox(width: 8),
+                Text('Giro Jogos'),
+              ],
+            ),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             actions: [
               PopupMenuButton<String>(
                 onSelected: (value) async {
@@ -80,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: 'logout',
                       child: Row(
                         children: [
-                          Icon(Icons.logout),
+                          Icon(Symbols.logout),
                           SizedBox(width: 8),
                           Text('Sair'),
                         ],
@@ -88,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ];
                 },
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(Symbols.more_vert),
               ),
             ],
           ),
@@ -102,15 +112,15 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.group),
+                icon: Icon(Symbols.group),
                 label: 'Dupla',
               ),
               NavigationDestination(
-                icon: Icon(Icons.flag),
+                icon: Icon(Symbols.flag),
                 label: 'Desafios',
               ),
               NavigationDestination(
-                icon: Icon(Icons.settings),
+                icon: Icon(Symbols.settings),
                 label: 'Configurações',
               ),
             ],
