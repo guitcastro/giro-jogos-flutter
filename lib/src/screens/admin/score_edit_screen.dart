@@ -67,10 +67,16 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
             challengeId: widget.challengeId,
           ),
           builder: (context, scoreSnap) {
+            if (scoreSnap.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return FutureBuilder<Challenge?>(
               future: challengeService
                   .getChallengeById(int.parse(widget.challengeId)),
               builder: (context, challengeSnap) {
+                if (challengeSnap.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
                 final challenge = challengeSnap.data;
                 _totalPoints = challenge?.maxPoints ?? 0;
 
@@ -85,6 +91,32 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (challenge != null) ...[
+                        Card(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerLowest,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  challenge.title,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  challenge.description,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       Row(
                         children: [
                           const Icon(Symbols.star, color: Colors.amber),
@@ -99,6 +131,7 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                       TextFormField(
                         controller: _pointsCtrl,
                         keyboardType: TextInputType.number,
+                        enabled: !_saving,
                         decoration: const InputDecoration(
                           labelText: 'Pontos atribuídos',
                           hintText: 'Quantos pontos deseja atribuir?',
@@ -121,6 +154,7 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                       TextFormField(
                         controller: _commentCtrl,
                         maxLines: 3,
+                        enabled: !_saving,
                         decoration: const InputDecoration(
                           labelText: 'Comentário (opcional)',
                           hintText: 'Adicione um comentário para a dupla',
@@ -138,6 +172,7 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                                   }
                                   setState(() => _saving = true);
                                   try {
+                                    final navigator = Navigator.of(context);
                                     final points =
                                         int.parse(_pointsCtrl.text.trim());
                                     // TODO: replace with real admin uid from auth service if available
@@ -152,15 +187,9 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                                           : _commentCtrl.text.trim(),
                                       updatedByUid: adminUid,
                                     );
-                                    if (!mounted) {
-                                      return;
+                                    if (mounted) {
+                                      navigator.pop(true);
                                     }
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      if (mounted) {
-                                        Navigator.of(context).pop(true);
-                                      }
-                                    });
                                   } finally {
                                     if (mounted) {
                                       setState(() => _saving = false);

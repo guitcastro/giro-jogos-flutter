@@ -45,22 +45,24 @@ class MediaPreviewScreen extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
           backgroundColor: colorScheme.inversePrimary,
+          foregroundColor: colorScheme.onPrimary,
+          iconTheme: IconThemeData(color: colorScheme.onPrimary),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 submission.mediaType == MediaType.video ? 'Vídeo' : 'Foto',
-                style: const TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: colorScheme.onPrimary),
               ),
               Text(
                 'Enviado em ${_formatDate(submission.submissionTime)}',
-                style: const TextStyle(fontSize: 12),
+                style: TextStyle(fontSize: 12, color: colorScheme.onPrimary),
               ),
             ],
           ),
           actions: [
             IconButton(
-              icon: const Icon(Symbols.open_in_new),
+              icon: Icon(Symbols.open_in_new, color: colorScheme.onPrimary),
               tooltip: 'Abrir no navegador',
               onPressed: () => _openInBrowser(context),
             ),

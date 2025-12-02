@@ -70,8 +70,16 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.challenge.title),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          iconTheme:
+              IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+          title: Text(
+            widget.challenge.title,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
         ),
         body: StreamBuilder<Duo?>(
           stream: duoService.getUserDuoStream(),

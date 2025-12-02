@@ -18,8 +18,11 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../models/challenge_submission.dart';
+import '../../models/challenge.dart';
+import '../../models/challenge_score.dart';
 import '../../services/challenge_service.dart';
 import '../media/media_preview_screen.dart';
 import 'score_edit_screen.dart';
@@ -91,12 +94,44 @@ class SubmissionsScreen extends StatelessWidget {
 
         final grouped = _groupSubmissions(submissions);
 
-        return ListView.builder(
-          itemCount: grouped.length,
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            final group = grouped[index];
-            return _SubmissionGroupCard(group: group);
+        // Build a reactive scores map for groups to sort accordingly
+        final scoreStreams = grouped
+            .map((g) => challengeService.getScoreStream(
+                  duoId: g.duoId,
+                  challengeId: g.challengeId,
+                ))
+            .toList();
+
+        return StreamBuilder<List<ChallengeScore?>>(
+          stream: Rx.combineLatestList<ChallengeScore?>(scoreStreams),
+          builder: (context, scoresSnap) {
+            final scores = scoresSnap.data;
+            final sorted = List<_SubmissionGroup>.from(grouped);
+            if (scores != null && scores.length == sorted.length) {
+              sorted.sort((a, b) {
+                final sa = scores[grouped.indexOf(a)];
+                final sb = scores[grouped.indexOf(b)];
+
+                final aNeedsReview =
+                    sa == null || a.latestTime.isAfter(sa.updatedAt);
+                final bNeedsReview =
+                    sb == null || b.latestTime.isAfter(sb.updatedAt);
+
+                if (aNeedsReview && !bNeedsReview) return -1;
+                if (!aNeedsReview && bNeedsReview) return 1;
+                // fallback to latest submission time desc
+                return b.latestTime.compareTo(a.latestTime);
+              });
+            }
+
+            return ListView.builder(
+              itemCount: sorted.length,
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, index) {
+                final group = sorted[index];
+                return _SubmissionGroupCard(group: group);
+              },
+            );
           },
         );
       },
@@ -193,52 +228,81 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
   Widget build(BuildContext context) {
     final group = widget.group;
     final latest = group.submissions.first;
-    final leadingIcon =
-        latest.mediaType == MediaType.image ? Symbols.image : Symbols.videocam;
+    final challengeService = Provider.of<ChallengeService>(context);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(
-                  leadingIcon,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Challenge ${group.challengeId}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      Text(
-                        'Duo: ${group.duoId}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+            StreamBuilder<Challenge>(
+              stream: challengeService
+                  .getChallengeByIdStream(int.parse(group.challengeId)),
+              builder: (context, challengeSnap) {
+                final challenge = challengeSnap.data;
+                return StreamBuilder<ChallengeScore?>(
+                  stream: challengeService.getScoreStream(
+                    duoId: group.duoId,
+                    challengeId: group.challengeId,
                   ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${group.submissions.length} mídias',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ),
-              ],
+                  builder: (context, scoreSnap) {
+                    final score = scoreSnap.data;
+                    final total = challenge?.maxPoints ?? 0;
+                    final duoPoints = score?.points;
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                challenge?.title ??
+                                    'Desafio ${group.challengeId}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                'Duo: ${group.duoId}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Score chip (pill) with light fill, primary outline and smaller text
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            duoPoints == null
+                                ? 'Sem pontuação'
+                                : '$duoPoints / $total pts',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -362,10 +426,6 @@ class _SubmissionGroupCardState extends State<_SubmissionGroupCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Enviado por: ${latest.uploaderUid.substring(0, 8)}...',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
                   _formatDate(group.latestTime),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -408,10 +468,16 @@ class _ScoreButton extends StatelessWidget {
       stream: challengeService.getScoreStream(
           duoId: duoId, challengeId: challengeId),
       builder: (context, snapshot) {
-        final hasScore = snapshot.data != null;
-        return Align(
-          alignment: Alignment.centerRight,
+        // final hasScore = snapshot.data != null;
+        return SizedBox(
+          width: double.infinity,
           child: FilledButton.icon(
+            style: ButtonStyle(
+              minimumSize: WidgetStateProperty.all(const Size.fromHeight(40)),
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
             onPressed: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(
@@ -420,8 +486,8 @@ class _ScoreButton extends StatelessWidget {
                 ),
               );
             },
-            icon: Icon(hasScore ? Symbols.edit : Symbols.checklist),
-            label: Text(hasScore ? 'Alterar pontuação' : 'Atribuir pontuação'),
+            icon: const Icon(Symbols.edit),
+            label: const Text('Pontuação'),
           ),
         );
       },

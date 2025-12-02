@@ -79,6 +79,8 @@ class MockChallengeService implements ChallengeService {
     return challenge;
   }
 
+  // Removed getChallengeByIdStr; tests use getChallengeById(int) only.
+
   @override
   Stream<Challenge> getChallengeByIdStream(int challengeId) {
     return Stream.fromIterable([
