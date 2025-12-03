@@ -15,6 +15,8 @@
  * along with Giro Jogos. If not, see <https://www.gnu.org/licenses/>.
  */
 
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,8 @@ import '../test_helpers.dart';
 import 'mock_duo_wrapper_screen.dart';
 import 'package:giro_jogos/src/screens/duo/no_duo_screen.dart';
 import 'package:giro_jogos/src/services/join_duo_params.dart';
+import 'package:giro_jogos/src/services/challenge_service.dart';
+import '../fakes/fake_challenge_service.dart';
 
 void main() {
   group('DuoWrapperScreen loading', () {
@@ -34,17 +38,19 @@ void main() {
       final controller = StreamController<Duo?>();
       final fakeDuoService = FakeDuoService();
       await tester.pumpWidget(MaterialApp(
-        home: Provider<DuoService>.value(
-          value: fakeDuoService,
-          child: ChangeNotifierProvider<JoinDuoParams>(
-            create: (_) => JoinDuoParams(),
-            child: Builder(
-              builder: (context) => MockDuoWrapperScreen(
-                userId: 'userX',
-                getNames: (_) async => const ['A', 'B'],
-                getScore: (_) async => 0,
-                stream: controller.stream,
-              ),
+        home: MultiProvider(
+          providers: [
+            Provider<DuoService>.value(value: fakeDuoService),
+            Provider<ChallengeService>.value(value: FakeChallengeService()),
+            ChangeNotifierProvider<JoinDuoParams>(
+              create: (_) => JoinDuoParams(),
+            ),
+          ],
+          child: Builder(
+            builder: (context) => MockDuoWrapperScreen(
+              userId: 'userX',
+              stream: controller.stream,
+              scoreStream: Stream<int>.value(0),
             ),
           ),
         ),
@@ -61,24 +67,22 @@ void main() {
     testWidgets('exibe NoDuoScreen quando não há duo', (tester) async {
       final controller = StreamController<Duo?>();
       final fakeDuoService = FakeDuoService();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) => Provider<DuoService>.value(
-              value: fakeDuoService,
-              child: ChangeNotifierProvider<JoinDuoParams>(
-                create: (_) => JoinDuoParams(),
-                child: MockDuoWrapperScreen(
-                  userId: 'userX',
-                  getNames: (_) async => const ['A', 'B'],
-                  getScore: (_) async => 0,
-                  stream: controller.stream,
-                ),
-              ),
+      await tester.pumpWidget(MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<DuoService>.value(value: fakeDuoService),
+            Provider<ChallengeService>.value(value: FakeChallengeService()),
+            ChangeNotifierProvider<JoinDuoParams>(
+              create: (_) => JoinDuoParams(),
             ),
+          ],
+          child: MockDuoWrapperScreen(
+            userId: 'userX',
+            stream: controller.stream,
+            scoreStream: Stream<int>.value(0),
           ),
         ),
-      );
+      ));
       controller.add(null);
       await tester.pump();
       expect(find.byType(NoDuoScreen), findsOneWidget);

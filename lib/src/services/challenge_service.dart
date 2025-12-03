@@ -156,6 +156,26 @@ class ChallengeService {
     await _scoreDocRef(duoId: duoId, challengeId: challengeId).set(data);
   }
 
+  /// Duo total score: sums points across all challenges for a given duo
+  Stream<int> streamDuoTotalScore(String duoId) {
+    final challengesColl =
+        _firestore.collection('scores').doc(duoId).collection('challenges');
+
+    return challengesColl.snapshots().map((snapshot) {
+      var total = 0;
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final points = data['points'];
+        if (points is num) {
+          total += points.toInt();
+        }
+      }
+      return total;
+    }).handleError((error, stack) {
+      debugPrint('[ChallengeService] streamDuoTotalScore error: $error');
+    });
+  }
+
   /// Admin leaderboard: aggregates scores across all duos and challenges
   Stream<List<LeaderboardEntry>> streamAdminLeaderboard() {
     // Use collectionGroup over 'challenges' filtering by duoId

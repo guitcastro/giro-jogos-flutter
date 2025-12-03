@@ -28,15 +28,24 @@ import 'services/media_upload_service.dart';
 
 class GiroJogosApp extends StatelessWidget {
   final DuoService? duoService;
-  const GiroJogosApp({super.key, this.duoService});
+  final ChallengeService? challengeService;
+  final MediaUploadService? mediaUploadService;
+  const GiroJogosApp({
+    super.key,
+    this.duoService,
+    this.challengeService,
+    this.mediaUploadService,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<DuoService>.value(value: duoService ?? DuoService()),
-        Provider<ChallengeService>(create: (_) => ChallengeService()),
-        Provider<MediaUploadService>(create: (_) => MediaUploadService()),
+        Provider<ChallengeService>.value(
+            value: challengeService ?? ChallengeService()),
+        Provider<MediaUploadService>.value(
+            value: mediaUploadService ?? MediaUploadService()),
         ChangeNotifierProvider(create: (_) => JoinDuoParams()),
       ],
       child: MaterialApp.router(

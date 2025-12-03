@@ -57,10 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
         final screens = [
           DuoWrapperScreen(
             userId: user?.uid ?? '',
-            getNames: (ids) async =>
-                ids, // TODO: Substitua por função real de nomes
-            getScore: (duoId) async =>
-                0, // TODO: Substitua por função real de score
           ),
           const ChallengeScreen(),
           const SettingsTab(),

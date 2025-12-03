@@ -22,7 +22,9 @@ import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../test_helpers.dart';
+import '../fakes/fake_challenge_service.dart';
 import '../fakes/fake_duo_service.dart';
+import '../fakes/fake_media_upload_service.dart';
 
 // Fake AuthService for integration testing (completely independent of Firebase)
 class FakeAuthService extends ChangeNotifier implements AuthService {
@@ -123,10 +125,13 @@ void main() {
     });
 
     Widget createApp() {
-      final fakeDuoService = FakeDuoService();
       return ChangeNotifierProvider<AuthService>.value(
         value: fakeAuthService,
-        child: GiroJogosApp(duoService: fakeDuoService),
+        child: GiroJogosApp(
+          duoService: FakeDuoService(),
+          challengeService: const FakeChallengeService(),
+          mediaUploadService: const FakeMediaUploadService(),
+        ),
       );
     }
 
@@ -146,11 +151,12 @@ void main() {
       // Should start at login screen
       expect(find.text('Giro Jogos'), findsOneWidget);
       expect(find.text('Entre na sua conta'), findsOneWidget);
+      expect(find.byType(TextFormField), findsNWidgets(2));
 
       // Enter valid credentials
       await tester.enterText(
-          find.byType(TextFormField).first, 'test@example.com');
-      await tester.enterText(find.byType(TextFormField).last, 'password123');
+          find.byType(TextFormField).at(0), 'test@example.com');
+      await tester.enterText(find.byType(TextFormField).at(1), 'password123');
 
       // Tap login button
       await tester.tap(find.text('Entrar'));
@@ -242,13 +248,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter invalid credentials
+      expect(find.byType(TextFormField), findsNWidgets(2));
       await tester.enterText(
-          find.byType(TextFormField).first, 'invalid@example.com');
-      await tester.enterText(find.byType(TextFormField).last, 'wrongpassword');
+          find.byType(TextFormField).at(0), 'invalid@example.com');
+      await tester.enterText(find.byType(TextFormField).at(1), 'wrongpassword');
 
       // Try to login
       await tester.tap(find.text('Entrar'));
       await tester.pumpAndSettle();
+      // Ensure snackbars are processed
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should handle the error gracefully (stay on login screen)
       expect(find.text('Entre na sua conta'), findsOneWidget);

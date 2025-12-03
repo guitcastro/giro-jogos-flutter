@@ -30,6 +30,8 @@ import '../../fakes/fake_duo_service.dart';
 import 'package:giro_jogos/src/screens/home/settings_tab.dart';
 
 import 'package:giro_jogos/src/services/join_duo_params.dart';
+import 'package:giro_jogos/src/services/challenge_service.dart';
+import '../../fakes/fake_challenge_service.dart';
 
 class FakeUser implements User {
   @override
@@ -65,15 +67,16 @@ void main() {
 
     Widget createTestWidget(Widget child) {
       return MaterialApp(
-        home: Provider<DuoService>.value(
-          value: fakeDuoService,
-          child: ChangeNotifierProvider<AuthService>.value(
-            value: fakeAuthService,
-            child: ChangeNotifierProvider<JoinDuoParams>(
-              create: (_) => JoinDuoParams(),
-              child: child,
-            ),
-          ),
+        home: MultiProvider(
+          providers: [
+            Provider<DuoService>.value(value: fakeDuoService),
+            Provider<ChallengeService>.value(
+                value: const FakeChallengeService()),
+            ChangeNotifierProvider<AuthService>.value(value: fakeAuthService),
+            ChangeNotifierProvider<JoinDuoParams>(
+                create: (_) => JoinDuoParams()),
+          ],
+          child: child,
         ),
       );
     }

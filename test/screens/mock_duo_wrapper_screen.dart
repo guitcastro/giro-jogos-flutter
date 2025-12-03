@@ -25,12 +25,12 @@ import 'package:giro_jogos/src/models/duo.dart';
 
 class MockDuoWrapperScreen extends DuoWrapperScreen {
   final Stream<Duo?> stream;
+  final Stream<int> scoreStream;
   const MockDuoWrapperScreen({
     required super.userId,
-    required super.getNames,
-    required super.getScore,
     super.key,
     required this.stream,
+    required this.scoreStream,
   });
 
   Widget build(BuildContext context) {
@@ -46,19 +46,16 @@ class MockDuoWrapperScreen extends DuoWrapperScreen {
         if (duo.participants.length == 1) {
           return PendingDuoScreen(duo: duo);
         }
-        return FutureBuilder(
-          future: Future.wait([
-            getNames(duo.participants.map((p) => p.id).toList()),
-            getScore(duo.id),
-          ]),
-          builder: (context, snap) {
-            if (!snap.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final names = snap.data![0] as List<String>;
-            final score = snap.data![1] as int;
+        final names = duo.participants.map((p) => p.name).toList();
+        return StreamBuilder<int>(
+          stream: scoreStream,
+          builder: (context, scoreSnap) {
+            final score = scoreSnap.data ?? 0;
             return DuoScreen(
-                duo: duo, participantNames: names, totalScore: score);
+              duo: duo,
+              participantNames: names,
+              totalScore: score,
+            );
           },
         );
       },

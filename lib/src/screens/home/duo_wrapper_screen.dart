@@ -20,6 +20,7 @@ import 'package:giro_jogos/src/screens/duo/join_duo_screen.dart';
 import '../../models/duo.dart';
 import '../../services/duo_service.dart';
 import '../../services/join_duo_params.dart';
+import '../../services/challenge_service.dart';
 import '../duo/no_duo_screen.dart';
 import '../duo/pending_duo_screen.dart';
 import '../duo/duo_screen.dart';
@@ -28,13 +29,9 @@ import 'package:provider/provider.dart';
 
 class DuoWrapperScreen extends StatefulWidget {
   final String userId;
-  final Future<List<String>> Function(List<String> ids) getNames;
-  final Future<int> Function(String duoId) getScore;
   const DuoWrapperScreen({
     super.key,
     required this.userId,
-    required this.getNames,
-    required this.getScore,
   });
 
   @override
@@ -45,6 +42,8 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
   @override
   Widget build(BuildContext context) {
     final duoService = Provider.of<DuoService>(context, listen: false);
+    final challengeService =
+        Provider.of<ChallengeService>(context, listen: false);
     return Consumer<JoinDuoParams>(
       builder: (context, joinParams, _) {
         return StreamBuilder<Duo?>(
@@ -80,20 +79,20 @@ class _DuoWrapperScreenState extends State<DuoWrapperScreen> {
             if (duo.participants.length == 1) {
               return PendingDuoScreen(duo: duo);
             }
-            // Buscar nomes e pontuação
-            return FutureBuilder(
-              future: Future.wait([
-                widget.getNames(duo.participants.map((p) => p.name).toList()),
-                widget.getScore(duo.id),
-              ]),
-              builder: (context, snap) {
-                if (!snap.hasData) {
+            // Usar os nomes já presentes em duo.participants
+            final names = duo.participants.map((p) => p.name).toList();
+            return StreamBuilder<int>(
+              stream: challengeService.streamDuoTotalScore(duo.id),
+              builder: (context, scoreSnap) {
+                if (scoreSnap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final names = snap.data![0] as List<String>;
-                final score = snap.data![1] as int;
+                final score = scoreSnap.data ?? 0;
                 return DuoScreen(
-                    duo: duo, participantNames: names, totalScore: score);
+                  duo: duo,
+                  participantNames: names,
+                  totalScore: score,
+                );
               },
             );
           },

@@ -201,6 +201,12 @@ class MockChallengeService implements ChallengeService {
   Stream<List<LeaderboardEntry>> streamAdminLeaderboard() {
     return Stream<List<LeaderboardEntry>>.value(const <LeaderboardEntry>[]);
   }
+
+  // Duo total score stub
+  @override
+  Stream<int> streamDuoTotalScore(String duoId) {
+    return Stream<int>.value(0);
+  }
 }
 
 void main() {
