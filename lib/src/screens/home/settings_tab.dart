@@ -211,14 +211,21 @@ class SettingsTab extends StatelessWidget {
             Card(
               color: Theme.of(context).colorScheme.errorContainer,
               child: ListTile(
-                leading: Icon(Symbols.logout,
-                    color: Theme.of(context).colorScheme.error),
+                leading: Icon(
+                  Symbols.logout,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
                 title: Text(
                   'Sair da Conta',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                    fontWeight: FontWeight.w600,
                   ),
+                ),
+                trailing: Icon(
+                  Symbols.arrow_forward_ios,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
                 ),
                 onTap: () {
                   _showLogoutDialog(context, authService);

@@ -132,6 +132,91 @@
 			"label": "Format and analyze Flutter project",
 			"type": "shell",
 			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
+		},
+		{
+			"label": "Format and analyze Flutter project",
+			"type": "shell",
+			"command": "dart format . && flutter analyze"
 		}
 	]
 }

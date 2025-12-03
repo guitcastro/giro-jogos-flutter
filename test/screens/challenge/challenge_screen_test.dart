@@ -31,6 +31,7 @@ import 'package:giro_jogos/src/models/duo.dart';
 import 'package:giro_jogos/src/models/challenge_submission.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:giro_jogos/src/models/challenge_score.dart';
+import 'package:giro_jogos/src/models/leaderboard_entry.dart';
 
 // Implementação simplificada do ChallengeService para testes
 class MockChallengeService implements ChallengeService {
@@ -193,6 +194,12 @@ class MockChallengeService implements ChallengeService {
     required String updatedByUid,
   }) async {
     return;
+  }
+
+  // Admin leaderboard stub
+  @override
+  Stream<List<LeaderboardEntry>> streamAdminLeaderboard() {
+    return Stream<List<LeaderboardEntry>>.value(const <LeaderboardEntry>[]);
   }
 }
 

@@ -18,25 +18,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/challenge.dart';
 import '../models/challenge_submission.dart';
 import '../models/challenge_score.dart';
 import 'media_upload_service.dart';
+import 'duo_repository.dart';
+import '../models/leaderboard_entry.dart';
 
 class ChallengeService {
   final FirebaseFirestore _firestore;
   static const int _totalChallenges = 20;
-
   // Optional MediaUploadService - injected for tests to avoid initializing
   // Firebase during unit tests. If null, a real MediaUploadService will be
   // created lazily when needed.
   final MediaUploadService? _mediaService;
+  final DuoRepository? _duoRepository;
 
-  ChallengeService(
-      {FirebaseFirestore? firestore, MediaUploadService? mediaService})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _mediaService = mediaService;
+  ChallengeService({
+    FirebaseFirestore? firestore,
+    MediaUploadService? mediaService,
+    DuoRepository? duoRepository,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _mediaService = mediaService,
+        _duoRepository = duoRepository;
 
   /// Stream de submissões para um desafio por dupla
   Stream<List<ChallengeSubmission>> getSubmissionsStream({
@@ -148,6 +154,49 @@ class ChallengeService {
     ).toMap();
 
     await _scoreDocRef(duoId: duoId, challengeId: challengeId).set(data);
+  }
+
+  /// Admin leaderboard: aggregates scores across all duos and challenges
+  Stream<List<LeaderboardEntry>> streamAdminLeaderboard() {
+    // Use collectionGroup over 'challenges' filtering by duoId
+    return _firestore
+        .collectionGroup('challenges')
+        .where('duoId', isGreaterThan: '')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      debugPrint(
+          '[ChallengeService] leaderboard docs: ${snapshot.docs.length}');
+      final scores = <ChallengeScore>[];
+      for (final d in snapshot.docs) {
+        try {
+          scores.add(ChallengeScore.fromFirestore(d));
+        } catch (e, st) {
+          debugPrint('[ChallengeService] parse failed ${d.reference.path}: $e');
+          debugPrint('$st');
+        }
+      }
+      final totals = <String, int>{};
+      for (final s in scores) {
+        totals[s.duoId] = (totals[s.duoId] ?? 0) + s.points;
+      }
+      final entries = <LeaderboardEntry>[];
+      for (final entry in totals.entries) {
+        DuoInfo? info;
+        try {
+          info =
+              await (_duoRepository ?? DuoRepository()).getDuoInfo(entry.key);
+        } catch (_) {}
+        entries.add(LeaderboardEntry(
+          duoId: entry.key,
+          duoName: info?.name ?? entry.key,
+          members: info?.members ?? const <String>[],
+          totalPoints: entry.value,
+          updatedAt: DateTime.now(),
+        ));
+      }
+      entries.sort((a, b) => b.totalPoints.compareTo(a.totalPoints));
+      return entries;
+    });
   }
 
   List<Challenge> _processChallenges(QuerySnapshot snapshot) {

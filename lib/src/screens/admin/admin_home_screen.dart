@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import 'submissions_screen.dart';
 import 'score_screen.dart';
+import '../../services/challenge_service.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -31,15 +32,19 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _currentIndex = 0;
-  final List<Widget> _pages = const [
-    SubmissionsScreen(),
-    ScoreScreen(),
-  ];
+  late final ChallengeService _challengeService = ChallengeService();
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
+    final pages = <Widget>[
+      const SubmissionsScreen(),
+      ScoreScreen(
+        service: _challengeService,
+        isAdmin: authService.isAdmin,
+      ),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +78,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
         ],
       ),
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),

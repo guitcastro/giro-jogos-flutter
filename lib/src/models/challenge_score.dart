@@ -16,6 +16,7 @@
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class ChallengeScore {
   final String duoId;
@@ -48,19 +49,51 @@ class ChallengeScore {
     };
   }
 
-  factory ChallengeScore.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?;
-    if (data == null) {
-      throw StateError('Score document is empty');
+  factory ChallengeScore.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
+    try {
+      final data = doc.data();
+      if (data == null) {
+        throw StateError('Score document is empty');
+      }
+      // Derive ids from path when fields are absent
+      final challengeId = doc.id;
+      final duoId = data['duoId'];
+      final pointsValue = data['points'];
+      final totalPointsValue = data['totalPoints'];
+      final updatedByUidValue = data['updatedByUid'];
+      final updatedAtValue = data['updatedAt'];
+
+      final points = (pointsValue is num) ? pointsValue.toInt() : 0;
+      final totalPoints =
+          (totalPointsValue is num) ? totalPointsValue.toInt() : points;
+      final updatedByUid =
+          (updatedByUidValue is String) ? updatedByUidValue : '';
+      final updatedAt = (updatedAtValue is Timestamp)
+          ? updatedAtValue.toDate()
+          : DateTime.now();
+
+      if (duoId == null || duoId.isEmpty) {
+        throw StateError(
+            'Invalid score document: missing duoId for ${doc.reference.path} id = ${doc.id}');
+      }
+
+      return ChallengeScore(
+        duoId: duoId,
+        challengeId: (data['challengeId'] is String)
+            ? data['challengeId'] as String
+            : challengeId,
+        points: points,
+        totalPoints: totalPoints,
+        comment: (data['comment'] is String) ? data['comment'] as String : null,
+        updatedByUid: updatedByUid,
+        updatedAt: updatedAt,
+      );
+    } catch (e, st) {
+      debugPrint(
+          '[ChallengeScore.fromFirestore] error on ${doc.reference.path}: $e');
+      debugPrint('$st');
+      rethrow;
     }
-    return ChallengeScore(
-      duoId: data['duoId'] as String,
-      challengeId: data['challengeId'] as String,
-      points: (data['points'] as num).toInt(),
-      totalPoints: (data['totalPoints'] as num).toInt(),
-      comment: data['comment'] as String?,
-      updatedByUid: data['updatedByUid'] as String,
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-    );
   }
 }
