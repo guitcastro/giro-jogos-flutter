@@ -23,6 +23,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import '../../models/challenge.dart';
+import '../../models/challenge_score.dart';
 import '../../models/challenge_submission.dart';
 import '../../services/challenge_service.dart';
 import '../../services/duo_service.dart';
@@ -146,6 +147,68 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Score chip and comment
+                          StreamBuilder<ChallengeScore?>(
+                            stream: _challengeService.getScoreStream(
+                              duoId: duo.id,
+                              challengeId: widget.challenge.id,
+                            ),
+                            builder: (context, scoreSnapshot) {
+                              final score = scoreSnapshot.data;
+                              final max = widget.challenge.maxPoints;
+                              final label = score == null
+                                  ? 'Pendente de avaliação'
+                                  : (score.points == 0
+                                      ? 'Rejeitado'
+                                      : '${score.points} / $max pts');
+
+                              final color = score == null
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : (score.points == 0
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context).colorScheme.primary);
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Chip-like container styled similar to admin screens
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerLowest,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: color,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      label,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: color,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                  ),
+                                  if (score?.comment != null &&
+                                      score!.comment!.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      score.comment!,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
