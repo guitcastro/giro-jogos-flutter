@@ -25,6 +25,8 @@ import 'services/duo_service.dart';
 import 'services/join_duo_params.dart';
 import 'services/challenge_service.dart';
 import 'services/media_upload_service.dart';
+import 'services/terms_service.dart';
+import 'screens/terms/terms_wrapper.dart';
 
 class GiroJogosApp extends StatelessWidget {
   final DuoService? duoService;
@@ -46,6 +48,7 @@ class GiroJogosApp extends StatelessWidget {
             value: challengeService ?? ChallengeService()),
         Provider<MediaUploadService>.value(
             value: mediaUploadService ?? MediaUploadService()),
+        Provider<TermsService>.value(value: TermsService()),
         ChangeNotifierProvider(create: (_) => JoinDuoParams()),
       ],
       child: MaterialApp.router(
@@ -124,7 +127,9 @@ class GiroJogosApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (context, state) {
-          return const AuthWrapper(child: HomeScreen());
+          return const AuthWrapper(
+            child: TermsWrapper(child: HomeScreen()),
+          );
         },
       ),
       GoRoute(
@@ -148,7 +153,9 @@ class GiroJogosApp extends StatelessWidget {
             );
             joinParams.setParams(duoId, inviteCode);
           });
-          return const AuthWrapper(child: HomeScreen());
+          return const AuthWrapper(
+            child: TermsWrapper(child: HomeScreen()),
+          );
         },
       ),
     ]);

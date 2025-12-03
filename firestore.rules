@@ -47,6 +47,11 @@ service cloud.firestore {
       match /duos/{duoId} {
         allow read, write: if isAuthenticated() && getUserId() == userId;
       }
+
+      // Termos de responsabilidade por ano: somente o próprio usuário pode ler/escrever
+      match /terms/{year} {
+        allow read, write: if isAuthenticated() && getUserId() == userId;
+      }
     }
     
     // Duos root documents: allow admins to read duo info
