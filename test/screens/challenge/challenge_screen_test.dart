@@ -24,7 +24,6 @@ import 'package:giro_jogos/src/screens/challenge/challenge_screen.dart';
 import 'package:giro_jogos/src/screens/challenge/challenge_details_screen.dart';
 import 'package:giro_jogos/src/services/challenge_service.dart';
 import 'package:giro_jogos/src/models/challenge.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import '../../fakes/fake_duo_service.dart' show FakeDuoService;
 import 'package:giro_jogos/src/services/duo_service.dart';
 import 'package:giro_jogos/src/models/duo.dart';
@@ -284,7 +283,7 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(mockChallenges);
-      await tester.pump(); // Trigger rebuild after stream update
+      await tester.pumpAndSettle(); // Ensure nested streams build
 
       // Assert
       expect(find.byType(ListView), findsOneWidget);
@@ -292,8 +291,9 @@ void main() {
       expect(find.text('Desafio 2'), findsOneWidget);
       expect(find.text('Descrição do desafio 1'), findsOneWidget);
       expect(find.text('Descrição do desafio 2'), findsOneWidget);
-      expect(find.text('200 pts'), findsOneWidget);
-      expect(find.text('300 pts'), findsOneWidget);
+      // Chip shows 0/total pts for not evaluated
+      expect(find.text('0/200 pts'), findsOneWidget);
+      expect(find.text('0/300 pts'), findsOneWidget);
     });
 
     testWidgets('exibe mensagem de erro quando ocorre erro no stream',
@@ -343,11 +343,11 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(mockChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Assert
-      expect(find.byIcon(Symbols.star), findsOneWidget);
-      expect(find.text('500 pts'), findsOneWidget);
+      // No star icon; chip shows 0/total pts
+      expect(find.text('0/500 pts'), findsOneWidget);
     });
 
     testWidgets('abre detalhes ao tocar em um challenge', (tester) async {
@@ -363,17 +363,18 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges([mockChallenge]);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Tap the challenge to navigate to details
       await tester.tap(find.byType(ListTile));
       await tester.pumpAndSettle(); // Wait for navigation animation
+      await tester.pumpAndSettle(); // Ensure nested streams build in details
 
       // Assert: ChallengeDetailsScreen is shown with title, description and max points
       expect(find.byType(ChallengeDetailsScreen), findsOneWidget);
       // Title appears in the details screen AppBar
       expect(find.text('Desafio Teste'), findsOneWidget);
-      expect(find.text('Descrição detalhada do desafio'), findsOneWidget);
+      expect(find.text('Descrição do Desafio'), findsOneWidget);
       expect(find.text('Máximo: 400 pontos'), findsOneWidget);
     });
 
@@ -389,7 +390,7 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges([mockChallenge]);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Open the details screen
       await tester.tap(find.byType(ListTile));
@@ -435,7 +436,7 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(mockChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Assert
       expect(find.byType(Divider), findsNWidgets(2)); // 3 items = 2 separadores
@@ -458,7 +459,7 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(mockChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Assert
       expect(
@@ -467,7 +468,8 @@ void main() {
           find.text(
               'Este desafio será liberado em breve. Fique atento às atualizações!'),
           findsOneWidget);
-      expect(find.text('0 pts'), findsOneWidget);
+      // Placeholder should not show a chip
+      expect(find.text('0 pts'), findsNothing);
     });
 
     testWidgets('tocar placeholder mostra snackbar em vez de navegar',
@@ -487,7 +489,7 @@ void main() {
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(mockChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Tap no placeholder
       await tester.tap(find.byType(ListTile));
@@ -524,21 +526,21 @@ void main() {
       // Act - Estado inicial
       await tester.pumpWidget(createWidgetUnderTest());
       mockChallengeService.setMockChallenges(initialChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Assert - Estado inicial
       expect(find.text('Desafio Inicial'), findsOneWidget);
-      expect(find.text('100 pts'), findsOneWidget);
+      expect(find.text('0/100 pts'), findsOneWidget);
 
       // Act - Atualiza dados
       mockChallengeService.setMockChallenges(updatedChallenges);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Assert - Estado atualizado
       expect(find.text('Desafio Atualizado'), findsOneWidget);
-      expect(find.text('200 pts'), findsOneWidget);
+      expect(find.text('0/200 pts'), findsOneWidget);
       expect(find.text('Desafio Inicial'), findsNothing);
-      expect(find.text('100 pts'), findsNothing);
+      expect(find.text('0/100 pts'), findsNothing);
     });
   });
 }

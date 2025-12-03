@@ -38,7 +38,8 @@ class FakeDuoService implements DuoService {
   }
 
   void stubGetUserDuoStream(Stream<Duo?> stream) {
-    _userDuoStream = stream;
+    // Ensure broadcast to allow multiple listeners in widget tree
+    _userDuoStream = stream.isBroadcast ? stream : stream.asBroadcastStream();
   }
 
   void stubJoinDuo(JoinDuoFuture impl) {
@@ -104,7 +105,8 @@ class FakeDuoService implements DuoService {
 
   @override
   Stream<Duo?> getUserDuoStream() {
-    return _userDuoStream ?? Stream<Duo?>.value(null);
+    final s = _userDuoStream ?? Stream<Duo?>.value(null);
+    return s.isBroadcast ? s : s.asBroadcastStream();
   }
 
   @override

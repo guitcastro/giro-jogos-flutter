@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
@@ -82,269 +81,274 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
             ),
           ),
         ),
-        body: StreamBuilder<Duo?>(
-          stream: duoService.getUserDuoStream(),
-          builder: (context, duoSnapshot) {
-            if (duoSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final duo = duoSnapshot.data;
-            if (duo == null) {
-              return const Center(
-                child: Text(
-                    'Você precisa estar em uma dupla para participar dos desafios.'),
-              );
-            }
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Challenge Description in Markdown
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Challenge Description
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Descrição do Desafio',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.challenge.description,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
                         children: [
+                          Icon(Symbols.star,
+                              color: Theme.of(context).colorScheme.tertiary),
+                          const SizedBox(width: 8),
                           Text(
-                            'Descrição do Desafio',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 16),
-                          MarkdownBody(
-                            data: widget.challenge.description,
-                            styleSheet: MarkdownStyleSheet(
-                              p: const TextStyle(fontSize: 16),
-                              h1: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              h2: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              h3: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            'Máximo: ${widget.challenge.maxPoints} pontos',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Row(
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Duo-dependent content: upload and submissions
+              StreamBuilder<Duo?>(
+                stream: duoService.getUserDuoStream(),
+                builder: (context, duoSnapshot) {
+                  if (duoSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final duo = duoSnapshot.data;
+                  if (duo == null) {
+                    return const Center(
+                      child: Text(
+                          'Você precisa estar em uma dupla para participar dos desafios.'),
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Duo challenge score status + comment
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Symbols.star,
-                                  color:
-                                      Theme.of(context).colorScheme.tertiary),
-                              const SizedBox(width: 8),
                               Text(
-                                'Máximo: ${widget.challenge.maxPoints} pontos',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                'Sua Pontuação',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 12),
+                              StreamBuilder<ChallengeScore?>(
+                                stream: _challengeService.getScoreStream(
+                                  duoId: duo.id,
+                                  challengeId: widget.challenge.id,
                                 ),
+                                builder: (context, scoreSnapshot) {
+                                  final score = scoreSnapshot.data;
+                                  final max = widget.challenge.maxPoints;
+                                  final label = score == null
+                                      ? 'Avaliação Pendente'
+                                      : (score.points == 0
+                                          ? 'Rejeitado'
+                                          : '${score.points} / $max pts');
+
+                                  final color = score == null
+                                      ? Theme.of(context).colorScheme.secondary
+                                      : (score.points == 0
+                                          ? Theme.of(context).colorScheme.error
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primary);
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerLowest,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: color,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          label,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                color: color,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                        ),
+                                      ),
+                                      if (score?.comment != null &&
+                                          score!.comment!.isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          score.comment!,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          // Score chip and comment
-                          StreamBuilder<ChallengeScore?>(
-                            stream: _challengeService.getScoreStream(
-                              duoId: duo.id,
-                              challengeId: widget.challenge.id,
-                            ),
-                            builder: (context, scoreSnapshot) {
-                              final score = scoreSnapshot.data;
-                              final max = widget.challenge.maxPoints;
-                              final label = score == null
-                                  ? 'Pendente de avaliação'
-                                  : (score.points == 0
-                                      ? 'Rejeitado'
-                                      : '${score.points} / $max pts');
-
-                              final color = score == null
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : (score.points == 0
-                                      ? Theme.of(context).colorScheme.error
-                                      : Theme.of(context).colorScheme.primary);
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Chip-like container styled similar to admin screens
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerLowest,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: color,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      label,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall
-                                          ?.copyWith(
-                                            color: color,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                    ),
-                                  ),
-                                  if (score?.comment != null &&
-                                      score!.comment!.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      score.comment!,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ],
-                              );
-                            },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Enviar Comprovação',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _isUploading
+                              ? null
+                              : () async {
+                                  await _pickAnyMediaAndSubmit(duo);
+                                },
+                          icon: const Icon(Symbols.upload_file),
+                          label: const Text('Enviar mídia'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Upload Buttons
-                  Text(
-                    'Enviar Comprovação',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  // Single action button that opens the native OS picker for both
-                  // images and videos using file_picker (FileType.media).
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _isUploading
-                          ? null
-                          : () async {
-                              await _pickAnyMediaAndSubmit(duo);
-                            },
-                      icon: const Icon(Symbols.upload_file),
-                      label: const Text('Enviar mídia'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      if (_isUploading) ...[
+                        const SizedBox(height: 16),
+                        const Center(
+                          child: Column(
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 8),
+                              Text('Fazendo upload...'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      Text(
+                        'Suas Submissões',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    ),
-                  ),
-
-                  if (_isUploading) ...[
-                    const SizedBox(height: 16),
-                    const Center(
-                      child: Column(
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 8),
-                          Text('Fazendo upload...'),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 24),
-
-                  // Submissions List
-                  Text(
-                    'Suas Submissões',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  StreamBuilder<List<ChallengeSubmission>>(
-                    stream:
-                        Provider.of<ChallengeService>(context, listen: false)
+                      const SizedBox(height: 16),
+                      StreamBuilder<List<ChallengeSubmission>>(
+                        stream: Provider.of<ChallengeService>(context,
+                                listen: false)
                             .getSubmissionsStream(
-                      challengeId: widget.challenge.id,
-                      duoId: duo.id,
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                          challengeId: widget.challenge.id,
+                          duoId: duo.id,
+                        ),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
 
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(
-                              'Erro ao carregar submissões: ${snapshot.error}'),
-                        );
-                      }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                  'Erro ao carregar submissões: ${snapshot.error}'),
+                            );
+                          }
 
-                      final submissions = snapshot.data ?? [];
-                      if (submissions.isEmpty) {
-                        return const Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(
-                              child: Text('Nenhuma submissão ainda.'),
-                            ),
-                          ),
-                        );
-                      }
+                          final submissions = snapshot.data ?? [];
+                          if (submissions.isEmpty) {
+                            return const Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: Text('Nenhuma submissão ainda.'),
+                                ),
+                              ),
+                            );
+                          }
 
-                      return Column(
-                        children: submissions.map((submission) {
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              leading: Icon(
-                                submission.mediaType == MediaType.video
-                                    ? Icons.play_circle_filled
-                                    : Icons.image,
-                                color: submission.mediaType == MediaType.video
-                                    ? Theme.of(context).colorScheme.error
-                                    : Theme.of(context).colorScheme.primary,
-                              ),
-                              title: Text(
-                                submission.mediaType == MediaType.video
-                                    ? 'Vídeo'
-                                    : 'Foto',
-                              ),
-                              subtitle: Text(
-                                'Enviado em ${_formatDate(submission.submissionTime)}',
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.share,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
-                                    onPressed: () =>
-                                        _shareSubmission(submission),
+                          return Column(
+                            children: submissions.map((submission) {
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: ListTile(
+                                  leading: Icon(
+                                    submission.mediaType == MediaType.video
+                                        ? Icons.play_circle_filled
+                                        : Icons.image,
+                                    color: submission.mediaType ==
+                                            MediaType.video
+                                        ? Theme.of(context).colorScheme.error
+                                        : Theme.of(context).colorScheme.primary,
                                   ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .error),
-                                    onPressed: () =>
-                                        _deleteSubmission(submission),
+                                  title: Text(
+                                    submission.mediaType == MediaType.video
+                                        ? 'Vídeo'
+                                        : 'Foto',
                                   ),
-                                ],
-                              ),
-                              onTap: () => _showMedia(submission),
-                            ),
+                                  subtitle: Text(
+                                    'Enviado em ${_formatDate(submission.submissionTime)}',
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.share,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                        onPressed: () =>
+                                            _shareSubmission(submission),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .error),
+                                        onPressed: () =>
+                                            _deleteSubmission(submission),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () => _showMedia(submission),
+                                ),
+                              );
+                            }).toList(),
                           );
-                        }).toList(),
-                      );
-                    },
-                  ),
-                ],
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );
