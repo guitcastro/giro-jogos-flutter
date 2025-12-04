@@ -311,7 +311,7 @@ class SettingsTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Versão: 1.0.0-beta'),
+              const Text('Versão: 1.0.0-beta-1'),
               const SizedBox(height: 8),
               const Text(
                 'Aplicativo Open Source co-criado com o IA.',
