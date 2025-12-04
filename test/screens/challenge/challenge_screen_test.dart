@@ -287,10 +287,10 @@ void main() {
 
       // Assert
       expect(find.byType(ListView), findsOneWidget);
-      expect(find.text('Desafio 1'), findsOneWidget);
-      expect(find.text('Desafio 2'), findsOneWidget);
-      expect(find.text('Descrição do desafio 1'), findsOneWidget);
-      expect(find.text('Descrição do desafio 2'), findsOneWidget);
+      expect(find.text('1. Desafio 1'), findsOneWidget);
+      expect(find.text('2. Desafio 2'), findsOneWidget);
+      expect(find.textContaining('Descrição do desafio 1'), findsOneWidget);
+      expect(find.textContaining('Descrição do desafio 2'), findsOneWidget);
       // Chip shows 0/total pts for not evaluated
       expect(find.text('0/200 pts'), findsOneWidget);
       expect(find.text('0/300 pts'), findsOneWidget);
@@ -462,11 +462,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(
-          find.text('Esse desafio ainda não está disponível'), findsOneWidget);
-      expect(
-          find.text(
-              'Este desafio será liberado em breve. Fique atento às atualizações!'),
+      expect(find.text('1. Esse desafio ainda não está disponível'),
+          findsOneWidget);
+      expect(find.textContaining('Este desafio será liberado em breve'),
           findsOneWidget);
       // Placeholder should not show a chip
       expect(find.text('0 pts'), findsNothing);
@@ -497,7 +495,7 @@ void main() {
 
       // Assert: snackbar exibido e não navega
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Esse desafio ainda não está disponível'), findsWidgets);
+      expect(find.text('Desafio ainda não disponível.'), findsOneWidget);
     });
 
     testWidgets('atualiza lista quando stream emite novos dados',
@@ -529,7 +527,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - Estado inicial
-      expect(find.text('Desafio Inicial'), findsOneWidget);
+      expect(find.text('1. Desafio Inicial'), findsOneWidget);
       expect(find.text('0/100 pts'), findsOneWidget);
 
       // Act - Atualiza dados
@@ -537,9 +535,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - Estado atualizado
-      expect(find.text('Desafio Atualizado'), findsOneWidget);
+      expect(find.text('1. Desafio Atualizado'), findsOneWidget);
       expect(find.text('0/200 pts'), findsOneWidget);
-      expect(find.text('Desafio Inicial'), findsNothing);
+      expect(find.text('1. Desafio Inicial'), findsNothing);
       expect(find.text('0/100 pts'), findsNothing);
     });
   });

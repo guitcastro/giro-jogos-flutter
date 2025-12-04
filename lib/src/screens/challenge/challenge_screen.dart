@@ -75,8 +75,12 @@ class ChallengeScreen extends StatelessWidget {
                   // Placeholders (maxPoints == 0) don't show score status
                   if (challenge.maxPoints == 0) {
                     return ListTile(
-                      title: Text(challenge.title),
-                      subtitle: Text(challenge.description),
+                      title: Text('${challenge.id}. ${challenge.title}'),
+                      subtitle: Text(
+                        challenge.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -134,8 +138,12 @@ class ChallengeScreen extends StatelessWidget {
                               : Theme.of(context).colorScheme.primary);
 
                       return ListTile(
-                        title: Text(challenge.title),
-                        subtitle: Text(challenge.description),
+                        title: Text('${challenge.id}. ${challenge.title}'),
+                        subtitle: Text(
+                          challenge.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),

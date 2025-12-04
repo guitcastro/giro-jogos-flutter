@@ -1,164 +1,212 @@
 {
   "challenges": [
-    {
-      "id": 1,
-      "title": "Encontre o lambe",
-      "description": "Encontre o lambe do artista @danieldecarvalhoarte na parede da antiga Growleria de Arte (atrás do CCBB). Tire foto e poste nos stories marcando @danieldecarvalhoarte e @girorua.",
-      "order": 1,
-      "maxPoints": 150,
-      "isActive": true
-    },
-    {
-      "id": 2,
-      "title": "Meu amigo motô",
-      "description": "Convencer motorista de ônibus a posar na janela fazendo joinha para foto com integrante da dupla (bike deve aparecer).",
-      "order": 2,
-      "maxPoints": 150,
-      "isActive": true
-    },
-    {
-      "id": 3,
-      "title": "Lambe Lambe",
-      "description": "A dupla deve fazer um stencil ou lambe e postar o processo nos stories marcando @girorua.",
-      "order": 3,
-      "maxPoints": 300,
-      "isActive": true
-    },
-    {
-      "id": 4,
-      "title": "Ghisallo caça colante",
-      "description": "Encontre 3 colantes GHISALLO no centro de BH e poste nos stories marcando @ghisallo e @girorua.",
-      "order": 4,
-      "maxPoints": 350,
-      "isActive": true
-    },
-    {
-      "id": 5,
-      "title": "Coleta seletiva",
-      "description": "Catar papel, plástico e metal pedalando e depositar corretamente nos coletores da UFMG (Faculdade de Direito).",
-      "order": 5,
-      "maxPoints": 350,
-      "isActive": true
-    },
-    {
-      "id": 6,
-      "title": "2Black",
-      "description": "Virar um chopp (ou outra bebida) do 2Black em menos de 1 minuto e postar marcando @girorua e @2black.",
-      "order": 6,
-      "maxPoints": 400,
-      "isActive": true
-    },
-    {
-      "id": 7,
-      "title": "Bike Horizonte",
-      "description": "Competição de troca de câmara de ar entre duplas. Vence quem terminar primeiro.",
-      "order": 7,
-      "maxPoints": 550,
-      "isActive": true
-    },
-    {
-      "id": 8,
-      "title": "Ciclista criativo",
-      "description": "Desenhar uma bicicleta com trajeto no Strava e postar atividade pública.",
-      "order": 8,
-      "maxPoints": 600,
-      "isActive": true
-    },
-    {
-      "id": 9,
-      "title": "BHFXD Fixolimpíadas",
-      "description": "Trackstand mínimo de 15 segundos, filmado. Pontos conforme duração e dificuldade.",
-      "order": 9,
-      "maxPoints": 850,
-      "isActive": true
-    },
-    {
-      "id": 10,
-      "title": "Ciclovias Raul Soares",
-      "description": "Percorrer ciclovias da Av. Olegário Maciel e Av. Augusto de Lima conforme trajeto definido.",
-      "order": 10,
-      "maxPoints": 300,
-      "isActive": true
-    },
-    {
-      "id": 11,
-      "title": "Pedalovo",
-      "description": "Pedalar equilibrando uma bolinha de ping pong na colher por pelo menos 15 segundos.",
-      "order": 11,
-      "maxPoints": 750,
-      "isActive": true
-    },
-    {
-      "id": 12,
-      "title": "A Roda Canábica",
-      "description": "Um integrante deve bolar, acender e fumar pedalando enquanto o outro filma.",
-      "order": 12,
-      "maxPoints": 500,
-      "isActive": true
-    },
-    {
-      "id": 13,
-      "title": "Giro na minha casa",
-      "description": "Chegar na Roda às 16h20 com uma bíblia de pelo menos 4 cm de espessura.",
-      "order": 13,
-      "maxPoints": 500,
-      "isActive": true
-    },
-    {
-      "id": 14,
-      "title": "Giro Guignard",
-      "description": "Entrar no top 10 do segmento GIRO GUIGNARD no Strava.",
-      "order": 14,
-      "maxPoints": 800,
-      "isActive": true
-    },
-    {
-      "id": 15,
-      "title": "Ciclista consciente",
-      "description": "Interagir com um pedestre, filmar e postar nos stories marcando @girorua e @bhpedala.",
-      "order": 15,
-      "maxPoints": 300,
-      "isActive": true
-    },
-    {
-      "id": 16,
-      "title": "Giro ciclista apoiador",
-      "description": "Criar e demonstrar um novo desafio para o Giro Jogos 2025.",
-      "order": 16,
-      "maxPoints": 250,
-      "isActive": true
-    },
-    {
-      "id": 17,
-      "title": "Artista ou vândalo?",
-      "description": "Pixar 'GIRO RUA' em parede (não tombada) e postar vídeo sem ser autuado.",
-      "order": 17,
-      "maxPoints": 400,
-      "isActive": true
-    },
-    {
-      "id": 18,
-      "title": "Plotagem profissional",
-      "description": "Colar adesivo GIRO RUA em local não convencional.",
-      "order": 18,
-      "maxPoints": 250,
-      "isActive": true
-    },
-    {
-      "id": 19,
-      "title": "Ovelha negra da família",
-      "description": "Postar mensagem real de parente desaprovando rotina ciclística.",
-      "order": 19,
-      "maxPoints": 200,
-      "isActive": true
-    },
-    {
-      "id": 20,
-      "title": "Giro Clube de Vantagens",
-      "description": "Apresentar itens de edições anteriores na largada.",
-      "order": 20,
-      "maxPoints": 425,
-      "isActive": true
-    }
+  {
+    "id": 1,
+    "title": "Linha do tempo",
+    "description": "Apresentar fotografias de, pelo menos, 5 (cinco) destinos diferentes do giro em 2025.\n\nEm 2025, tivemos X giros.\n\nAs fotografias devem ser enviadas no app.\n\nAs fotografias têm de ser de 2025.\n\nPodem ser tiradas no dia do Giro Jogos 2025.\n\nOs locais que foram destinos mais de uma vez, só pontuam uma vez.\n\nApresentar 5 fotos de destinos diferentes: 150 pontos.\n\nCada foto adicional (acima de 5 fotos): 25 pontos.\n\nDupla que apresentar maior número de fotos: 100 pontos.",
+    "order": 1,
+    "maxPoints": 275,
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "title": "Infiltração em Grupo",
+    "description": "Uma pessoa da dupla deve encontrar outro grupo de ciclistas e pedalar como infiltrada por, pelo menos, 1 (um) minuto.\n\nO registro deve ser um vídeo e o vídeo deve ser enviado no app.\n\nInfiltração por 1 minuto: 150 pontos.\n\nCada 30 segundos adicionais (acima de 1 minuto): 50 pontos.\n\nDupla infiltrada por maior tempo: 300 pontos.",
+    "order": 2,
+    "maxPoints": 300,
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "title": "Biceografia",
+    "description": "Uma pessoa ou a dupla deve performar uma coreografia com a(s) bicicleta(s).\n\nO registro deve ser um vídeo de, pelo menos, 30 segundos e enviado no app.\n\nRealizado por uma pessoa: 300 pontos.\n\nRealizado pela dupla: 500 pontos.",
+    "order": 3,
+    "maxPoints": 500,
+    "isActive": true
+  },
+  {
+    "id": 4,
+    "title": "Giro Rios",
+    "description": "A dupla deve percorrer o maior número de rios e córregos em Belo Horizonte.\n\nO registro deve ser por meio de fotografias enviadas no app.\n\nCada rio/córrego deve ser registrado em 1 foto.\n\nAs fotografias devem permitir identificar qual rio/córrego.\n\nPodem ser apresentados registros de passeios realizados em outros dias de 2025.\n\nPodem ser registrados rios e córregos canalizados.\n\nCada rio/córrego registrado em 06/12/2025: 100 pontos.\n\nCada rio/córrego registrado em outra data de 2025: 50 pontos.\n\nDupla com maior registro no dia 06/12/2025: 300 pontos.",
+    "order": 4,
+    "maxPoints": 300,
+    "isActive": true
+  },
+  {
+    "id": 5,
+    "title": "Giro Circo",
+    "description": "Uma pessoa ou a dupla deve fazer alguma performance de malabarismo na(s) bicicleta(s).\n\nO registro deve ser por meio de vídeos (entre 15 e 30 segundos) enviados no app.\n\nA performance pode ser feita por artista, desde que a(s) bicicleta(s) seja(m) da(s) pessoa(s) da dupla.\n\nNeste caso, a pontuação é metade.\n\nRealizado por uma pessoa (não artista): 300 pontos.\n\nRealizado pela dupla (não artistas): 500 pontos.\n\nPerformance em monociclo (bônus): 150 pontos.\n\nPerformance por artista (pontuação final é metade).",
+    "order": 5,
+    "maxPoints": 650,
+    "isActive": true
+  },
+  {
+    "id": 6,
+    "title": "Paparazzi Sangue Suga",
+    "description": "Filmar uma dupla concorrente completando algum dos desafios.\n\nEsse desafio rouba metade dos pontos do desafio da dupla adversária.\n\nA foto deve ser enviada no app.\n\nA pessoa que realizar o registro não pode ser notada.\n\nEsse desafio só pode ser completado uma vez.\n\nConcluir desafio Paparazzi: 50% dos pontos do desafio filmado.",
+    "order": 6,
+    "maxPoints": 500,
+    "isActive": true
+  },
+ {
+    "id": 7,
+    "title": "Ciclovia Andradas",
+    "description": "Uma pessoa ou a dupla deve realizar o percurso de ida e volta na ciclovia da Avenida dos Andradas.\n\nA atividade deve ser salva no Strava como atividade pública e deve conter o segmento completo.\n\nTrajeto:\n- Iniciar na ciclovia no passeio do Supermercado Apoio\n- Chegar no cruzamento com a Avenida Itaituba (Via 710)\n- Retornar pela ciclovia em sentido ao Supermercado Apoio\n- Finalizar no mesmo ponto de início\n\nPercurso completo por 1 integrante: 150 pontos.\n\nPercurso completo pela dupla: 250 pontos.\n\nDupla que fizer o menor tempo (bônus adicional): 200 pontos.",
+    "order": 7,
+    "maxPoints": 450,
+    "isActive": true
+  },
+  {
+    "id": 8,
+    "title": "Busão 0800",
+    "description": "Convencer uma pessoa motorista de ônibus a posar na janela do veículo fazendo joinha para uma foto com uma pessoa da dupla ou com a dupla.\n\nA fotografia tem de mostrar o(a) motorista, uma pessoa da dupla ou a dupla e a(s) sua(s) respectiva(s) bicicleta(s) da dupla.\n\nEnviada no app.\n\nEsse desafio só pode ser realizado até 2 (duas) vezes.\n\nRealizado por uma pessoa: 250 pontos.\n\nRealizado pela dupla: 550 pontos.",
+    "order": 8,
+    "maxPoints": 550,
+    "isActive": true
+  },
+  {
+    "id": 9,
+    "title": "Novo Adesivo Giro Rua",
+    "description": "Colar adesivo oficial do Giro Rua em um local que ainda não o tenha.\n\nA ação deve ser registrada em vídeo e enviada no app.\n\nEsse desafio pode ser realizado até 2 (duas) vezes.\n\nNão deve ser colocado em local proibido.\n\nConcluir desafio: 250 pontos.\n\nMáximo acumulado: 1800 pontos.",
+    "order": 9,
+    "maxPoints": 1800,
+    "isActive": true
+  },
+  {
+    "id": 10,
+    "title": "Adesivo Giro Rua",
+    "description": "Apresentar a fotografia de, pelo menos, 3 (três) locais diferentes que tenham o adesivo oficial do Giro Rua.\n\nAs fotografias devem ser feitas no dia do Giro Jogos 2025 e enviadas no app.\n\nApresentar 3 fotos de adesivos diferentes: 200 pontos.\n\nCada foto adicional (acima de 3): 50 pontos.\n\nDupla que apresentar maior número de fotos: 150 pontos.",
+    "order": 10,
+    "maxPoints": 350,
+    "isActive": true
+  },
+  {
+    "id": 11,
+    "title": "Ciclista Consciente",
+    "description": "Uma pessoa da dupla deve interagir com pedestres na cidade.\n\nA interação é livre, podendo ser, por exemplo:\n- Ciclista parar na faixa de pedestre para a travessia de pedestres.\n- Ciclista conversar com pedestres.\n- Ciclista ajudar pedestres a atravessar a rua.\n\nA ação deve ser registrada em um vídeo de, pelo menos, 20 segundos e enviado no app.\n\nA pessoa com quem a dupla interage não pode ser conhecida da dupla.\n\nEsse desafio pode ser realizado até 2 (duas) vezes.\n\nConclusão do desafio: 350 pontos.",
+    "order": 11,
+    "maxPoints": 350,
+    "isActive": true
+  },
+  {
+    "id": 12,
+    "title": "A Roda Canábica",
+    "description": "Umx integrante da dupla pedalando tem que bolar um, acender e fumar, enquanto x outrx integrante filma.\n\nPoste nos stories e marque:\n@cannabiscycling\n@aroda.cc\n@Girorua\n\nRealizar o desafio: 250 pontos.\n\nRealizar o desafio em menos de 60 segundos (bônus adicional): 250 pontos.",
+    "order": 12,
+    "maxPoints": 500,
+    "isActive": true
+  },
+  {
+    "id": 13,
+    "title": "Giro na Minha Casa",
+    "description": "As três primeiras duplas que chegarem no Tulipa's com uma bíblia sagrada de pelo menos 4 cm de espessura.\n\nChegada no Tulipa's com a bíblia.\n\nApenas as três primeiras duplas pontuam neste desafio com base na 'lombada' da bíblia.\n\nChegar com bíblia (lombada simples): 200 pontos.\n\nChegar com bíblia (lombada dourada): 450 pontos.",
+    "order": 13,
+    "maxPoints": 450,
+    "isActive": true
+  },
+  {
+    "id": 14,
+    "title": "Soberanes da Montanha",
+    "description": "Umx ou ambxs integrantes da dupla, deve cravar o nome entre os top 10 do dia no segmento 'jacui 1' no Strava, no dia 6 de dezembro de 2025.\n\nA atividade deve ser salva como atividade pública, e deve conter o segmento completo.\n\nCompartilhar no stories e/ou aplicativo marcando @Girorua.\n\nObs: Para ganhar este desafio, você não pode perder o pódio até às 18h30.\n\nParticipação com atividade (sem pódio): 300 pontos.\n\nApenas 1 integrante no pódio (top 10): 450 pontos.\n\nAmbos integrantes no pódio (top 10): 800 pontos.",
+    "order": 14,
+    "maxPoints": 800,
+    "isActive": true
+  },
+  {
+    "id": 16,
+    "title": "Giro Ciclista Apoiador",
+    "description": "Trazer uma ideia de desafio para o Giro Jogos 2025.\n\nApresentar a ideia de desafio.\n\nA ideia deve ser apresentada para o Giro Jogos do ano seguinte.\n\nConclusão do desafio: 200 pontos.",
+    "order": 16,
+    "maxPoints": 200,
+    "isActive": true
+  },
+  {
+    "id": 17,
+    "title": "Mentalidade de Grupo",
+    "description": "A dupla deve ir até o Roda Café e os integrantes devem fotografar os arredores procurando pelo maior número de adesivos de grupos de pedal que puder.\n\nA foto deve ser enviada no aplicativo e/ou instagram.\n\nDeve conter o @girorua e dos demais grupos de pedal que estiverem na foto.\n\nConclusão do desafio: 200 pontos.\n\nA cada 5 grupos identificados: 150 pontos.",
+    "order": 17,
+    "maxPoints": 350,
+    "isActive": true
+  },
+  {
+    "id": 18,
+    "title": "Força Guerreire!!!",
+    "description": "A dupla deve tirar uma foto com um camarada ciclista que estiver trabalhando durante o Giro Jogos.\n\nA foto deve ser enviada no aplicativo e/ou instagram.\n\nDeve conter o @girorua.\n\nConclusão do desafio: 300 pontos.\n\nA cada amigue comprovadamente ciclista: 200 pontos.",
+    "order": 18,
+    "maxPoints": 500,
+    "isActive": true
+  },
+  {
+    "id": 19,
+    "title": "A Chuva é Minha Amiga e Não Vai Me Machucar",
+    "description": "Essa é para quem não é de açúcar, a dupla deve gravar um vídeo pedalando na chuva.",
+    "order": 19,
+    "maxPoints": 200,
+    "isActive": true
+  },
+  {
+    "id": 20,
+    "title": "Ciclovia da Afonso Pena Já!",
+    "description": "Estamos aí na luta para a implementação da Ciclovia da Afonso Pena.\n\nPara demonstrar o seu apoio a dupla deverá pedalar por 2 km em qualquer ciclovia de Belo Horizonte.\n\nO trajeto deverá ser registrado no Strava dos dois integrantes.\n\nVocês deverão gravar um vídeo na ciclovia.\n\nConclusão do desafio: 100 pontos.",
+    "order": 20,
+    "maxPoints": 100,
+    "isActive": true
+  },
+  {
+    "id": 21,
+    "title": "Desafio TDM",
+    "description": "Porque mulher no pedal é mudança social!\n\nO coletivo Terça da Manas sai todas as terças, às 20 horas da Praça Raul Soares.\n\nVocê e sua dupla deverão completar três voltas completas ao redor da Raul.\n\nA atividade deverá ser registrada no Strava.\n\nA dupla deverá tirar uma foto com as bikes na fonte da praça.\n\nConclusão do desafio: 100 pontos.",
+    "order": 21,
+    "maxPoints": 100,
+    "isActive": true
+  },
+  {
+    "id": 22,
+    "title": "Desafio Psicloativos",
+    "description": "Um dos trajetos tradicionais do Psiclo é o Expressete, trajeto rápido que une a ETE da Copasa à Via Expressa margeando o Rio Arrudas.\n\nPara esse desafio a dupla deverá pedalar até a ETE e fazer um registro no portão de entrada.\n\nLembrando: ÁGUA NÃO SE VENDE! A COPASA É DO POVO!\n\nA foto deverá ser postada no app com a bicicleta da dupla visível na foto.\n\nConclusão do desafio: 50 pontos.",
+    "order": 22,
+    "maxPoints": 50,
+    "isActive": true
+  },
+  {
+    "id": 23,
+    "title": "Contornando",
+    "description": "A Avenida do Contorno tem subida, tem descida, tem tobogã, cruza estados, povos indígenas e figuras históricas.\n\nA dupla deverá circular e encontrar pelo menos 05 checkpoints distribuídos em postes pela avenida.\n\nA dupla deverá fotografar os checkpoints e postar no app.\n\nConclusão do desafio (mínimo de 5 checkpoints): 350 pontos.\n\nA cada checkpoint adicional: 50 pontos.",
+    "order": 23,
+    "maxPoints": 600,
+    "isActive": true
+  },
+  {
+    "id": 24,
+    "title": "Spoke Card",
+    "description": "Já venceu algum desafio do Giro Rua e tem um Spoke Card para comprovar? Então ganha ponto!\n\nA dupla deverá apresentar o Spoke Card na bicicleta para a equipe organizadora antes do término do tempo dos desafios.\n\nAceitaremos foto da bike que dê para visualizar o Spoke Card.\n\nSpoke Card apresentado na bike (é cumulativo): 50 pontos.\n\nSpoke card por foto: 10 pontos.",
+    "order": 24,
+    "maxPoints": 60,
+    "isActive": true
+  },
+  {
+    "id": 25,
+    "title": "Stickers",
+    "description": "Tem algum desses adesivos colados na bike ou no capacete? Leva ponto também!\n\nAdesivos válidos: Giro Rua, TDM, Botequim Vegano, Ovelhas Negras, Vermelho Minas, Ghisalo, Psicoativos, La Idea, Cannabis Cycling, BH FXD.\n\nA dupla deverá apresentar os adesivos já colados para a equipe organizadora antes do término do tempo dos desafios.\n\nPontos cumulativos por cada adesivo.\n\nAdesivo apresentado (é cumulativo): 10 pontos.",
+    "order": 25,
+    "maxPoints": 100,
+    "isActive": true
+  },
+  {
+    "id": 26,
+    "title": "Uniformizadxs",
+    "description": "Compareceu com a blusa de algum coletivo de bike ou patrocinador, vai somar ponto.\n\nA dupla deverá chegar no Giro Jogos com a blusa.\n\nSoma ponto por cada integrante da dupla.\n\nBlusa Giro Rua: 50 pontos.\n\nOutros coletivos ou patrocinadores: 20 pontos.",
+    "order": 26,
+    "maxPoints": 100,
+    "isActive": true
+  },
+  {
+    "id": 27,
+    "title": "BH de Cima",
+    "description": "Suba até um mirante ou ponto alto da cidade (ao menos 1000 metros de altitude).\n\nRegistre a vista com uma bicicleta em primeiro plano.\n\nFoto do mirante + bike + panorama de BH.\n\nEnviar no app.\n\n1 mirante: 200 pontos.\n\nCada mirante adicional: 100 pontos.",
+    "order": 27,
+    "maxPoints": 300,
+    "isActive": true
+  }  
   ]
 }

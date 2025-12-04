@@ -29,7 +29,7 @@ import '../models/leaderboard_entry.dart';
 
 class ChallengeService {
   final FirebaseFirestore _firestore;
-  static const int _totalChallenges = 20;
+  static const int _totalChallenges = 27;
   // Optional MediaUploadService - injected for tests to avoid initializing
   // Firebase during unit tests. If null, a real MediaUploadService will be
   // created lazily when needed.

@@ -105,9 +105,6 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Icon(Symbols.star,
-                              color: Theme.of(context).colorScheme.tertiary),
-                          const SizedBox(width: 8),
                           Text(
                             'Máximo: ${widget.challenge.maxPoints} pontos',
                             style: const TextStyle(

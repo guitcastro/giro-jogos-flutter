@@ -55,8 +55,7 @@ void main() {
         final stream = challengeService.getChallengesStream();
         final challenges = await stream.first;
 
-        // Assert: Deve retornar exatamente 20 challenges
-        expect(challenges.length, equals(20));
+        expect(challenges.length, equals(27));
 
         // Verifica challenges ativos
         expect(challenges[0].id, equals('1'));
@@ -248,7 +247,7 @@ void main() {
         final challenges = await stream.first;
 
         // Assert: stream ainda retorna 20 itens com o challenge ativo em sua posição
-        expect(challenges.length, equals(20));
+        expect(challenges.length, equals(27));
         expect(challenges[10].id, equals('11'));
         expect(challenges[10].title, equals('Desafio 11'));
         expect(challenges[10].maxPoints, equals(150));

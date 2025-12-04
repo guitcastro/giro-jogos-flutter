@@ -43,7 +43,7 @@ async function importChallenges() {
         description: challenge.description,
         order: challenge.order,
         maxPoints: challenge.maxPoints,
-        isActive: challenge.id % 2 === 0 
+        isActive: true
       });
       console.log(`Preparando desafio ${challenge.id}...`);
     }
