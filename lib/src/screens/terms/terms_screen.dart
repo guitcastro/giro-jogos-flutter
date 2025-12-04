@@ -16,9 +16,51 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/app_icon.dart';
 import '../../services/terms_service.dart';
+
+class BrazilianPhoneFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.isEmpty) return newValue.copyWith(text: '');
+
+    final buffer = StringBuffer();
+    if (text.isNotEmpty) {
+      buffer.write('(');
+      buffer.write(text.substring(0, text.length >= 2 ? 2 : text.length));
+    }
+    if (text.length >= 3) {
+      buffer.write(') ');
+      if (text.length <= 10) {
+        // Formato: (XX) XXXX-XXXX
+        buffer.write(text.substring(2, text.length >= 6 ? 6 : text.length));
+        if (text.length >= 7) {
+          buffer.write('-');
+          buffer.write(text.substring(6, text.length >= 10 ? 10 : text.length));
+        }
+      } else {
+        // Formato: (XX) XXXXX-XXXX
+        buffer.write(text.substring(2, text.length >= 7 ? 7 : text.length));
+        if (text.length >= 8) {
+          buffer.write('-');
+          buffer.write(text.substring(7, text.length >= 11 ? 11 : text.length));
+        }
+      }
+    }
+
+    final formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
 class TermsScreen extends StatefulWidget {
   final String userId;
@@ -163,6 +205,7 @@ class _TermsScreenState extends State<TermsScreen> {
                             controller: _nameController,
                             decoration: const InputDecoration(
                               labelText: 'Nome do Participante',
+                              border: OutlineInputBorder(),
                             ),
                             validator: (v) => v == null || v.trim().isEmpty
                                 ? 'Informe o nome'
@@ -173,6 +216,7 @@ class _TermsScreenState extends State<TermsScreen> {
                             controller: _documentController,
                             decoration: const InputDecoration(
                               labelText: 'Documento',
+                              border: OutlineInputBorder(),
                             ),
                             validator: (v) => v == null || v.trim().isEmpty
                                 ? 'Informe o documento'
@@ -188,6 +232,7 @@ class _TermsScreenState extends State<TermsScreen> {
                             controller: _emergencyNameController,
                             decoration: const InputDecoration(
                               labelText: 'Nome',
+                              border: OutlineInputBorder(),
                             ),
                             validator: (v) => v == null || v.trim().isEmpty
                                 ? 'Informe o nome do contato de emergência'
@@ -197,11 +242,13 @@ class _TermsScreenState extends State<TermsScreen> {
                           TextFormField(
                             controller: _emergencyPhoneController,
                             decoration: const InputDecoration(
-                              labelText: 'Número',
+                              labelText: 'Telefone',
+                              border: OutlineInputBorder(),
                             ),
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [BrazilianPhoneFormatter()],
                             validator: (v) => v == null || v.trim().isEmpty
-                                ? 'Informe o número do contato de emergência'
+                                ? 'Informe o telefone do contato de emergência'
                                 : null,
                           ),
                           const SizedBox(height: 16),
