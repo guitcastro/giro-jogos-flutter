@@ -123,7 +123,7 @@
   {
     "id": 17,
     "title": "Mentalidade de Grupo",
-    "description": "A dupla deve ir até o Roda Café e os integrantes devem fotografar os arredores procurando pelo maior número de adesivos de grupos de pedal que puder.\n\nA foto deve ser enviada no aplicativo e/ou instagram.\n\nDeve conter o @girorua e dos demais grupos de pedal que estiverem na foto.\n\nConclusão do desafio: 200 pontos.\n\nA cada 5 grupos identificados: 150 pontos.",
+    "description": "A dupla deve ir até o Roda Café e os integrantes devem fotografar os arredores procurando pelo maior número de adesivos de grupos de pedal que puder.\n\nA foto deve ser enviada no aplicativo.\n\nConclusão do desafio: 200 pontos.\n\nA cada 5 grupos identificados: 150 pontos.",
     "order": 17,
     "maxPoints": 350,
     "isActive": true
@@ -131,7 +131,7 @@
   {
     "id": 18,
     "title": "Força Guerreire!!!",
-    "description": "A dupla deve tirar uma foto com um camarada ciclista que estiver trabalhando durante o Giro Jogos.\n\nA foto deve ser enviada no aplicativo e/ou instagram.\n\nDeve conter o @girorua.\n\nConclusão do desafio: 300 pontos.\n\nA cada amigue comprovadamente ciclista: 200 pontos.",
+    "description": "A dupla deve tirar uma foto com um camarada ciclista que estiver trabalhando durante o Giro Jogos.\n\nA foto deve ser enviada no aplicativo.\n\nConclusão do desafio: 300 pontos.\n\nA cada amigue comprovadamente ciclista: 200 pontos.",
     "order": 18,
     "maxPoints": 500,
     "isActive": true
@@ -207,6 +207,22 @@
     "order": 27,
     "maxPoints": 300,
     "isActive": true
-  }  
+  },
+  {
+    "id": 28,
+    "title": "Desafio Multimodal",
+    "description": "Use bicicleta + outro modal de transporte público (ônibus com suporte ou metrô) e registre.\n\nNo horário dos jogos (sábado após 14h), bikes normais são permitidas no MOVE com suporte e no metrô.\n\nBikes dobráveis (aro ≤ 20\") são sempre permitidas, desde que dobradas.\n\nFoto dentro do modal com a bicicleta.\n\nDeve ser feito no dia 06/12.\n\nÔnibus com suporte: 300 pontos.\n\nMetrô: 300 pontos.\n\nAmbos modais: 600 pontos.",
+    "order": 28,
+    "maxPoints": 600,
+    "isActive": true
+  },
+  {
+    "id": 29,
+    "title": "Acima de nóis só Deus e a roda da frente",
+    "description": "Um ou ambas as pessoas integrantes da dupla devem dar grau (empinar) com a bicicleta por pelo menos 5 segundos.\n\nRespeite seu corpo e só faça se você já tem domínio da técnica.\n\nVídeo do grau.\n\nEscolha local seguro, sem trânsito e pedestres.\n\nSegurança em primeiro lugar.\n\n1 integrante (5 a 10 segundos): 150 pontos.\n\n1 integrante (10 a 20 segundos): 250 pontos.\n\n1 integrante (20+ segundos): 400 pontos.\n\nAmbos integrantes (mínimo 5 segundos cada): 300 pontos.\n\nAmbos dão grau por 20+ segundos cada: 700 pontos.",
+    "order": 29,
+    "maxPoints": 700,
+    "isActive": true
+  }    
   ]
 }

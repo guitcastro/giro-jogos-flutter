@@ -204,7 +204,7 @@ class _TermsScreenState extends State<TermsScreen> {
                           TextFormField(
                             controller: _nameController,
                             decoration: const InputDecoration(
-                              labelText: 'Nome do Participante',
+                              labelText: 'Seu nome completo',
                               border: OutlineInputBorder(),
                             ),
                             validator: (v) => v == null || v.trim().isEmpty

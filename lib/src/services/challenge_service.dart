@@ -29,7 +29,6 @@ import '../models/leaderboard_entry.dart';
 
 class ChallengeService {
   final FirebaseFirestore _firestore;
-  static const int _totalChallenges = 27;
   // Optional MediaUploadService - injected for tests to avoid initializing
   // Firebase during unit tests. If null, a real MediaUploadService will be
   // created lazily when needed.
@@ -98,10 +97,26 @@ class ChallengeService {
         .collection('challenges')
         .where('isActive', isEqualTo: true)
         .snapshots()
-        .map((snapshot) => _processChallenges(snapshot))
+        .asyncMap((snapshot) async => await _processChallenges(snapshot))
         .handleError((error) {
       throw error;
     });
+  }
+
+  /// Busca o total de desafios configurado no Firestore
+  Future<int> _getTotalChallenges() async {
+    try {
+      final doc =
+          await _firestore.collection('settings').doc('challenges').get();
+      if (doc.exists && doc.data()?['totalChallenges'] is int) {
+        return doc.data()!['totalChallenges'] as int;
+      }
+      // Valor padrão se não existir no Firestore
+      return 27;
+    } catch (e) {
+      debugPrint('[ChallengeService] Error fetching totalChallenges: $e');
+      return 27;
+    }
   }
 
   /// Scores API
@@ -219,7 +234,7 @@ class ChallengeService {
     });
   }
 
-  List<Challenge> _processChallenges(QuerySnapshot snapshot) {
+  Future<List<Challenge>> _processChallenges(QuerySnapshot snapshot) async {
     final activeChallenges = <Challenge>[];
     final activeIds = <int>{};
 
@@ -234,9 +249,12 @@ class ChallengeService {
     // Ordena os desafios ativos por ID (que corresponde à order)
     activeChallenges.sort((a, b) => int.parse(a.id).compareTo(int.parse(b.id)));
 
+    // Busca o total de desafios do Firestore
+    final totalChallenges = await _getTotalChallenges();
+
     // Cria lista completa com placeholders para desafios inativos
     final allChallenges = <Challenge>[];
-    for (int i = 1; i <= _totalChallenges; i++) {
+    for (int i = 1; i <= totalChallenges; i++) {
       if (activeIds.contains(i)) {
         // Adiciona o desafio ativo
         final activeChallenge =
