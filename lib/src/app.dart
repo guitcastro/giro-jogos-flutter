@@ -32,11 +32,13 @@ class GiroJogosApp extends StatelessWidget {
   final DuoService? duoService;
   final ChallengeService? challengeService;
   final MediaUploadService? mediaUploadService;
+  final TermsService? termsService;
   const GiroJogosApp({
     super.key,
     this.duoService,
     this.challengeService,
     this.mediaUploadService,
+    this.termsService,
   });
 
   @override
@@ -48,7 +50,8 @@ class GiroJogosApp extends StatelessWidget {
             value: challengeService ?? ChallengeService()),
         Provider<MediaUploadService>.value(
             value: mediaUploadService ?? MediaUploadService()),
-        Provider<TermsService>.value(value: TermsService()),
+        Provider<TermsService>.value(
+            value: termsService ?? FirestoreTermsService()),
         ChangeNotifierProvider(create: (_) => JoinDuoParams()),
       ],
       child: MaterialApp.router(

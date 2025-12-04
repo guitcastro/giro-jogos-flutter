@@ -145,15 +145,13 @@ class _TermsScreenState extends State<TermsScreen> {
                     child: SingleChildScrollView(
                       child: Text(
                         'Eu, abaixo identificado(a), no perfeito uso de minhas faculdades e de livre espontânea vontade, sendo maior de idade e capaz, DECLARO para os devidos fins de direito que:\n\n'
-                                'Minha inscrição para o Giro Jogos 2025 é por livre e espontânea vontade nesta data, na qualidade de participante;\n\n'
-                                'Assumo o compromisso de não participar do pedal se estiver medicamente incapacitado(a), mal treinado(a) ou indisposto(a), sob efeito do uso de drogas lícitas e/ou ilícitas, assumindo, como de minha inteira responsabilidade, todos os riscos associados a este evento, inclusive, mas não somente, os riscos decorrentes de mau tempo, quedas, acidentes e contato com outros ciclistas, voluntários ou espectadores;\n\n'
-                                'Como participante do Giro Jogos 2025, comprometo-me a respeitar a legislação vigente, seja ela municipal, estadual ou federal, assumindo toda e qualquer consequência de meus atos no período de duração da atividade, bem como os atos individuais que antecedem e sucedem e que possam se relacionar com as atividades do Giro Jogos 2025 no percurso;\n\n'
-                                'Isento a organização, colaboradores e patrocinadores de qualquer responsabilidade civil ou criminal por acidentes, danos ou prejuízos decorrentes da minha participação;\n\n'
-                                'A pessoa indicada no contato de emergência indicado está ciente da minha participação no Giro Jogo 2025, não está inscrita como participante do do Giro Jogos 2025 e está disponível para ser acionada caso seja necessário;\n\n'
-                                'USO DA IMAGEM: Autorizo o uso e divulgação de minha imagem e voz, seja através de fotos, filmes e entrevistas para veiculação em rádios, jornais, revistas, televisão, internet, e demais mídias para fins informativos, promocionais ou publicitários, sem acarretar ônus à organização, patrocinadores ou aos próprios meios de veiculação.\n\n'
-                                'Belo Horizonte - MG, ' +
-                            todayStr +
-                            '.',
+                        'Minha inscrição para o Giro Jogos 2025 é por livre e espontânea vontade nesta data, na qualidade de participante;\n\n'
+                        'Assumo o compromisso de não participar do pedal se estiver medicamente incapacitado(a), mal treinado(a) ou indisposto(a), sob efeito do uso de drogas lícitas e/ou ilícitas, assumindo, como de minha inteira responsabilidade, todos os riscos associados a este evento, inclusive, mas não somente, os riscos decorrentes de mau tempo, quedas, acidentes e contato com outros ciclistas, voluntários ou espectadores;\n\n'
+                        'Como participante do Giro Jogos 2025, comprometo-me a respeitar a legislação vigente, seja ela municipal, estadual ou federal, assumindo toda e qualquer consequência de meus atos no período de duração da atividade, bem como os atos individuais que antecedem e sucedem e que possam se relacionar com as atividades do Giro Jogos 2025 no percurso;\n\n'
+                        'Isento a organização, colaboradores e patrocinadores de qualquer responsabilidade civil ou criminal por acidentes, danos ou prejuízos decorrentes da minha participação;\n\n'
+                        'A pessoa indicada no contato de emergência indicado está ciente da minha participação no Giro Jogo 2025, não está inscrita como participante do do Giro Jogos 2025 e está disponível para ser acionada caso seja necessário;\n\n'
+                        'USO DA IMAGEM: Autorizo o uso e divulgação de minha imagem e voz, seja através de fotos, filmes e entrevistas para veiculação em rádios, jornais, revistas, televisão, internet, e demais mídias para fins informativos, promocionais ou publicitários, sem acarretar ônus à organização, patrocinadores ou aos próprios meios de veiculação.\n\n'
+                        'Belo Horizonte - MG, $todayStr.',
                       ),
                     ),
                   ),

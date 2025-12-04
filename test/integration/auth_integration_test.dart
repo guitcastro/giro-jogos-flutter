@@ -21,10 +21,13 @@ import 'package:provider/provider.dart';
 import 'package:giro_jogos/src/app.dart';
 import 'package:giro_jogos/src/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import '../test_helpers.dart';
 import '../fakes/fake_challenge_service.dart';
 import '../fakes/fake_duo_service.dart';
 import '../fakes/fake_media_upload_service.dart';
+import '../fakes/fake_terms_service.dart';
+import 'package:giro_jogos/src/services/terms_service.dart';
 
 // Fake AuthService for integration testing (completely independent of Firebase)
 class FakeAuthService extends ChangeNotifier implements AuthService {
@@ -43,6 +46,7 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   bool _isAuthenticated = false;
   String? _lastEmail;
   String? _lastPassword;
+  User? _mockUser;
 
   @override
   bool get isAuthenticated => _isAuthenticated;
@@ -51,7 +55,7 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   bool get isAdmin => false;
 
   @override
-  User? get currentUser => null;
+  User? get currentUser => _mockUser;
 
   @override
   Future<UserCredential?> signInWithEmailAndPassword(
@@ -62,6 +66,11 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
     // Simulate successful login
     if (email == 'test@example.com' && password == 'password123') {
       _isAuthenticated = true;
+      _mockUser = MockUser(
+        uid: 'test-user-id',
+        email: email,
+        displayName: 'Test User',
+      );
       notifyListeners();
       return null; // Normally would return UserCredential
     }
@@ -81,6 +90,11 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
 
     // Simulate successful signup
     _isAuthenticated = true;
+    _mockUser = MockUser(
+      uid: 'test-user-id',
+      email: email,
+      displayName: 'Test User',
+    );
     notifyListeners();
     return null;
   }
@@ -89,6 +103,11 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   Future<UserCredential?> signInWithGoogle() async {
     // Simulate successful Google login
     _isAuthenticated = true;
+    _mockUser = MockUser(
+      uid: 'test-user-id',
+      email: 'test@google.com',
+      displayName: 'Google User',
+    );
     notifyListeners();
     return null;
   }
@@ -97,6 +116,11 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   Future<UserCredential?> signInWithApple() async {
     // Simulate successful Apple login
     _isAuthenticated = true;
+    _mockUser = MockUser(
+      uid: 'test-user-id',
+      email: 'test@apple.com',
+      displayName: 'Apple User',
+    );
     notifyListeners();
     return null;
   }
@@ -104,6 +128,7 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   @override
   Future<void> signOut() async {
     _isAuthenticated = false;
+    _mockUser = null;
     notifyListeners();
   }
 
@@ -125,12 +150,17 @@ void main() {
     });
 
     Widget createApp() {
-      return ChangeNotifierProvider<AuthService>.value(
-        value: fakeAuthService,
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthService>.value(value: fakeAuthService),
+          Provider<TermsService>.value(
+              value: FakeTermsService(acceptedInitially: true)),
+        ],
         child: GiroJogosApp(
           duoService: FakeDuoService(),
           challengeService: const FakeChallengeService(),
           mediaUploadService: const FakeMediaUploadService(),
+          termsService: FakeTermsService(acceptedInitially: true),
         ),
       );
     }
@@ -200,6 +230,11 @@ void main() {
       setLargerScreenSize(tester);
       // Start with authenticated user
       fakeAuthService._isAuthenticated = true;
+      fakeAuthService._mockUser = MockUser(
+        uid: 'test-user-id',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      );
 
       await tester.pumpWidget(createApp());
       await tester.pumpAndSettle();

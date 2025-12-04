@@ -17,28 +17,45 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TermsService {
+class TermsAcceptance {
+  final String year;
+  final String name;
+  final String document;
+  final String emergencyName;
+  final String emergencyPhone;
+  final DateTime? acceptedAt;
+
+  const TermsAcceptance({
+    required this.year,
+    required this.name,
+    required this.document,
+    required this.emergencyName,
+    required this.emergencyPhone,
+    this.acceptedAt,
+  });
+
+  factory TermsAcceptance.fromFirestore(Map<String, dynamic> data) {
+    return TermsAcceptance(
+      year: data['year'] as String,
+      name: data['name'] as String,
+      document: data['document'] as String,
+      emergencyName: data['emergencyName'] as String,
+      emergencyPhone: data['emergencyPhone'] as String,
+      acceptedAt: (data['acceptedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+}
+
+/// Abstract interface for terms acceptance service.
+abstract class TermsService {
   static const String termsYear = '2025';
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  DocumentReference<Map<String, dynamic>> _docRef(
+  Stream<TermsAcceptance?> termsStream(
     String uid, {
     String year = termsYear,
-  }) {
-    return _db.collection('users').doc(uid).collection('terms').doc(year);
-  }
+  });
 
-  Stream<DocumentSnapshot<Map<String, dynamic>>> termsDocStream(
-    String uid, {
-    String year = termsYear,
-  }) {
-    return _docRef(uid, year: year).snapshots();
-  }
-
-  Future<bool> hasAccepted(String uid, {String year = termsYear}) async {
-    final snap = await _docRef(uid, year: year).get();
-    return snap.exists;
-  }
+  Future<bool> hasAccepted(String uid, {String year = termsYear});
 
   Future<void> acceptTerms({
     required String uid,
@@ -47,6 +64,48 @@ class TermsService {
     required String emergencyName,
     required String emergencyPhone,
     String year = termsYear,
+  });
+}
+
+/// Firestore implementation of TermsService.
+class FirestoreTermsService implements TermsService {
+  DocumentReference<Map<String, dynamic>> _docRef(
+    String uid, {
+    String year = TermsService.termsYear,
+  }) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('terms')
+        .doc(year);
+  }
+
+  @override
+  Stream<TermsAcceptance?> termsStream(
+    String uid, {
+    String year = TermsService.termsYear,
+  }) {
+    return _docRef(uid, year: year).snapshots().map((snap) {
+      if (!snap.exists || snap.data() == null) return null;
+      return TermsAcceptance.fromFirestore(snap.data()!);
+    });
+  }
+
+  @override
+  Future<bool> hasAccepted(String uid,
+      {String year = TermsService.termsYear}) async {
+    final snap = await _docRef(uid, year: year).get();
+    return snap.exists;
+  }
+
+  @override
+  Future<void> acceptTerms({
+    required String uid,
+    required String name,
+    required String document,
+    required String emergencyName,
+    required String emergencyPhone,
+    String year = TermsService.termsYear,
   }) async {
     final ref = _docRef(uid, year: year);
     await ref.set({

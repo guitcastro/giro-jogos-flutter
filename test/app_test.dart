@@ -28,6 +28,8 @@ import 'fakes/fake_challenge_service.dart';
 import 'fakes/fake_media_upload_service.dart';
 import 'package:giro_jogos/src/services/join_duo_params.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'fakes/fake_terms_service.dart';
+import 'package:giro_jogos/src/services/terms_service.dart';
 
 void main() {
   setUpAll(() async {
@@ -55,11 +57,14 @@ void main() {
             ),
             ChangeNotifierProvider<JoinDuoParams>(
                 create: (_) => JoinDuoParams()),
+            Provider<TermsService>.value(
+                value: FakeTermsService(acceptedInitially: true)),
           ],
           child: GiroJogosApp(
             duoService: fakeDuoService,
             challengeService: const FakeChallengeService(),
             mediaUploadService: const FakeMediaUploadService(),
+            termsService: FakeTermsService(acceptedInitially: true),
           ),
         ),
       );
@@ -98,11 +103,14 @@ void main() {
             ),
             ChangeNotifierProvider<JoinDuoParams>(
                 create: (_) => JoinDuoParams()),
+            Provider<TermsService>.value(
+                value: FakeTermsService(acceptedInitially: false)),
           ],
           child: GiroJogosApp(
             duoService: fakeDuoService,
             challengeService: const FakeChallengeService(),
             mediaUploadService: const FakeMediaUploadService(),
+            termsService: FakeTermsService(acceptedInitially: false),
           ),
         ),
       );

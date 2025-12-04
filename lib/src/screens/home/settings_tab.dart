@@ -311,14 +311,14 @@ class SettingsTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Versão: 1.0.0'),
+              const Text('Versão: 1.0.0-beta'),
               const SizedBox(height: 8),
               const Text(
-                'A plataforma definitiva para gamers encontrarem seus parceiros de jogo e formarem equipes incríveis.',
+                'Aplicativo Open Source co-criado com o IA.',
               ),
               const SizedBox(height: 16),
               Text(
-                'Desenvolvido com ❤️ usando Flutter',
+                'Código disponível em: https://github.com/guitcastro/giro-jogos-flutter',
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
