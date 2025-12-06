@@ -42,8 +42,35 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pointsCtrl = TextEditingController();
   final _commentCtrl = TextEditingController();
-  int _totalPoints = 0;
+  Challenge? _challenge;
   bool _saving = false;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChallenge();
+  }
+
+  Future<void> _loadChallenge() async {
+    final challengeService =
+        Provider.of<ChallengeService>(context, listen: false);
+    final challenge =
+        await challengeService.getChallengeById(int.parse(widget.challengeId));
+    if (mounted) {
+      setState(() {
+        _challenge = challenge;
+      });
+    }
+  }
+
+  void _initializeControllers(ChallengeScore? score) {
+    if (!_initialized && score != null) {
+      _pointsCtrl.text = score.points.toString();
+      _commentCtrl.text = score.comment ?? '';
+      _initialized = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -54,44 +81,34 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final challengeService = Provider.of<ChallengeService>(context);
+    final challengeService =
+        Provider.of<ChallengeService>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pontuação do desafio'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: StreamBuilder<ChallengeScore?>(
-          stream: challengeService.getScoreStream(
-            duoId: widget.duoId,
-            challengeId: widget.challengeId,
-          ),
-          builder: (context, scoreSnap) {
-            if (scoreSnap.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return FutureBuilder<Challenge?>(
-              future: challengeService
-                  .getChallengeById(int.parse(widget.challengeId)),
-              builder: (context, challengeSnap) {
-                if (challengeSnap.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final challenge = challengeSnap.data;
-                _totalPoints = challenge?.maxPoints ?? 0;
+      body: _challenge == null
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: StreamBuilder<ChallengeScore?>(
+                stream: challengeService.getScoreStream(
+                  duoId: widget.duoId,
+                  challengeId: widget.challengeId,
+                ),
+                builder: (context, scoreSnap) {
+                  if (scoreSnap.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                final existing = scoreSnap.data;
-                if (existing != null && _pointsCtrl.text.isEmpty) {
-                  _pointsCtrl.text = existing.points.toString();
-                  _commentCtrl.text = existing.comment ?? '';
-                }
+                  final existing = scoreSnap.data;
+                  _initializeControllers(existing);
 
-                return Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (challenge != null) ...[
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Card(
                           color: Theme.of(context)
                               .colorScheme
@@ -102,13 +119,13 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  challenge.title,
+                                  _challenge!.title,
                                   style:
                                       Theme.of(context).textTheme.titleMedium,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  challenge.description,
+                                  _challenge!.description,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
@@ -116,99 +133,97 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                      ],
-                      Row(
-                        children: [
-                          const Icon(Symbols.star, color: Colors.amber),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Pontos totais do desafio: $_totalPoints',
-                            style: Theme.of(context).textTheme.titleMedium,
+                        Row(
+                          children: [
+                            const Icon(Symbols.star, color: Colors.amber),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Pontos totais do desafio: ${_challenge!.maxPoints}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _pointsCtrl,
+                          keyboardType: TextInputType.number,
+                          enabled: !_saving,
+                          decoration: const InputDecoration(
+                            labelText: 'Pontos atribuídos',
+                            hintText: 'Quantos pontos deseja atribuir?',
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _pointsCtrl,
-                        keyboardType: TextInputType.number,
-                        enabled: !_saving,
-                        decoration: const InputDecoration(
-                          labelText: 'Pontos atribuídos',
-                          hintText: 'Quantos pontos deseja atribuir?',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Informe os pontos atribuídos';
+                            }
+                            final parsed = int.tryParse(value.trim());
+                            if (parsed == null) {
+                              return 'Informe um número válido';
+                            }
+                            if (parsed < 0 || parsed > _challenge!.maxPoints) {
+                              return 'Deve estar entre 0 e ${_challenge!.maxPoints}';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Informe os pontos atribuídos';
-                          }
-                          final parsed = int.tryParse(value.trim());
-                          if (parsed == null) {
-                            return 'Informe um número válido';
-                          }
-                          if (parsed < 0 || parsed > _totalPoints) {
-                            return 'Deve estar entre 0 e $_totalPoints';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _commentCtrl,
-                        maxLines: 3,
-                        enabled: !_saving,
-                        decoration: const InputDecoration(
-                          labelText: 'Comentário (opcional)',
-                          hintText: 'Adicione um comentário para a dupla',
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _commentCtrl,
+                          maxLines: 3,
+                          enabled: !_saving,
+                          decoration: const InputDecoration(
+                            labelText: 'Comentário (opcional)',
+                            hintText: 'Adicione um comentário para a dupla',
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: _saving
-                              ? null
-                              : () async {
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
-                                  setState(() => _saving = true);
-                                  try {
-                                    final navigator = Navigator.of(context);
-                                    final points =
-                                        int.parse(_pointsCtrl.text.trim());
-                                    // TODO: replace with real admin uid from auth service if available
-                                    final adminUid = 'admin';
-                                    await challengeService.setScore(
-                                      duoId: widget.duoId,
-                                      challengeId: widget.challengeId,
-                                      points: points,
-                                      totalPoints: _totalPoints,
-                                      comment: _commentCtrl.text.trim().isEmpty
-                                          ? null
-                                          : _commentCtrl.text.trim(),
-                                      updatedByUid: adminUid,
-                                    );
-                                    if (mounted) {
-                                      navigator.pop(true);
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: _saving
+                                ? null
+                                : () async {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
                                     }
-                                  } finally {
-                                    if (mounted) {
-                                      setState(() => _saving = false);
+                                    setState(() => _saving = true);
+                                    try {
+                                      final navigator = Navigator.of(context);
+                                      final points =
+                                          int.parse(_pointsCtrl.text.trim());
+                                      // TODO: replace with real admin uid from auth service if available
+                                      const adminUid = 'admin';
+                                      await challengeService.setScore(
+                                        duoId: widget.duoId,
+                                        challengeId: widget.challengeId,
+                                        points: points,
+                                        totalPoints: _challenge!.maxPoints,
+                                        comment:
+                                            _commentCtrl.text.trim().isEmpty
+                                                ? null
+                                                : _commentCtrl.text.trim(),
+                                        updatedByUid: adminUid,
+                                      );
+                                      if (mounted) {
+                                        navigator.pop(true);
+                                      }
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => _saving = false);
+                                      }
                                     }
-                                  }
-                                },
-                          child: Text(existing == null
-                              ? 'Salvar pontuação'
-                              : 'Atualizar pontuação'),
+                                  },
+                            child: Text(existing == null
+                                ? 'Salvar pontuação'
+                                : 'Atualizar pontuação'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

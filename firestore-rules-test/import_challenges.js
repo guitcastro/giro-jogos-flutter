@@ -34,18 +34,19 @@ const db = admin.firestore();
 async function importChallenges() {
   try {
     const batch = db.batch();
-    
+    let count = 1;
     for (const challenge of challengesData.challenges) {      
-      const docRef = db.collection('challenges').doc(String(challenge.id));
+      const docRef = db.collection('challenges').doc(String(count));
+      const randomAdjustment = Math.floor(Math.random() * 201) - 100; // -100 a +100
       batch.set(docRef, {
-        id: challenge.id,
+        id: count++,
         title: challenge.title,
         description: challenge.description,
         order: challenge.order,
-        maxPoints: challenge.maxPoints,
+        maxPoints: challenge.maxPoints + randomAdjustment,
         isActive: true
       });
-      console.log(`Preparando desafio ${challenge.id}...`);
+      console.log(`Preparando desafio ${count}...`);
     }
     
     await batch.commit();
